@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  description: "A blog about tech, programming, and life."
+  site-url: https://blog.risheekkumar.in # you must change this appropriately for RSS feeds to work properly
+  title: "Risheek's blog"
+  navbar:
+    right:
+      - about.qmd
+      - icon: linkedin
+        href: https://www.linkedin.com/in/risheekkumar-baskaran-748115120/
+      - icon: github
+        href: https://github.com/risheekkumarb
+      - icon: twitter
+        href: https://x.com/BRisheek
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+
+
+
