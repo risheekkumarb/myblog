@@ -1,5 +1,5 @@
 ---
-title: "Blog"
+title: "Blog - I share my view on different topics"
 listing:
   contents: posts
   feed: true
