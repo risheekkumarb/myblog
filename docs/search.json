@@ -11,7 +11,7 @@
     "href": "posts/itches/itches.html",
     "title": "fastai example",
     "section": "",
-    "text": "from fastai.vision.all import *\n\n\npath = untar_data(URLs.PETS)/'images'\n\n\nimg = path.ls()[0]\nimg\n\nPath('/Users/risheekkumar/.fastai/data/oxford-iiit-pet/images/Egyptian_Mau_167.jpg')\n\n\n\nimg = PILImage.create(img)\nimg\n\n\n\n\n\n\n\n\n\nimg.to_thumb(192)"
+    "text": "Importing Dataset\n\nfrom fastai.vision.all import *\n\n\npath = untar_data(URLs.PETS)/'images'\n\n\nimg = path.ls()[0]\nimg\n\nPath('/Users/risheekkumar/.fastai/data/oxford-iiit-pet/images/Egyptian_Mau_167.jpg')\n\n\n\nimg = PILImage.create(img)\nimg\n\n\n\n\n\n\n\n\n\nimg.to_thumb(192)"
   },
   {
     "objectID": "posts/post-with-code/index.html",

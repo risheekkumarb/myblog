@@ -43,6 +43,8 @@
 
 
 
+<section id="importing-dataset" class="level1">
+<h1>Importing Dataset</h1>
 <div id="b16fd19d-c1d2-4849-a338-f40d9354b24b" class="cell" data-execution_count="1">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
@@ -82,7 +84,7 @@ font-style: inherit;">=</span> PILImage.create(img)</span>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/itches/itches_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="https://blog.risheekkumar.in/posts/itches/itches_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
@@ -94,13 +96,14 @@ font-style: inherit;">192</span>)</span></code></pre></div></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/itches/itches_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="https://blog.risheekkumar.in/posts/itches/itches_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 </div>
 
 
+</section>
 
  ]]></description>
   <category>news</category>
