@@ -34,6 +34,83 @@
   <media:content url="https://blog.risheekkumar.in/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
+  <title>fastai example</title>
+  <dc:creator>Risheek </dc:creator>
+  <link>https://blog.risheekkumar.in/posts/itches/itches.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<div id="b16fd19d-c1d2-4849-a338-f40d9354b24b" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> fastai.vision.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">all</span> <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span></span></code></pre></div></div>
+</div>
+<div id="e7394949-4692-4be7-811e-2d077b56bba5" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1">path <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> untar_data(URLs.PETS)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'images'</span></span></code></pre></div></div>
+</div>
+<div id="3263df80-e861-473b-a5b0-50e341824324" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> path.ls()[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb3-2">img</span></code></pre></div></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>Path('/Users/risheekkumar/.fastai/data/oxford-iiit-pet/images/Egyptian_Mau_167.jpg')</code></pre>
+</div>
+</div>
+<div id="54941cc7-e248-4daa-9d5c-427fff9f608f" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1">img <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> PILImage.create(img)</span>
+<span id="cb5-2">img</span></code></pre></div></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+<figure class="figure">
+<p><img src="https://blog.risheekkumar.in/posts/itches/itches_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="e4387517-2ee9-45b6-9af9-95b5c86f1e60" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1">img.to_thumb(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">192</span>)</span></code></pre></div></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<div>
+<figure class="figure">
+<p><img src="https://blog.risheekkumar.in/posts/itches/itches_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+
+ ]]></description>
+  <category>news</category>
+  <category>code</category>
+  <category>analysis</category>
+  <guid>https://blog.risheekkumar.in/posts/itches/itches.html</guid>
+  <pubDate>Sat, 29 Nov 2025 18:30:00 GMT</pubDate>
+  <media:content url="https://blog.risheekkumar.in/posts/itches/image.jpg" medium="image" type="image/jpeg"/>
+</item>
+<item>
   <title>Welcome To My Blog</title>
   <dc:creator>Tristan O&#39;Malley</dc:creator>
   <link>https://blog.risheekkumar.in/posts/welcome/</link>
