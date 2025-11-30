@@ -30,8 +30,15 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Blog - I share my view on different topics",
+    "title": "Hi I am Risheekkumar, Applied Scientist",
     "section": "",
-    "text": "Post With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nNov 30, 2025\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nfastai example\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\nA brief intro to fastai using the PETS dataset\n\n\n\n\n\nNov 30, 2025\n\n\nRisheek\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nNov 27, 2025\n\n\nTristan O’Malley\n\n\n\n\n\nNo matching items"
+    "text": "Write and speak about AI-powered product, engineering and evals.\nPrototype apps like VLM Self-healing Agent; GEPA reimplementation"
+  },
+  {
+    "objectID": "index.html#blog",
+    "href": "index.html#blog",
+    "title": "Hi I am Risheekkumar, Applied Scientist",
+    "section": "Blog",
+    "text": "Blog"
   }
 ]

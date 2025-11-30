@@ -5,7 +5,7 @@ project:
 website:
   description: "A blog about tech, programming, and life."
   site-url: https://blog.risheekkumar.in # you must change this appropriately for RSS feeds to work properly
-  title: "Risheek's blog"
+  title: "Risheekkumar Baskaran"
   navbar:
     right:
       - about.qmd
