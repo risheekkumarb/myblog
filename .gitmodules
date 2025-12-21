@@ -1,0 +1,3 @@
+[submodule "posts/gepa-deepdive"]
+	path = posts/gepa-deepdive
+	url = git@github-brk:risheekkumarb/gepa-deepdive.git

@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: docs
+  resources: 
+    - "!posts/gepa-deepdive/.git"
+    - "!posts/gepa-deepdive/.gitignore"
 
 website:
   description: "A blog about tech, programming, and life."
@@ -22,5 +25,8 @@ format:
       - brand
     css: styles.css
 
+execute:
+  freeze: auto
+  
 
 
