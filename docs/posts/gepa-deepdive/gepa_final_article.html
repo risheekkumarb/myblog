@@ -358,7 +358,14 @@ window.Quarto = {
 <p><a href="https://arxiv.org/abs/2406.11695">MiPRO</a> recognized that instructions and demonstrations interact—the <em>same</em> instruction performs differently with different example sets. The best instruction with bad demos might score worse than a mediocre instruction with perfect demos.</p>
 <p><strong>The search space problem</strong>: Say you have 10 candidate instructions and 5 possible demo sets. That’s 50 combinations. Now add instruction variants (“Be concise” vs “Be brief” vs “Answer in one sentence”)—suddenly you have hundreds of candidates. Each full evaluation means running your pipeline on your entire dev set. At $0.10 per run with 100 dev examples, evaluating all 500 combinations costs $5,000. Not feasible.</p>
 <p><strong>MiPRO’s solution: a cheap surrogate model</strong>. Instead of running the full pipeline, MiPRO trains a small predictor (think: logistic regression) on the evaluations you <em>have</em> run. The predictor learns patterns like “instructions mentioning ‘step-by-step’ tend to score higher” or “demos with longer reasoning traces correlate with better performance.”</p>
-<p>The workflow: 1. <strong>Bootstrap</strong>: Run a small random sample of combinations (say, 30 out of 500) 2. <strong>Train surrogate</strong>: Fit the predictor on those 30 (instruction, demos) → score pairs 3. <strong>Predict cheaply</strong>: Score all 500 combinations using the surrogate (milliseconds, not dollars) 4. <strong>Evaluate selectively</strong>: Only run full evaluation on the top-predicted candidates 5. <strong>Repeat</strong>: Add new results to training data, retrain surrogate, sample again</p>
+<p>The workflow:</p>
+<ol type="1">
+<li><strong>Bootstrap</strong>: Run a small random sample of combinations (say, 30 out of 500)</li>
+<li><strong>Train surrogate</strong>: Fit the predictor on those 30 (instruction, demos) → score pairs</li>
+<li><strong>Predict cheaply</strong>: Score all 500 combinations using the surrogate (milliseconds, not dollars)</li>
+<li><strong>Evaluate selectively</strong>: Only run full evaluation on the top-predicted candidates</li>
+<li><strong>Repeat</strong>: Add new results to training data, retrain surrogate, sample again</li>
+</ol>
 <p><strong>Example</strong>: After 30 random evaluations, the surrogate learns: - Instructions with “step-by-step” → +0.08 average - Demo set B (which has chain-of-thought examples) → +0.05 average - Combining both → predicted 0.79</p>
 <p>MiPRO focuses budget on high-predicted combinations rather than exhaustive search.</p>
 <p><strong>Limitation</strong>: The surrogate learns <em>correlations</em>, not <em>causation</em>. It knows “step-by-step instructions score higher” but not <em>why</em>—maybe they help on math problems but hurt on simple lookups. And MiPRO optimizes for aggregate score: a prompt that’s 0.75 on everything beats one that’s 0.95 on hard cases but 0.60 overall—even though that hard-case specialist might contain crucial insights.</p>
