@@ -1,6 +1,6 @@
 ---
 title: "Hi I am Risheekkumar, Applied Scientist"
-subtitle: "I build AI systems and AI-powered experiences that serve customers at scale. Currently, I'm an Applied Scientist at American Express. Outside of work, I like playing chess."
+subtitle: "I build AI systems and AI-powered experiences that serve customers at scale. Currently, I'm an Data Scientist at American . I Write about AI-powered product, engineering and evals.. Outside of work, I like playing chess."
 listing:
   contents: posts
   feed: true
@@ -13,11 +13,5 @@ page-layout: full
 title-block-banner: true
 ---
 
-* **Write** and **speak** about AI-powered product, engineering and evals.
-* Prototype apps like [VLM Self-healing Agent](https://docs.fast.ai); [GEPA reimplementation](https://nbdev.fast.ai)
-
----
-
 ## Blog
 
----

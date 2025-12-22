@@ -33,19 +33,5 @@
     "title": "GEPA Deepdive",
     "section": "Conclusion: When to Reach for GEPA",
     "text": "Conclusion: When to Reach for GEPA\nWe opened with a familiar bind: 50 labeled examples, a prompt that works 70% of the time, and no scalable path forward. GEPA changes that calculus—matching RL’s optimization performance at a fraction of the sample cost by doing something RL can’t: reading the feedback.\nThe results speak for themselves: 46.6% → 56.6% on AIME math competition problems. 67% → 93% on MATH benchmark. CUDA kernels that outperform human-written PyTorch baselines. All achieved through prompt optimization alone, no fine-tuning required.\nThis represents a genuinely new point in the optimization design space—one that becomes viable as LLMs get better at self-reflection. Where RL needs thousands of trajectories to statistically isolate what went wrong, GEPA reads the compiler error and proposes the fix. That’s not incremental improvement—it’s a 100x reduction in sample requirements.\n\n\nUse GEPA for Train-Then-Generalize When:\n\nYou have rich textual feedback (compiler errors, profiler output, LLM-as-judge rubrics, expert solutions)\nYour evaluation budget is limited (50-500 examples, not 5,000)\nYou’re optimizing compound AI systems where prompts orchestrate multi-step pipelines\nYou need interpretable results—prompts you can read, edit, and reason about\n\n\n\nUse GEPA for Test-Time Search When:\n\nYou have a batch of high-value tasks worth the compute investment\nEach task produces execution feedback (tests, profilers, validators)\nTasks are related enough for cross-task transfer to help\n\n\n\nStick with Traditional Approaches When:\n\nYou have abundant labeled data and compute budget for fine-tuning\nFeedback is purely scalar with no explanatory signal\nThe task is already solved by few-shot prompting\nYou need sub-second latency\n\n\n\n\nGet Started\nReady to try GEPA on your own pipelines?\n\nGEPA for AIME Tutorial — Complete walkthrough from setup to optimized results\nGEPA API Reference — Full parameter documentation\nPaper — Algorithm details and experimental methodology\n\nThe core insight is simple: your LLM pipelines already produce rich textual feedback. GEPA just reads it—and learns."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Hi I am Risheekkumar, Applied Scientist",
-    "section": "",
-    "text": "Write and speak about AI-powered product, engineering and evals.\nPrototype apps like VLM Self-healing Agent; GEPA reimplementation"
-  },
-  {
-    "objectID": "index.html#blog",
-    "href": "index.html#blog",
-    "title": "Hi I am Risheekkumar, Applied Scientist",
-    "section": "Blog",
-    "text": "Blog"
   }
 ]
