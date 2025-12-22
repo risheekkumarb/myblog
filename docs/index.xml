@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>Risheekkumar Baskaran</title>
-<link>https://blog.risheekkumar.in/</link>
-<atom:link href="https://blog.risheekkumar.in/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://risheekkumar.in/</link>
+<atom:link href="https://risheekkumar.in/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog about tech, programming, and life.</description>
 <generator>quarto-1.8.26</generator>
 <lastBuildDate>Sat, 20 Dec 2025 18:30:00 GMT</lastBuildDate>
 <item>
   <title>GEPA Deepdive</title>
   <dc:creator>Risheek kumar B</dc:creator>
-  <link>https://blog.risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html</link>
+  <link>https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html</link>
   <description><![CDATA[ 
 
 
@@ -128,7 +128,7 @@
 <p>To understand where GEPA fits, it helps to trace the lineage of prompt optimizers. Each generation solved a limitation of its predecessor—and GEPA represents the latest capability unlock.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/gepa-deepdive/static/optimizer evolution.webp" class="img-fluid figure-img"></p>
+<p><img src="https://risheekkumar.in/posts/gepa-deepdive/static/optimizer evolution.webp" class="img-fluid figure-img"></p>
 <figcaption>Optimizer Evolution</figcaption>
 </figure>
 </div>
@@ -457,7 +457,7 @@ font-style: inherit;">=</span>val_set,</span>
 <h3 class="anchored" data-anchor-id="gepa-reflective-prompt-evolution-flow-diagram-from-paper">GEPA: REFLECTIVE PROMPT EVOLUTION (Flow diagram from paper)</h3>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/gepa-deepdive/static/GEPA_flowchart.png" class="img-fluid figure-img"></p>
+<p><img src="https://risheekkumar.in/posts/gepa-deepdive/static/GEPA_flowchart.png" class="img-fluid figure-img"></p>
 <figcaption>GEPA Flowchart</figcaption>
 </figure>
 </div>
@@ -1479,7 +1479,7 @@ font-style: inherit;"># False! P3 loses on #0, #1, #2</span></span></code></pre>
 <p>Neither P2 nor P3 dominates the other—they’re <strong>Pareto incomparable</strong>. Each solves problems the other can’t. Both stay on the frontier.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/gepa-deepdive/static/pareto_visual.webp" class="img-fluid figure-img"></p>
+<p><img src="https://risheekkumar.in/posts/gepa-deepdive/static/pareto_visual.webp" class="img-fluid figure-img"></p>
 <figcaption>Pareto Frontier Explained</figcaption>
 </figure>
 </div>
@@ -2029,7 +2029,7 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 <p>Consider what happens after 10 iterations of GEPA on AIME problems:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/gepa-deepdive/static/Merge_Visual.webp" class="img-fluid figure-img"></p>
+<p><img src="https://risheekkumar.in/posts/gepa-deepdive/static/Merge_Visual.webp" class="img-fluid figure-img"></p>
 <figcaption>Lineage Tree with Merge Operation</figcaption>
 </figure>
 </div>
@@ -2868,7 +2868,7 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 <p>Traditional optimization treats prompts as opaque strings to be scored. GEPA treats them as <strong>knowledge containers</strong> that accumulate insights through the reflection loop:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/gepa-deepdive/static/failure_acc_experience.webp" class="img-fluid figure-img"></p>
+<p><img src="https://risheekkumar.in/posts/gepa-deepdive/static/failure_acc_experience.webp" class="img-fluid figure-img"></p>
 <figcaption>Failure Accumulation Experience</figcaption>
 </figure>
 </div>
@@ -3083,7 +3083,7 @@ font-style: inherit;"># Same held-out validation</span></span>
 <p>When a new problem arrives, GEPA tries candidates from across the frontier—the convolution specialist might crack it, or the reduction specialist, or insights from both might merge.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://blog.risheekkumar.in/posts/gepa-deepdive/static/cross_task_transfer.webp" class="img-fluid figure-img"></p>
+<p><img src="https://risheekkumar.in/posts/gepa-deepdive/static/cross_task_transfer.webp" class="img-fluid figure-img"></p>
 <figcaption>Cross-Task Insight Transfer</figcaption>
 </figure>
 </div>
@@ -3194,9 +3194,9 @@ font-style: inherit;"># Same held-out validation</span></span>
   <category>research paper</category>
   <category>analysis</category>
   <category>reimplementation</category>
-  <guid>https://blog.risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html</guid>
+  <guid>https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html</guid>
   <pubDate>Sat, 20 Dec 2025 18:30:00 GMT</pubDate>
-  <media:content url="https://blog.risheekkumar.in/posts/gepa-deepdive/static/blogpost_image.webp" medium="image" type="image/webp"/>
+  <media:content url="https://risheekkumar.in/posts/gepa-deepdive/static/blogpost_image.webp" medium="image" type="image/webp"/>
 </item>
 </channel>
 </rss>
