@@ -6,6 +6,7 @@ project:
     - "!posts/gepa-deepdive/.gitignore"
 
 website:
+  google-analytics: "G-EMRH6XWVFQ"
   description: "A blog about tech, programming, and life."
   site-url: https://blog.risheekkumar.in # you must change this appropriately for RSS feeds to work properly
   title: "Risheekkumar Baskaran"
