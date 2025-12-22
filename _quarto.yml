@@ -2,6 +2,8 @@ project:
   type: website
   output-dir: docs
   resources: 
+    - CNAME
+    - .nojekyll
     - "!posts/gepa-deepdive/.git"
     - "!posts/gepa-deepdive/.gitignore"
 
