@@ -6,7 +6,6 @@ project:
     - "!posts/gepa-deepdive/.gitignore"
 
 website:
-  cookie-consent: true
   google-analytics: "G-EMRH6XWVFQ"
   description: "A blog about tech, programming, and life."
   site-url: https://risheekkumar.in # you must change this appropriately for RSS feeds to work properly
