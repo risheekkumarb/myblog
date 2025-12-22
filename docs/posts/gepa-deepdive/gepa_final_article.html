@@ -8,7 +8,7 @@
 
 <meta name="author" content="Risheek kumar B">
 <meta name="dcterms.date" content="2025-12-21">
-<meta name="description" content="An Indepth Handson explaination about GEPA - its core and motivations">
+<meta name="description" content="An indepth hands-on explanation with code about GEPA - its core and motivations">
 
 <title>GEPA Deepdive – Risheekkumar Baskaran</title>
 <style>
@@ -190,7 +190,7 @@ window.Quarto = {
       <h1 class="title">GEPA Deepdive</h1>
                   <div>
         <div class="description">
-          An Indepth Handson explaination about GEPA - its core and motivations
+          An indepth hands-on explanation with code about GEPA - its core and motivations
         </div>
       </div>
                           <div class="quarto-categories">
@@ -235,7 +235,7 @@ window.Quarto = {
 
 
 <blockquote class="blockquote">
-<p>This article was made possible by the research papers referenced throughout, the <a href="https://www.youtube.com/watch?v=fREQrxhBSk0">Weaviate discussion with Lakshya A Agrawal</a>, and guidance from Kerem Turgutlu at answer.ai. Created using the <a href="https://solveit.fast.ai">solveit</a> platform by fast.ai.</p>
+<p>This article was made possible by the research papers referenced throughout, the <a href="https://www.youtube.com/watch?v=fREQrxhBSk0">Weaviate discussion with Lakshya A Agrawal</a>, and <a href="https://www.answer.ai/posts/2025-10-13-video-to-doc.html">guidance</a> from Kerem Turgutlu at answer.ai. Created using the <a href="https://solveit.fast.ai">solveit</a> platform by fast.ai.</p>
 </blockquote>
 <p>You’ve spent hours tuning your agentic pipeline. The system prompt is 500 words of carefully crafted instructions. It works… 70% of the time. You have 50 labeled examples. Now what?</p>
 <p>Fine-tuning requires thousands of samples. Reinforcement learning needs expensive rollout collection. Manual prompt iteration doesn’t scale. You’re stuck.</p>
@@ -245,7 +245,12 @@ window.Quarto = {
 <section id="the-problem-scalar-rewards-and-expensive-rollouts" class="level3">
 <h3 class="anchored" data-anchor-id="the-problem-scalar-rewards-and-expensive-rollouts">The Problem: Scalar Rewards and Expensive Rollouts</h3>
 <p>Traditional AI optimization techniques—reinforcement learning and fine-tuning—have achieved remarkable results in domains with abundant data or cheap rollouts (complete execution traces from input to output). But what happens when evaluation is expensive?</p>
-<p>Consider: - <strong>Agentic pipelines</strong> that invoke simulations, query rate-limited APIs, or run multi-step tool chains - <strong>Code generation for novel hardware</strong>, where each evaluation requires compiling for custom silicon and executing on the device - <strong>Complex reasoning tasks</strong> with expensive verification steps</p>
+<p>Consider:</p>
+<ul>
+<li><strong>Agentic pipelines</strong> that invoke simulations, query rate-limited APIs, or run multi-step tool chains</li>
+<li><strong>Code generation for novel hardware</strong>, where each evaluation requires compiling for custom silicon and executing on the device</li>
+<li><strong>Complex reasoning tasks</strong> with expensive verification steps</li>
+</ul>
 <p>Collecting thousands of rollouts simply isn’t feasible in these settings.</p>
 <p>The core issue: <strong>RL learns by comparison</strong>. A 500-step trajectory collapses to <code>reward = 0.73</code>. Did step 12 fail? Was the reasoning sound but the final answer malformed? The scalar tells you nothing. To extract signal, RL must compare many trajectories—<em>this one scored 0.8, that one scored 0.4, what differed?</em>—requiring sample counts that expensive domains can’t support.</p>
 <blockquote class="blockquote">
@@ -342,14 +347,19 @@ window.Quarto = {
 </div>
 <section id="bootstrap-few-shot-dspy-2023" class="level4">
 <h4 class="anchored" data-anchor-id="bootstrap-few-shot-dspy-2023">Bootstrap Few-Shot (DSPy, 2023)</h4>
-<p>The original insight: you don’t need hand-crafted demonstrations. Given a task and metric, run the pipeline on your training examples, score the outputs, and keep the high-scoring (input, output) pairs as <a href="https://www.promptingguide.ai/techniques/fewshot">few-shot demonstrations</a> for future runs. The system <a href="https://dspy.ai/learn/optimization/optimizers/">bootstraps its own examples</a> from successful executions.</p>
+<p>The original insight: you don’t need hand-crafted demonstrations. Given a task and metric, run the pipeline on your training examples, score the outputs, and keep the high-scoring (input, output) pairs as <a href="https://www.promptingguide.ai/techniques/fewshot">few-shot demonstrations</a> for future runs. The system bootstraps its own examples from successful executions.</p>
 <p><strong>Example</strong>: Your QA system correctly answers “What’s the capital of France?” → “Paris”. That (question, answer) pair becomes a demonstration shown to the model on future queries.</p>
-<p><strong>Limitation</strong>: Demonstrations are static snapshots. Once selected, they don’t adapt when new failure modes emerge. And there’s no <a href="https://arxiv.org/abs/2309.03409">instruction optimization</a>—the system prompt stays identical whether you’re handling edge cases or common inputs.</p>
+<p><strong>Limitation</strong>: Demonstrations are static snapshots. Once selected, they don’t adapt when new failure modes emerge. And there’s no instruction optimization — the system prompt stays identical whether you’re handling edge cases or common inputs.</p>
 </section>
 <section id="opro-google-deepmind-2023" class="level4">
 <h4 class="anchored" data-anchor-id="opro-google-deepmind-2023">OPRO (Google DeepMind, 2023)</h4>
 <p><a href="https://arxiv.org/abs/2309.03409">OPRO</a> (Optimization by PROmpting, NeurIPS 2023) introduced the idea of using an LLM as the optimizer itself. The key mechanism: show the LLM a history of prompts and their scores, then ask it to propose a better one. Higher-scoring prompts appear more frequently in this history, nudging the LLM toward successful patterns.</p>
-<p><strong>Example</strong>: The optimizer sees: - <code>"Solve the math problem step by step"</code> → score 0.65 - <code>"Show your work and verify the answer"</code> → score 0.72 - <code>"Break the problem into cases and check each"</code> → score 0.78</p>
+<p><strong>Example</strong>: The optimizer sees:</p>
+<ul>
+<li><code>"Solve the math problem step by step"</code> → score 0.65</li>
+<li><code>"Show your work and verify the answer"</code> → score 0.72</li>
+<li><code>"Break the problem into cases and check each"</code> → score 0.78</li>
+</ul>
 <p>It proposes: <code>"Systematically enumerate cases and verify each solution"</code> → score 0.81</p>
 <p><strong>Limitation</strong>: Score-only signal. The optimizer sees <em>that</em> <code>prompt_v3</code> scored 0.72 but not <em>why</em>. Did it make algebraic errors? Miss edge cases? The number alone doesn’t say.</p>
 </section>
@@ -366,63 +376,29 @@ window.Quarto = {
 <li><strong>Evaluate selectively</strong>: Only run full evaluation on the top-predicted candidates</li>
 <li><strong>Repeat</strong>: Add new results to training data, retrain surrogate, sample again</li>
 </ol>
-<p><strong>Example</strong>: After 30 random evaluations, the surrogate learns: - Instructions with “step-by-step” → +0.08 average - Demo set B (which has chain-of-thought examples) → +0.05 average - Combining both → predicted 0.79</p>
+<p><strong>Example</strong>: After 30 random evaluations, the surrogate learns:</p>
+<ul>
+<li>Instructions with “step-by-step” → +0.08 average</li>
+<li>Demo set B (which has chain-of-thought examples) → +0.05 average</li>
+<li>Combining both → predicted 0.79</li>
+</ul>
 <p>MiPRO focuses budget on high-predicted combinations rather than exhaustive search.</p>
 <p><strong>Limitation</strong>: The surrogate learns <em>correlations</em>, not <em>causation</em>. It knows “step-by-step instructions score higher” but not <em>why</em>—maybe they help on math problems but hurt on simple lookups. And MiPRO optimizes for aggregate score: a prompt that’s 0.75 on everything beats one that’s 0.95 on hard cases but 0.60 overall—even though that hard-case specialist might contain crucial insights.</p>
 </section>
-<section id="simba-2024" class="level4">
-<h4 class="anchored" data-anchor-id="simba-2024">SIMBA (2024)</h4>
-<p><a href="https://arxiv.org/abs/2410.17116">SIMBA</a> reframes prompt optimization as a <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit">multi-armed bandit</a> problem—a classic framework for sequential decision-making under uncertainty.</p>
-<p><strong>The bandit analogy</strong>: Imagine you’re in a casino with 100 slot machines. Each has a different (unknown) payout rate. You have 50 tokens. How do you maximize winnings?</p>
-<ul>
-<li><strong>Pure exploitation</strong>: Find one machine that seems good, play it 50 times. Problem: maybe you got lucky early—another machine is actually better.</li>
-<li><strong>Pure exploration</strong>: Try each machine once, then… you’re out of tokens before you learn anything useful.</li>
-<li><strong>Smart balance</strong>: Track your uncertainty about each machine. Play machines where you’re <em>uncertain</em> (might be great!) more than machines you’re <em>confident</em> are mediocre.</li>
-</ul>
-<p>SIMBA applies this to prompts. Each candidate prompt is a “slot machine.” Each evaluation is a “pull.” The score is the “payout.”</p>
+<section id="simba-dspy-2024" class="level4">
+<h4 class="anchored" data-anchor-id="simba-dspy-2024">SIMBA (DSPy, 2024)</h4>
+<p><a href="https://dspy.ai/api/optimizers/SIMBA/">SIMBA</a> (Stochastic Introspective Mini-Batch Ascent) introduced self-reflection into prompt optimization. Rather than treating prompts as black boxes with hidden payout rates, SIMBA has the LLM analyze its own performance and propose improvements.</p>
 <p><strong>How it works</strong>:</p>
 <ol type="1">
-<li><strong>Initialize</strong>: Start with a pool of candidate prompts (maybe generated by an LLM or hand-written)</li>
-<li><strong>Track statistics</strong>: For each prompt, maintain: average score so far, number of times evaluated, and a <em>confidence interval</em> (range of plausible true scores)</li>
-<li><strong>Sample strategically</strong>: Use <a href="https://en.wikipedia.org/wiki/Multi-armed_bandit#Upper_confidence_bounds">Upper Confidence Bound (UCB)</a> to pick which prompt to evaluate next—favoring prompts with high uncertainty OR high average</li>
-<li><strong>Update beliefs</strong>: After evaluation, narrow the confidence interval for that prompt</li>
-<li><strong>Repeat</strong>: Eventually, confidence intervals separate—you know which prompts are best</li>
+<li><strong>Sample mini-batches</strong>: Instead of evaluating on the full dataset, SIMBA samples small batches of examples</li>
+<li><strong>Identify hard cases</strong>: Track which examples show high output variability or consistent failures</li>
+<li><strong>Generate reflective rules</strong>: Ask the LLM to analyze why those cases failed and propose improvement rules</li>
+<li><strong>Update prompts</strong>: Incorporate the rules as new instructions, or add successful examples as demonstrations</li>
+<li><strong>Repeat</strong>: Iterate with new mini-batches, accumulating insights</li>
 </ol>
-<p><strong>Example in action</strong>: You have 20 candidate prompts, budget for 50 evaluations.</p>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Prompt</th>
-<th>Evaluations</th>
-<th>Avg Score</th>
-<th>Confidence Interval</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>A</td>
-<td>8</td>
-<td>0.74</td>
-<td>[0.70, 0.78]</td>
-</tr>
-<tr class="even">
-<td>B</td>
-<td>2</td>
-<td>0.71</td>
-<td>[0.55, 0.87]</td>
-</tr>
-<tr class="odd">
-<td>C</td>
-<td>5</td>
-<td>0.68</td>
-<td>[0.62, 0.74]</td>
-</tr>
-</tbody>
-</table>
-<p>Which to evaluate next? - Prompt A: probably ~0.74, we’re confident - Prompt B: could be 0.55 (bad) or 0.87 (best!)—high uncertainty - Prompt C: probably ~0.68, we’re fairly confident it’s worse than A</p>
-<p>SIMBA picks <strong>Prompt B</strong>—the uncertainty is valuable. If B turns out great, we found a winner. If bad, we’ve ruled it out cheaply.</p>
-<p><strong>Why this beats random search</strong>: Random would waste evaluations on prompts we already know are bad. SIMBA focuses budget on <em>decisions that matter</em>—resolving uncertainty between plausibly-good candidates.</p>
-<p><strong>Limitation</strong>: SIMBA efficiently <em>finds</em> the best prompt but doesn’t understand <em>why</em> it works. The bandit framework treats prompts as black boxes with hidden payout rates—it can’t reason about “this prompt works because it specifies output format.” And like MiPRO, it optimizes aggregate score: a prompt scoring 0.75 uniformly beats one scoring 0.95 on hard cases but 0.60 elsewhere—even if the hard-case specialist contains insights worth preserving.</p>
+<p><strong>Example</strong>: After several mini-batches, SIMBA notices examples 7 and 12 consistently fail. It prompts the LLM: “These examples failed. What pattern do you see?” The LLM reflects: “Both involve multi-step calculations where I lost track of units.” SIMBA adds: “Always track units through each calculation step.”</p>
+<p><strong>The key innovation</strong>: SIMBA bridges the gap between score-only optimization (OPRO, MiPRO) and full trajectory reflection (GEPA). It uses introspection on failure patterns rather than just comparing aggregate scores.</p>
+<p><strong>Limitation</strong>: SIMBA’s reflection is still relatively shallow—it identifies patterns across examples but doesn’t deeply analyze individual execution traces. GEPA extends this by feeding the optimizer rich textual feedback (compiler errors, rubrics, reasoning traces) from each trajectory.</p>
 </section>
 <section id="gepa-2025-the-reflection-shift" class="level4">
 <h4 class="anchored" data-anchor-id="gepa-2025-the-reflection-shift">GEPA (2025): The Reflection Shift</h4>
@@ -457,8 +433,13 @@ window.Quarto = {
 <p><strong>Example</strong>: OPRO sees <code>score = 0.6</code>. GEPA sees: &gt; “Failed on example 7: response was 340 words (limit: 200). Failed on example 12: missing required keyword ‘disclaimer’. Passed examples 1-6, 8-11.”</p>
 <p>The LLM reflects: “I should add an instruction about word limits and required keywords.”</p>
 <p><strong>2. From greedy to Pareto selection</strong> — Instead of always promoting the highest-scoring candidate, GEPA maintains a <em><a href="https://en.wikipedia.org/wiki/Pareto_efficiency">Pareto frontier</a></em>: candidates that each excel at <em>something</em> no other candidate beats.</p>
-<p><strong>Example</strong>: Three candidates evaluated on 10 examples: - <code>prompt_A</code>: 8/10 overall, but fails hard cases #7 and #9 - <code>prompt_B</code>: 6/10 overall, but nails hard cases #7 and #9<br>
-- <code>prompt_C</code>: 7/10 overall, no unique strengths</p>
+<p><strong>Example</strong>: Three candidates evaluated on 10 examples:</p>
+<ul>
+<li><code>prompt_A</code>: 8/10 overall, but fails hard cases #7 and #9</li>
+<li><code>prompt_B</code>: 6/10 overall, but nails hard cases #7 and #9<br>
+</li>
+<li><code>prompt_C</code>: 7/10 overall, no unique strengths</li>
+</ul>
 <p>Greedy selection keeps only <code>prompt_A</code>. Pareto selection keeps both <code>prompt_A</code> <em>and</em> <code>prompt_B</code>—because B’s insights about hard cases might combine with A’s general strength. <code>prompt_C</code> gets dropped (dominated by A on everything).</p>
 <p>The contrast with prior optimizers is stark: OPRO knows the score dropped from 0.8 to 0.6. GEPA reads the compiler error that explains why—and proposes the fix directly.</p>
 </section>
@@ -554,6 +535,17 @@ window.Quarto = {
 <p>The rest of this section explains <em>why</em> each of these pieces matters and how they work together. If you just want to use GEPA, the code above is all you need—see the <a href="https://dspy.ai/api/optimizers/GEPA/overview/">DSPy GEPA API Reference</a> for full parameter details.</p>
 <p>Now let’s make this concrete by building the core mechanism from scratch.</p>
 </section>
+<section id="gepa-reflective-prompt-evolution-flow-diagram-from-paper" class="level3">
+<h3 class="anchored" data-anchor-id="gepa-reflective-prompt-evolution-flow-diagram-from-paper">GEPA: REFLECTIVE PROMPT EVOLUTION (Flow diagram from paper)</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="static/GEPA_flowchart.png" class="img-fluid figure-img"></p>
+<figcaption>GEPA Flowchart</figcaption>
+</figure>
+</div>
+<p>The diagram above shows how these pieces fit together. Starting from the candidate pool (left), GEPA evaluates each prompt on every training task to build a per-instance scores matrix. Pareto filtering then preserves prompts that excel at <em>something</em>—not just the highest aggregate scorer. New candidates emerge either through <strong>reflective mutation</strong> (learning from textual feedback on a minibatch) or <strong>merge</strong> (combining insights from two specialists). Only candidates that pass a cheap minibatch screening get full evaluation.</p>
+<p>Let’s now build the core mechanism—reflective mutation—from scratch to see exactly how the “Reflect and Propose New Prompt” step works.</p>
+</section>
 <section id="hands-on-building-reflective-mutation-from-scratch" class="level3">
 <h3 class="anchored" data-anchor-id="hands-on-building-reflective-mutation-from-scratch">Hands-On: Building Reflective Mutation from Scratch</h3>
 <p>Let’s make this concrete by implementing GEPA’s core mechanism on a real task.</p>
@@ -562,6 +554,32 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dset <span class="op">=</span> load_dataset(<span class="st">"AI-MO/aimo-validation-aime"</span>)[<span class="st">'train'</span>]</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 90 problems with solutions and integer answers</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 37%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>problem</th>
+<th>solution</th>
+<th>answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Quadratic polynomials <span class="math inline">\(P(x)\)</span> and <span class="math inline">\(Q(x)\)</span> have l…</td>
+<td>Let <span class="math inline">\(R(x)=P(x)+Q(x).\)</span> Since the <span class="math inline">\(x^2\)</span>-terms of…</td>
+<td>116</td>
+</tr>
+<tr class="even">
+<td>Three spheres with radii <span class="math inline">\(11\)</span>, <span class="math inline">\(13\)</span>, and <span class="math inline">\(19\)</span> …</td>
+<td>This solution refers to the Diagram section…</td>
+<td>756</td>
+</tr>
+</tbody>
+</table>
 <p><strong>Why AIME for testing prompt optimization?</strong></p>
 <ol type="1">
 <li><strong>Clear ground truth</strong> — Every answer is an integer (0-999), so evaluation is unambiguous</li>
@@ -635,39 +653,97 @@ window.Quarto = {
 <span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>        current_prompt<span class="op">=</span>curr_prompt,</span>
 <span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>        examples<span class="op">=</span><span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(examples)</span>
 <span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Example filled-in reflection prompt:</strong></p>
+<pre><code>I provided an assistant with the following instructions:
+&lt;curr_instructions&gt;
+You are given a problem and you have to give the answer along with reasoning. 
+Do not return anything apart from json. It should be parsable by json.loads()
+
+The following are examples with assistant's responses and feedback:
+&lt;inputs_outputs_feedback&gt;
+# Example 1
+## problem
+Quadratic polynomials P(x) and Q(x) have leading coefficient 1. The sum of the roots of P(x) is 7...
+## prediction
+{"answer": 42, "reasoning": "I solved the system and got x=7, y=6"}
+## feedback
+You got it wrong! The solution is 116
+
+# Example 2
+## problem
+Three spheres with radii 11, 13, and 19 are mutually externally tangent...
+## prediction
+{"answer": 756, "reasoning": "Using the tangent sphere formula..."}
+## feedback
+You got it right!
+
+# Example 3
+## problem
+Find the remainder when 2^2024 is divided by 1000...
+## prediction
+{"answer": 16, "reasoning": "I computed powers of 2 mod 1000..."}
+## feedback
+You got it wrong! The solution is 896
+
+Your task: write a new instruction for the assistant.
+
+- Read inputs carefully and identify the input format and task description
+- Read all responses and feedback. Identify niche/domain-specific factual information
+- If the assistant used a generalizable strategy, include that in the instruction
+
+Provide the new instructions.</code></pre>
 <hr>
 </section>
 <section id="step-3-the-complete-optimization-loop" class="level3">
 <h3 class="anchored" data-anchor-id="step-3-the-complete-optimization-loop">Step 3: The Complete Optimization Loop</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reflect(mb, curr_prompt):</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Ask LLM to reflect on failures and propose improved instruction."""</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    refl_prompt <span class="op">=</span> mk_reflection_prompt(mb, curr_prompt)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> _call(refl_prompt, <span class="bu">format</span><span class="op">=</span>ReflectionModel)[<span class="st">'new_instruction'</span>]</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_prompt(seed_prompt, traindf, valdf, n_iters<span class="op">=</span><span class="dv">3</span>, mb_size<span class="op">=</span><span class="dv">3</span>):</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Greedy reflective prompt optimization."""</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    prompts, train_scores, val_scores <span class="op">=</span> [seed_prompt], [], []</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    mb <span class="op">=</span> traindf.sample(mb_size)  <span class="co"># Fixed minibatch for this run</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Baseline validation: </span><span class="sc">{</span>eval_val(seed_prompt, valdf)<span class="sc">:.2%}</span><span class="ss">'</span>)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_iters):</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate current prompt on minibatch</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        mb_eval, mb_score <span class="op">=</span> eval_mb(prompts[<span class="op">-</span><span class="dv">1</span>], mb)</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"📊 Minibatch: </span><span class="sc">{</span>mb_score<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reflect and propose new instruction</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        new_instr <span class="op">=</span> reflect(mb_eval, prompts[<span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        new_prompt <span class="op">=</span> new_instr  <span class="co"># The new instruction becomes the new prompt</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate on validation set</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>        val_score <span class="op">=</span> eval_val(new_prompt, valdf)</span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"📊 Validation: </span><span class="sc">{</span>val_score<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>        prompts.append(new_prompt)</span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>        val_scores.append(val_score)</span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">dict</span>(prompts<span class="op">=</span>prompts, val_scores<span class="op">=</span>val_scores)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mk_reflection_prompt(mb, curr_prompt):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Build reflection prompt from minibatch results."""</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    examples <span class="op">=</span> []</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, row <span class="kw">in</span> df.reset_index().iterrows():</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        example <span class="op">=</span> <span class="ss">f"""# Example </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="ss">## problem</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>row[<span class="st">'problem'</span>]<span class="sc">}</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="ss">## prediction</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>row[<span class="st">'pred'</span>]<span class="sc">}</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="ss">## feedback</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>feedback(row.answer, row.pred)<span class="sc">}</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="ss">"""</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        examples.append(example)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> REFLECTION_TEMPLATE.<span class="bu">format</span>(</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        current_prompt<span class="op">=</span>curr_prompt,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>        examples<span class="op">=</span><span class="st">"</span><span class="ch">\n</span><span class="st">"</span>.join(examples)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> reflect(mb, curr_prompt):</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Ask LLM to reflect on failures and propose improved instruction."""</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    refl_prompt <span class="op">=</span> mk_reflection_prompt(mb, curr_prompt)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> _call(refl_prompt, <span class="bu">format</span><span class="op">=</span>ReflectionModel)[<span class="st">'new_instruction'</span>]</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_prompt(seed_prompt, traindf, valdf, n_iters<span class="op">=</span><span class="dv">3</span>, mb_size<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Greedy reflective prompt optimization."""</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    prompts, train_scores, val_scores <span class="op">=</span> [seed_prompt], [], []</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    mb <span class="op">=</span> traindf.sample(mb_size)  <span class="co"># Fixed minibatch for this run</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Baseline validation: </span><span class="sc">{</span>eval_val(seed_prompt, valdf)<span class="sc">:.2%}</span><span class="ss">'</span>)</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_iters):</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate current prompt on minibatch</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>        mb_eval, mb_score <span class="op">=</span> eval_mb(prompts[<span class="op">-</span><span class="dv">1</span>], mb)</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"📊 Minibatch: </span><span class="sc">{</span>mb_score<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reflect and propose new instruction</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>        new_instr <span class="op">=</span> reflect(mb_eval, prompts[<span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>        new_prompt <span class="op">=</span> new_instr  <span class="co"># The new instruction becomes the new prompt</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate on validation set</span></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>        val_score <span class="op">=</span> eval_val(new_prompt, valdf)</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"📊 Validation: </span><span class="sc">{</span>val_score<span class="sc">:.2%}</span><span class="ss">"</span>)</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>        prompts.append(new_prompt)</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>        val_scores.append(val_score)</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">dict</span>(prompts<span class="op">=</span>prompts, val_scores<span class="op">=</span>val_scores)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="what-actually-happened" class="level3">
@@ -743,16 +819,25 @@ window.Quarto = {
 <h3 class="anchored" data-anchor-id="the-missing-ingredient-rich-feedback">The Missing Ingredient: Rich Feedback</h3>
 <p>Our minimal feedback (<code>"You got it wrong! The solution is 349"</code>) only tells the model <em>that</em> it failed, not <em>why</em> or <em>how to fix it</em>.</p>
 <p>The AIME dataset includes expert solutions. A richer feedback function could use them:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feedback_rich(row):</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">int</span>(row.answer) <span class="op">!=</span> row.pred[<span class="st">'answer'</span>]:</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        sol <span class="op">=</span> row.solution[:<span class="dv">500</span>] <span class="op">+</span> <span class="st">"..."</span> <span class="cf">if</span> <span class="bu">len</span>(row.solution) <span class="op">&gt;</span> <span class="dv">500</span> <span class="cf">else</span> row.solution</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"""Wrong! Expected </span><span class="sc">{</span>row<span class="sc">.</span>answer<span class="sc">}</span><span class="ss">, got </span><span class="sc">{</span>row<span class="sc">.</span>pred[<span class="st">'answer'</span>]<span class="sc">}</span><span class="ss">.</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ss">        </span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="ss">Model's reasoning: </span><span class="sc">{</span>row<span class="sc">.</span>pred[<span class="st">'short_reasoning'</span>]<span class="sc">}</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="ss">Expert solution approach:</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>sol<span class="sc">}</span><span class="ss">"""</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"Correct!"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> feedback_rich(row):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">int</span>(row.answer) <span class="op">!=</span> row.pred[<span class="st">'answer'</span>]:</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        sol <span class="op">=</span> row.solution[:<span class="dv">500</span>] <span class="op">+</span> <span class="st">"..."</span> <span class="cf">if</span> <span class="bu">len</span>(row.solution) <span class="op">&gt;</span> <span class="dv">500</span> <span class="cf">else</span> row.solution</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"""Wrong! Expected </span><span class="sc">{</span>row<span class="sc">.</span>answer<span class="sc">}</span><span class="ss">, got </span><span class="sc">{</span>row<span class="sc">.</span>pred[<span class="st">'answer'</span>]<span class="sc">}</span><span class="ss">.</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ss">        </span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="ss">Model's reasoning: </span><span class="sc">{</span>row<span class="sc">.</span>pred[<span class="st">'short_reasoning'</span>]<span class="sc">}</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="ss">Expert solution approach:</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>sol<span class="sc">}</span><span class="ss">"""</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"Correct!"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Example output</strong> for a wrong answer:</p>
+<pre><code>Wrong! Expected 116, got 42.
+
+Model's reasoning: I set up the system of equations and solved for x=7, y=6, giving 7*6=42.
+
+Expert solution approach:
+Let R(x)=P(x)+Q(x). Since the x²-terms of P and Q have leading coefficient 1, 
+R(x) is quadratic with leading coefficient 2. Given the roots condition, we can 
+write R(x) = 2(x-r₁)(x-r₂). Expanding and comparing coefficients...</code></pre>
 <p>With rich feedback, the reflection LLM can extract <em>specific strategies</em> from the expert solution rather than having to guess what went wrong. This is the key insight from the GEPA paper: <strong>the feedback contains the fix</strong>.</p>
 <p>Compare this to RL, which would only see <code>reward = 0</code> and have to statistically infer what went wrong across thousands of trajectories.</p>
 <hr>
@@ -825,48 +910,48 @@ window.Quarto = {
 <section id="implementation-dominance-checking" class="level4">
 <h4 class="anchored" data-anchor-id="implementation-dominance-checking">Implementation: Dominance Checking</h4>
 <p>We represent per-instance scores as boolean arrays (1 = solved, 0 = failed):</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dominates(candidate_scores, other_scores):</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Does candidate dominate other? (&gt;= everywhere, &gt; somewhere)"""</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    candidate <span class="op">=</span> np.array(candidate_scores)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> np.array(other_scores)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (candidate <span class="op">&gt;=</span> other).<span class="bu">all</span>() <span class="kw">and</span> (candidate <span class="op">&gt;</span> other).<span class="bu">any</span>()</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_dominated_by_any(new_scores, frontier_scores):</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Is new_scores dominated by ANY prompt in the frontier?"""</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    new <span class="op">=</span> np.array(new_scores)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> existing <span class="kw">in</span> frontier_scores:</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> dominates(np.array(existing), new):</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_dominated_indices(new_scores, frontier_scores):</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Which frontier prompts does new_scores dominate?"""</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    new <span class="op">=</span> np.array(new_scores)</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [i <span class="cf">for</span> i, existing <span class="kw">in</span> <span class="bu">enumerate</span>(frontier_scores) </span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> dominates(new, np.array(existing))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dominates(candidate_scores, other_scores):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Does candidate dominate other? (&gt;= everywhere, &gt; somewhere)"""</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    candidate <span class="op">=</span> np.array(candidate_scores)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> np.array(other_scores)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (candidate <span class="op">&gt;=</span> other).<span class="bu">all</span>() <span class="kw">and</span> (candidate <span class="op">&gt;</span> other).<span class="bu">any</span>()</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_dominated_by_any(new_scores, frontier_scores):</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Is new_scores dominated by ANY prompt in the frontier?"""</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    new <span class="op">=</span> np.array(new_scores)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> existing <span class="kw">in</span> frontier_scores:</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> dominates(np.array(existing), new):</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_dominated_indices(new_scores, frontier_scores):</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Which frontier prompts does new_scores dominate?"""</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    new <span class="op">=</span> np.array(new_scores)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [i <span class="cf">for</span> i, existing <span class="kw">in</span> <span class="bu">enumerate</span>(frontier_scores) </span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> dominates(new, np.array(existing))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="tracing-through-why-p3-survives" class="level4">
 <h4 class="anchored" data-anchor-id="tracing-through-why-p3-survives">Tracing Through: Why P3 Survives</h4>
 <p>Let’s verify the dominance relationships from our example:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>P0 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]  <span class="co"># Solves: #0</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>P1 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]  <span class="co"># Solves: #0</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>P2 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]  <span class="co"># Solves: #0, #1, #2</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>P3 <span class="op">=</span> [<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>]  <span class="co"># Solves: #9</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P2 dominate P0?</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>dominates(P2, P0)  <span class="co"># True: P2 &gt;= P0 everywhere, P2 &gt; P0 on #1, #2</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P2 dominate P1?</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>dominates(P2, P1)  <span class="co"># True: P2 &gt;= P1 everywhere, P2 &gt; P1 on #1, #2</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P2 dominate P3?</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>dominates(P2, P3)  <span class="co"># False! P2 loses on #9 (0 &lt; 1)</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P3 dominate P2?</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>dominates(P3, P2)  <span class="co"># False! P3 loses on #0, #1, #2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>P0 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]  <span class="co"># Solves: #0</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>P1 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]  <span class="co"># Solves: #0</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>P2 <span class="op">=</span> [<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>]  <span class="co"># Solves: #0, #1, #2</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>P3 <span class="op">=</span> [<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>]  <span class="co"># Solves: #9</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P2 dominate P0?</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>dominates(P2, P0)  <span class="co"># True: P2 &gt;= P0 everywhere, P2 &gt; P0 on #1, #2</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P2 dominate P1?</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>dominates(P2, P1)  <span class="co"># True: P2 &gt;= P1 everywhere, P2 &gt; P1 on #1, #2</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P2 dominate P3?</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>dominates(P2, P3)  <span class="co"># False! P2 loses on #9 (0 &lt; 1)</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Does P3 dominate P2?</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>dominates(P3, P2)  <span class="co"># False! P3 loses on #0, #1, #2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Neither P2 nor P3 dominates the other—they’re <strong>Pareto incomparable</strong>. Each solves problems the other can’t. Both stay on the frontier.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -878,80 +963,80 @@ window.Quarto = {
 </section>
 <section id="the-complete-frontier-manager" class="level4">
 <h4 class="anchored" data-anchor-id="the-complete-frontier-manager">The Complete Frontier Manager</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ParetoFrontier:</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.prompts <span class="op">=</span> []</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scores <span class="op">=</span> []  <span class="co"># scores[i][j] = prompt i's score on instance j</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add(<span class="va">self</span>, prompt, instance_scores):</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Try to add a prompt. Returns True if it joins the frontier."""</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reject if dominated by existing frontier member</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> is_dominated_by_any(instance_scores, <span class="va">self</span>.scores):</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">False</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Remove any frontier members this prompt dominates</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        dominated <span class="op">=</span> get_dominated_indices(instance_scores, <span class="va">self</span>.scores)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">sorted</span>(dominated, reverse<span class="op">=</span><span class="va">True</span>):  <span class="co"># Remove from end first</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>            <span class="kw">del</span> <span class="va">self</span>.prompts[i]</span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="kw">del</span> <span class="va">self</span>.scores[i]</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Add to frontier</span></span>
-<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.prompts.append(prompt)</span>
-<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scores.append(instance_scores)</span>
-<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">True</span></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> sample(<span class="va">self</span>):</span>
-<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Sample a prompt, weighted by unique wins."""</span></span>
-<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>        weights <span class="op">=</span> []</span>
-<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>        scores_arr <span class="op">=</span> np.array(<span class="va">self</span>.scores)</span>
-<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(<span class="va">self</span>.prompts)):</span>
-<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># How many instances is this prompt *uniquely* best on?</span></span>
-<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>            others_best <span class="op">=</span> np.delete(scores_arr, i, axis<span class="op">=</span><span class="dv">0</span>).<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">0</span>) <span class="cf">if</span> <span class="bu">len</span>(<span class="va">self</span>.prompts) <span class="op">&gt;</span> <span class="dv">1</span> <span class="cf">else</span> np.zeros_like(scores_arr[i])</span>
-<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>            unique_wins <span class="op">=</span> (scores_arr[i] <span class="op">&gt;</span> others_best).<span class="bu">sum</span>()</span>
-<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>            weights.append(unique_wins <span class="op">+</span> <span class="dv">1</span>)  <span class="co"># +1 smoothing</span></span>
-<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.random.choice(<span class="va">self</span>.prompts, p<span class="op">=</span>np.array(weights)<span class="op">/</span><span class="bu">sum</span>(weights))</span>
-<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> best_aggregate(<span class="va">self</span>):</span>
-<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Return the prompt with highest aggregate score."""</span></span>
-<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>        aggregates <span class="op">=</span> [<span class="bu">sum</span>(s) <span class="cf">for</span> s <span class="kw">in</span> <span class="va">self</span>.scores]</span>
-<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.prompts[np.argmax(aggregates)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ParetoFrontier:</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.prompts <span class="op">=</span> []</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scores <span class="op">=</span> []  <span class="co"># scores[i][j] = prompt i's score on instance j</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add(<span class="va">self</span>, prompt, instance_scores):</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Try to add a prompt. Returns True if it joins the frontier."""</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Reject if dominated by existing frontier member</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> is_dominated_by_any(instance_scores, <span class="va">self</span>.scores):</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Remove any frontier members this prompt dominates</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        dominated <span class="op">=</span> get_dominated_indices(instance_scores, <span class="va">self</span>.scores)</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">sorted</span>(dominated, reverse<span class="op">=</span><span class="va">True</span>):  <span class="co"># Remove from end first</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>            <span class="kw">del</span> <span class="va">self</span>.prompts[i]</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>            <span class="kw">del</span> <span class="va">self</span>.scores[i]</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Add to frontier</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.prompts.append(prompt)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scores.append(instance_scores)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> sample(<span class="va">self</span>):</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Sample a prompt, weighted by unique wins."""</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        weights <span class="op">=</span> []</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>        scores_arr <span class="op">=</span> np.array(<span class="va">self</span>.scores)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(<span class="va">self</span>.prompts)):</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># How many instances is this prompt *uniquely* best on?</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>            others_best <span class="op">=</span> np.delete(scores_arr, i, axis<span class="op">=</span><span class="dv">0</span>).<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">0</span>) <span class="cf">if</span> <span class="bu">len</span>(<span class="va">self</span>.prompts) <span class="op">&gt;</span> <span class="dv">1</span> <span class="cf">else</span> np.zeros_like(scores_arr[i])</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>            unique_wins <span class="op">=</span> (scores_arr[i] <span class="op">&gt;</span> others_best).<span class="bu">sum</span>()</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>            weights.append(unique_wins <span class="op">+</span> <span class="dv">1</span>)  <span class="co"># +1 smoothing</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> np.random.choice(<span class="va">self</span>.prompts, p<span class="op">=</span>np.array(weights)<span class="op">/</span><span class="bu">sum</span>(weights))</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> best_aggregate(<span class="va">self</span>):</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Return the prompt with highest aggregate score."""</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>        aggregates <span class="op">=</span> [<span class="bu">sum</span>(s) <span class="cf">for</span> s <span class="kw">in</span> <span class="va">self</span>.scores]</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.prompts[np.argmax(aggregates)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="putting-it-together-pareto-guided-optimization" class="level4">
 <h4 class="anchored" data-anchor-id="putting-it-together-pareto-guided-optimization">Putting It Together: Pareto-Guided Optimization</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_with_pareto(seed_prompt, traindf, valdf, n_iters<span class="op">=</span><span class="dv">5</span>, mb_size<span class="op">=</span><span class="dv">3</span>):</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Reflective mutation with Pareto frontier selection."""</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    frontier <span class="op">=</span> ParetoFrontier()</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize with seed</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    seed_scores <span class="op">=</span> evaluate_per_instance(seed_prompt, valdf)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    frontier.add(seed_prompt, seed_scores)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Baseline: </span><span class="sc">{</span><span class="bu">sum</span>(seed_scores)<span class="op">/</span><span class="bu">len</span>(seed_scores)<span class="sc">:.1%}</span><span class="ss">'</span>)</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_iters):</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="sc">{</span><span class="st">'='</span><span class="op">*</span><span class="dv">40</span><span class="sc">}</span><span class="ch">\n</span><span class="ss">Iteration </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ch">\n</span><span class="sc">{</span><span class="st">'='</span><span class="op">*</span><span class="dv">40</span><span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sample parent from frontier (weighted by unique wins)</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>        parent <span class="op">=</span> frontier.sample()</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run on minibatch, reflect, propose mutation</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        mb <span class="op">=</span> traindf.sample(mb_size)</span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        mb_results <span class="op">=</span> evaluate_with_traces(parent, mb)</span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        new_prompt <span class="op">=</span> reflect_and_mutate(parent, mb_results)</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate on full validation set</span></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>        new_scores <span class="op">=</span> evaluate_per_instance(new_prompt, valdf)</span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        new_agg <span class="op">=</span> <span class="bu">sum</span>(new_scores) <span class="op">/</span> <span class="bu">len</span>(new_scores)</span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"New prompt: </span><span class="sc">{</span>new_agg<span class="sc">:.1%}</span><span class="ss"> aggregate"</span>)</span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Try to add to frontier</span></span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> frontier.add(new_prompt, new_scores):</span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"✓ Added to frontier (size: </span><span class="sc">{</span><span class="bu">len</span>(frontier.prompts)<span class="sc">}</span><span class="ss">)"</span>)</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"✗ Dominated, rejected"</span>)</span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frontier.best_aggregate()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> optimize_with_pareto(seed_prompt, traindf, valdf, n_iters<span class="op">=</span><span class="dv">5</span>, mb_size<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Reflective mutation with Pareto frontier selection."""</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    frontier <span class="op">=</span> ParetoFrontier()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize with seed</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    seed_scores <span class="op">=</span> evaluate_per_instance(seed_prompt, valdf)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    frontier.add(seed_prompt, seed_scores)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'Baseline: </span><span class="sc">{</span><span class="bu">sum</span>(seed_scores)<span class="op">/</span><span class="bu">len</span>(seed_scores)<span class="sc">:.1%}</span><span class="ss">'</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_iters):</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="sc">{</span><span class="st">'='</span><span class="op">*</span><span class="dv">40</span><span class="sc">}</span><span class="ch">\n</span><span class="ss">Iteration </span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ch">\n</span><span class="sc">{</span><span class="st">'='</span><span class="op">*</span><span class="dv">40</span><span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sample parent from frontier (weighted by unique wins)</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        parent <span class="op">=</span> frontier.sample()</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run on minibatch, reflect, propose mutation</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        mb <span class="op">=</span> traindf.sample(mb_size)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        mb_results <span class="op">=</span> evaluate_with_traces(parent, mb)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>        new_prompt <span class="op">=</span> reflect_and_mutate(parent, mb_results)</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate on full validation set</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>        new_scores <span class="op">=</span> evaluate_per_instance(new_prompt, valdf)</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>        new_agg <span class="op">=</span> <span class="bu">sum</span>(new_scores) <span class="op">/</span> <span class="bu">len</span>(new_scores)</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"New prompt: </span><span class="sc">{</span>new_agg<span class="sc">:.1%}</span><span class="ss"> aggregate"</span>)</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Try to add to frontier</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> frontier.add(new_prompt, new_scores):</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"✓ Added to frontier (size: </span><span class="sc">{</span><span class="bu">len</span>(frontier.prompts)<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"✗ Dominated, rejected"</span>)</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> frontier.best_aggregate()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="what-we-observed-on-aime" class="level4">
@@ -995,7 +1080,11 @@ window.Quarto = {
 </table>
 <p><strong>The key moment</strong>: Iteration 3 scored only 10%—worse than iteration 2’s 30%. Greedy selection would discard it entirely.</p>
 <p>But it solved <strong>instance #9</strong>, which nothing else could. Pareto selection preserves it.</p>
-<p>Our final frontier: <strong>{P2, P3}</strong> - P2: Strong generalist (30%), knows systems-of-equations strategies - P3: Instance-9 specialist (10%), knows whatever cracked that specific problem</p>
+<p>Our final frontier: <strong>{P2, P3}</strong></p>
+<ul>
+<li>P2: Strong generalist (30%), knows systems-of-equations strategies</li>
+<li>P3: Instance-9 specialist (10%), knows whatever cracked that specific problem</li>
+</ul>
 <p>Both insights survive. The merge operation (covered later) can combine them.</p>
 <hr>
 </section>
@@ -1077,199 +1166,15 @@ window.Quarto = {
 </tbody>
 </table>
 <p>Each validation instance encodes what domain-specific insights are required. A prompt solving only instance #7 is the “specialist for that niche”—it stays because it demonstrates <em>something works</em>, even with low aggregate score.</p>
-<p><strong>Concrete example</strong>: In our AIME experiment, instance #9 was a number theory problem requiring CRT. Prompt P3 (10% aggregate) solved it; P2 (30% aggregate) couldn’t. In Map Elites terms, P3 is the “elite” for the number-theory niche—it stays in the archive despite low overall score.</p>
 <blockquote class="blockquote">
 <p><em>“By tracking the best-performing candidate on each validation instance, GEPA can maintain all the domain-specific insights that solve any of these problems.”</em> — Lakshya A Agrawal</p>
 </blockquote>
 <p>This directly motivated GEPA’s design: Pareto selection over per-instance scores naturally implements QD’s “best per niche” principle, while the merge operation recombines insights across niches—exactly what stepping-stone search requires.</p>
-</section>
-<section id="exploration-exploitation-balance" class="level4">
-<h4 class="anchored" data-anchor-id="exploration-exploitation-balance">Exploration-Exploitation Balance</h4>
-<p>GEPA’s Pareto selection handles the exploration-exploitation tradeoff automatically: candidates are sampled weighted by unique wins, so specialists get attention proportional to their unique value. The frontier self-prunes—noise gets dominated away, genuine diversity persists. No manual tuning required.</p>
-<p>With both reflective mutation and Pareto selection in place, there’s one more operation that makes GEPA powerful: <strong>merge</strong>—combining insights from divergent lineages. Let’s look at the complete algorithm.</p>
-</section>
-</section>
-<section id="the-complete-algorithm" class="level3">
-<h3 class="anchored" data-anchor-id="the-complete-algorithm">The Complete Algorithm</h3>
-<p>Now that we’ve built reflective mutation and Pareto selection from scratch, and understand <em>why</em> quality-diversity works, let’s see how all the pieces—including lineage tracking and merge—combine into GEPA’s full optimization loop.</p>
-<section id="algorithm-overview" class="level4">
-<h4 class="anchored" data-anchor-id="algorithm-overview">Algorithm Overview</h4>
-<pre><code>GEPA(base_prompt, trainset, valset, max_iterations):
-    
-    # Initialize
-    candidates = [base_prompt]
-    scores = {base_prompt: evaluate_all(base_prompt, valset)}
-    pareto_frontier = [base_prompt]
-    lineage = {base_prompt: None}  # parent tracking
-    
-    for iteration in 1..max_iterations:
-        
-        # 1. SAMPLE: Select candidate from Pareto frontier
-        #    Weighted by number of instances where candidate is best
-        parent = sample_from_frontier(pareto_frontier, scores)
-        
-        # 2. PROPOSE: Either mutate or merge
-        if should_merge(pareto_frontier, iteration):
-            # Select second parent from different lineage
-            other_parent = select_divergent_candidate(pareto_frontier, parent, lineage)
-            new_prompt = merge(parent, other_parent)
-        else:
-            # Run rollouts, collect feedback, reflect
-            minibatch = sample(trainset, k=3)
-            traces, feedback = run_with_feedback(parent, minibatch)
-            # See "Hands-On: Building Reflective Mutation" for the reflection prompt structure
-            new_prompt = reflect_and_mutate(parent, traces, feedback)
-        
-        # 3. EVALUATE: Mini-batch gate, then full evaluation
-        parent_mb_score = evaluate(parent, minibatch)
-        new_mb_score = evaluate(new_prompt, minibatch)
-        if new_mb_score &lt;= parent_mb_score:
-            continue  # Reject: didn't improve on mini-batch
-        
-        new_scores = evaluate_all(new_prompt, valset)
-        
-        # 4. UPDATE: Pareto frontier maintenance
-        if is_dominated(new_scores, pareto_frontier):
-            continue  # Reject: dominated by existing candidate
-        
-        # Remove any candidates the new one dominates
-        pareto_frontier = [c for c in pareto_frontier 
-                          if not dominates(new_scores, scores[c])]
-        
-        # Add new candidate
-        candidates.append(new_prompt)
-        scores[new_prompt] = new_scores
-        pareto_frontier.append(new_prompt)
-        lineage[new_prompt] = parent
-    
-    # Return best aggregate for deployment; full frontier available via track_stats
-    return best_aggregate(pareto_frontier, scores)</code></pre>
-<hr>
-</section>
-<section id="the-key-decision-points" class="level4">
-<h4 class="anchored" data-anchor-id="the-key-decision-points">The Key Decision Points</h4>
-<p><strong>1. Candidate Sampling (Exploration vs Exploitation)</strong></p>
-<p>Rather than always improving the single best prompt (greedy), GEPA samples from the entire Pareto frontier. The sampling weight is proportional to how many validation instances the candidate is <em>uniquely best</em> on:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sample_from_frontier(frontier, scores):</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> []</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> candidate <span class="kw">in</span> frontier:</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Count instances where this candidate beats all others</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        unique_wins <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_instances) </span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> scores[candidate][i] <span class="op">&gt;</span> <span class="bu">max</span>(scores[other][i] </span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                                                      <span class="cf">for</span> other <span class="kw">in</span> frontier <span class="cf">if</span> other <span class="op">!=</span> candidate))</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        weights.append(unique_wins <span class="op">+</span> <span class="dv">1</span>)  <span class="co"># +1 smoothing</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> random.choices(frontier, weights<span class="op">=</span>weights)[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This focuses effort on candidates that have demonstrated <em>unique value</em>—they solve something nothing else can. Specialists get attention proportional to their specialization.</p>
-<p><strong>2. Mutation vs Merge Decision</strong></p>
-<p>Early iterations favor mutation (exploring from single candidates). As the frontier diversifies, merge becomes more valuable. The following is a simplified illustration of the decision logic:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> should_merge(frontier, iteration):</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(frontier) <span class="op">&lt;</span> <span class="dv">2</span>: <span class="cf">return</span> <span class="va">False</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> iteration <span class="op">&lt;</span> <span class="dv">5</span>: <span class="cf">return</span> <span class="va">False</span>  <span class="co"># Let lineages diverge first</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Merge with probability proportional to frontier diversity</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    n_lineages <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(get_root(c) <span class="cf">for</span> c <span class="kw">in</span> frontier))</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> random.random() <span class="op">&lt;</span> (n_lineages <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> <span class="bu">len</span>(frontier)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><em>(The actual GEPA implementation may use different thresholds—see the <a href="https://arxiv.org/abs/2507.19457">paper</a> for details.)</em></p>
-<p><strong>3. Mini-Batch Gating</strong></p>
-<p>Before expensive full evaluation, GEPA checks if the new candidate improves on the mini-batch it was designed to fix. This saves compute on obviously bad mutations:</p>
-<blockquote class="blockquote">
-<p><em>“We propose one new candidate, do a mini-batch evaluation to see whether this new candidate improves on this mini-batch or not. And if it does improve, then we track the score for this new candidate on all validation instances.”</em> — Lakshya A Agrawal</p>
-</blockquote>
-<p><strong>4. Pareto Update</strong></p>
-<p>The frontier update follows the dominance logic we implemented earlier: - <strong>Reject</strong> new candidates dominated by existing ones (they add nothing) - <strong>Remove</strong> existing candidates dominated by the new one (they’re obsolete) - <strong>Keep</strong> all non-dominated candidates (each offers unique value)</p>
-<hr>
-</section>
-<section id="complexity-analysis" class="level4">
-<h4 class="anchored" data-anchor-id="complexity-analysis">Complexity Analysis</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 64%">
-<col style="width: 35%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Operation</th>
-<th>Cost</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Mutation (3-4 rollouts + reflection)</td>
-<td>3-4 LLM calls + 1 reflection call</td>
-</tr>
-<tr class="even">
-<td>Mini-batch evaluation</td>
-<td>3-4 metric evaluations</td>
-</tr>
-<tr class="odd">
-<td>Full validation evaluation</td>
-<td>N metric evaluations (N = valset size)</td>
-</tr>
-<tr class="even">
-<td>Pareto check</td>
-<td>O(F × N) comparisons (F = frontier size)</td>
-</tr>
-</tbody>
-</table>
-<p>The mini-batch gate is crucial for efficiency. Most mutations fail—they either don’t improve on their target examples or regress elsewhere. Catching failures early (3 evaluations) rather than late (N evaluations) saves ~90% of evaluation budget on rejected candidates.</p>
-<hr>
-</section>
-<section id="why-each-component-matters" class="level4">
-<h4 class="anchored" data-anchor-id="why-each-component-matters">Why Each Component Matters</h4>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 34%">
-<col style="width: 37%">
-<col style="width: 28%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Component</th>
-<th>Without it</th>
-<th>With it</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Textual feedback</strong></td>
-<td>Optimizer sees only <code>score=0.6</code></td>
-<td>Optimizer reads “wrong answer, expected X, got Y because…”</td>
-</tr>
-<tr class="even">
-<td><strong>Pareto selection</strong></td>
-<td>Specialists discarded when aggregate drops</td>
-<td>Specialists preserved if they solve anything unique</td>
-</tr>
-<tr class="odd">
-<td><strong>Lineage tracking</strong></td>
-<td>No memory of evolutionary history</td>
-<td>Can identify divergent branches for merge</td>
-</tr>
-<tr class="even">
-<td><strong>Merge operation</strong></td>
-<td>Insights stay siloed in separate branches</td>
-<td>Orthogonal discoveries can combine</td>
-</tr>
-<tr class="odd">
-<td><strong>Mini-batch gating</strong></td>
-<td>Evaluate every candidate fully</td>
-<td>Reject obvious failures cheaply</td>
-</tr>
-</tbody>
-</table>
-<p>The components compound. Pareto selection preserves the diversity that makes merge valuable. Textual feedback makes both mutation and merge more effective. Mini-batch gating makes the whole loop affordable.</p>
-<hr>
-</section>
-<section id="what-gets-returned" class="level4">
-<h4 class="anchored" data-anchor-id="what-gets-returned">What Gets Returned</h4>
-<p>The algorithm returns <code>best_aggregate(pareto_frontier)</code>—the prompt with highest overall validation score. But for analysis, the full frontier is valuable: in DSPy, use <code>track_stats=True</code> to access all candidates and their per-instance scores.</p>
-<hr>
-<p><em>Next: The merge operation in detail—how GEPA combines insights from divergent lineages.</em></p>
+<p>With both mechanisms in place, there’s one more operation that makes GEPA powerful: <strong>merge</strong>—combining insights from divergent lineages.</p>
 </section>
 </section>
 <section id="the-lineage-tree-and-system-aware-merge" class="level3">
 <h3 class="anchored" data-anchor-id="the-lineage-tree-and-system-aware-merge">The Lineage Tree and System-Aware Merge</h3>
-<p>We touched on merge briefly in the algorithm overview—now let’s see why it’s essential and how it actually works.</p>
-<p><strong>What “system-aware” means</strong>: Unlike genetic algorithm crossover (which blindly swaps segments), GEPA’s merge uses an LLM that <em>understands</em> what it’s combining—it can resolve contradictions, synthesize complementary strategies, and produce coherent instructions rather than jumbled concatenations.</p>
 <p>Pareto selection preserves specialists—but it creates a new problem: <strong>insights get siloed in separate branches</strong>.</p>
 <p>Consider what happens after 10 iterations of GEPA on AIME problems:</p>
 <div class="quarto-figure quarto-figure-center">
@@ -1294,7 +1199,7 @@ window.Quarto = {
 </section>
 <section id="how-merge-works" class="level4">
 <h4 class="anchored" data-anchor-id="how-merge-works">How Merge Works</h4>
-<p>GEPA’s merge is “system-aware”—it understands <em>what</em> it’s combining, not just concatenating strings. The reflection LLM receives:</p>
+<p>GEPA’s merge is “system-aware”—the LLM understands what it’s combining, so it can resolve contradictions and synthesize coherently rather than blindly concatenating (unlike genetic algorithm crossover which swaps segments randomly). The reflection LLM receives:</p>
 <ol type="1">
 <li><strong>Both parent prompts</strong> with their full instruction text</li>
 <li><strong>Lineage context</strong> — what types of problems each lineage solved</li>
@@ -1428,10 +1333,253 @@ window.Quarto = {
 <li><strong>Pareto selection</strong> then preserves successful merges alongside remaining specialists</li>
 </ol>
 <p>Without Pareto selection, there’s nothing interesting to merge—you’d just have variants of one “best” prompt. Without merge, insights stay siloed even when the frontier is diverse.</p>
+<blockquote class="blockquote">
+<p><strong>Implementation note</strong>: The full GEPA implementation includes safeguards to ensure merge candidates actually have different insights worth combining—checking for common ancestors, avoiding redundant merges, and verifying that descendants improved on their ancestor. See the <a href="https://github.com/stanfordnlp/dspy">DSPy source</a> for details.</p>
+</blockquote>
 <p>Mutation explores <em>depth</em>—refining one approach through successive reflections.<br>
 Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel paths.</p>
 <p>Together, they cover the search space efficiently: diversify through mutation, consolidate through merge, preserve all valuable discoveries through Pareto selection.</p>
+<p>With reflective mutation, Pareto selection, and merge all in place, here’s how they combine into GEPA’s full optimization loop.</p>
 </section>
+</section>
+<section id="the-complete-algorithm" class="level3">
+<h3 class="anchored" data-anchor-id="the-complete-algorithm">The Complete Algorithm</h3>
+<p>With all pieces in place, here’s how they combine into the full optimization loop.</p>
+<section id="algorithm-overview" class="level4">
+<h4 class="anchored" data-anchor-id="algorithm-overview">Algorithm Overview</h4>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Callable</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> gepa(</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    base_prompt: <span class="bu">str</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    trainset: <span class="bu">list</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    valset: <span class="bu">list</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    evaluate_fn: Callable,          <span class="co"># (prompt, example) -&gt; score (0 or 1)</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    run_with_feedback_fn: Callable, <span class="co"># (prompt, examples) -&gt; (traces: list[str], feedback: list[str])</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    reflect_fn: Callable,           <span class="co"># (parent_prompt, traces, feedback) -&gt; new_prompt: str</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    merge_fn: Callable,             <span class="co"># (prompt1, prompt2) -&gt; merged_prompt: str</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    max_iterations: <span class="bu">int</span> <span class="op">=</span> <span class="dv">20</span>,</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    minibatch_size: <span class="bu">int</span> <span class="op">=</span> <span class="dv">3</span>,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co">    GEPA: Genetic-Pareto prompt optimization.</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="co">    </span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns the best aggregate prompt; access full frontier via returned dict.</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Helper functions ---</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> evaluate_all(prompt, dataset):</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Return per-instance scores as list."""</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [evaluate_fn(prompt, ex) <span class="cf">for</span> ex <span class="kw">in</span> dataset]</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> evaluate_minibatch(prompt, minibatch):</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Return aggregate score on minibatch."""</span></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">sum</span>(evaluate_fn(prompt, ex) <span class="cf">for</span> ex <span class="kw">in</span> minibatch) <span class="op">/</span> <span class="bu">len</span>(minibatch)</span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> dominates(scores_a, scores_b):</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Does A dominate B? (&gt;= everywhere, &gt; somewhere)"""</span></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>        a, b <span class="op">=</span> np.array(scores_a), np.array(scores_b)</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (a <span class="op">&gt;=</span> b).<span class="bu">all</span>() <span class="kw">and</span> (a <span class="op">&gt;</span> b).<span class="bu">any</span>()</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> is_dominated_by_frontier(new_scores, frontier, scores):</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Is new_scores dominated by ANY frontier member?"""</span></span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">any</span>(dominates(scores[c], new_scores) <span class="cf">for</span> c <span class="kw">in</span> frontier)</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> sample_from_frontier(frontier, scores):</span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Sample weighted by unique wins."""</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>        n_instances <span class="op">=</span> <span class="bu">len</span>(<span class="bu">next</span>(<span class="bu">iter</span>(scores.values())))</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>        weights <span class="op">=</span> []</span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> candidate <span class="kw">in</span> frontier:</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="bu">len</span>(frontier) <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>                unique_wins <span class="op">=</span> n_instances</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>                others_max <span class="op">=</span> np.array([scores[o] <span class="cf">for</span> o <span class="kw">in</span> frontier <span class="cf">if</span> o <span class="op">!=</span> candidate]).<span class="bu">max</span>(axis<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>                unique_wins <span class="op">=</span> (np.array(scores[candidate]) <span class="op">&gt;</span> others_max).<span class="bu">sum</span>()</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>            weights.append(unique_wins <span class="op">+</span> <span class="dv">1</span>)  <span class="co"># +1 smoothing</span></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> random.choices(frontier, weights<span class="op">=</span>weights)[<span class="dv">0</span>]</span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_root(prompt, lineage):</span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Trace lineage back to root."""</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> lineage.get(prompt) <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>            prompt <span class="op">=</span> lineage[prompt]</span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> prompt</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> should_merge(frontier, lineage, iteration):</span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Decide whether to merge or mutate."""</span></span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(frontier) <span class="op">&lt;</span> <span class="dv">2</span> <span class="kw">or</span> iteration <span class="op">&lt;</span> <span class="dv">5</span>:</span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>        n_lineages <span class="op">=</span> <span class="bu">len</span>(<span class="bu">set</span>(get_root(c, lineage) <span class="cf">for</span> c <span class="kw">in</span> frontier))</span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> random.random() <span class="op">&lt;</span> (n_lineages <span class="op">-</span> <span class="dv">1</span>) <span class="op">/</span> <span class="bu">len</span>(frontier)</span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> select_divergent(frontier, parent, lineage):</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Select a candidate from a different lineage."""</span></span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>        parent_root <span class="op">=</span> get_root(parent, lineage)</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>        others <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> frontier <span class="cf">if</span> get_root(c, lineage) <span class="op">!=</span> parent_root]</span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> random.choice(others) <span class="cf">if</span> others <span class="cf">else</span> random.choice(frontier)</span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> best_aggregate(frontier, scores):</span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""Return prompt with highest aggregate score."""</span></span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="bu">max</span>(frontier, key<span class="op">=</span><span class="kw">lambda</span> c: <span class="bu">sum</span>(scores[c]))</span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Main loop ---</span></span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>    candidates <span class="op">=</span> [base_prompt]</span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> {base_prompt: evaluate_all(base_prompt, valset)}</span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>    pareto_frontier <span class="op">=</span> [base_prompt]</span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>    lineage <span class="op">=</span> {base_prompt: <span class="va">None</span>}</span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> iteration <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, max_iterations <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 1. SAMPLE: Select parent from Pareto frontier</span></span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>        parent <span class="op">=</span> sample_from_frontier(pareto_frontier, scores)</span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 2. PROPOSE: Either mutate or merge</span></span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a>        minibatch <span class="op">=</span> random.sample(trainset, <span class="bu">min</span>(minibatch_size, <span class="bu">len</span>(trainset)))</span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> should_merge(pareto_frontier, lineage, iteration):</span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a>            other_parent <span class="op">=</span> select_divergent(pareto_frontier, parent, lineage)</span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a>            new_prompt <span class="op">=</span> merge_fn(parent, other_parent)</span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a>            traces, feedback <span class="op">=</span> run_with_feedback_fn(parent, minibatch)</span>
+<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a>            new_prompt <span class="op">=</span> reflect_fn(parent, traces, feedback)</span>
+<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 3. EVALUATE: Mini-batch gate</span></span>
+<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>        parent_mb_score <span class="op">=</span> evaluate_minibatch(parent, minibatch)</span>
+<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a>        new_mb_score <span class="op">=</span> evaluate_minibatch(new_prompt, minibatch)</span>
+<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> new_mb_score <span class="op">&lt;=</span> parent_mb_score:</span>
+<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span>  <span class="co"># Reject: didn't improve on mini-batch</span></span>
+<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Full evaluation</span></span>
+<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>        new_scores <span class="op">=</span> evaluate_all(new_prompt, valset)</span>
+<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 4. UPDATE: Pareto frontier maintenance</span></span>
+<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> is_dominated_by_frontier(new_scores, pareto_frontier, scores):</span>
+<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a>            <span class="cf">continue</span>  <span class="co"># Reject: dominated by existing candidate</span></span>
+<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Remove dominated candidates</span></span>
+<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a>        pareto_frontier <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> pareto_frontier </span>
+<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a>                          <span class="cf">if</span> <span class="kw">not</span> dominates(new_scores, scores[c])]</span>
+<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Add new candidate</span></span>
+<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a>        candidates.append(new_prompt)</span>
+<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a>        scores[new_prompt] <span class="op">=</span> new_scores</span>
+<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a>        pareto_frontier.append(new_prompt)</span>
+<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a>        lineage[new_prompt] <span class="op">=</span> parent</span>
+<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb18-123"><a href="#cb18-123" aria-hidden="true" tabindex="-1"></a>        <span class="st">'best'</span>: best_aggregate(pareto_frontier, scores),</span>
+<span id="cb18-124"><a href="#cb18-124" aria-hidden="true" tabindex="-1"></a>        <span class="st">'frontier'</span>: pareto_frontier,</span>
+<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a>        <span class="st">'scores'</span>: scores,</span>
+<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a>        <span class="st">'lineage'</span>: lineage,</span>
+<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="the-key-decision-points" class="level4">
+<h4 class="anchored" data-anchor-id="the-key-decision-points">The Key Decision Points</h4>
+<p><strong>1. Candidate Sampling</strong> — Weighted by unique wins, so specialists get attention proportional to their unique value.</p>
+<p><strong>2. Mutation vs Merge</strong> — Early iterations favor mutation; merge probability increases as frontier diversifies.</p>
+<p><strong>3. Mini-Batch Gating</strong></p>
+<p>Before expensive full evaluation, GEPA checks if the new candidate improves on the mini-batch it was designed to fix. This saves compute on obviously bad mutations:</p>
+<blockquote class="blockquote">
+<p><em>“We propose one new candidate, do a mini-batch evaluation to see whether this new candidate improves on this mini-batch or not. And if it does improve, then we track the score for this new candidate on all validation instances.”</em> — Lakshya A Agrawal</p>
+</blockquote>
+<p><strong>4. Pareto Update</strong></p>
+<p>The frontier update follows the dominance logic we implemented earlier: - <strong>Reject</strong> new candidates dominated by existing ones (they add nothing) - <strong>Remove</strong> existing candidates dominated by the new one (they’re obsolete) - <strong>Keep</strong> all non-dominated candidates (each offers unique value)</p>
+<hr>
+</section>
+<section id="complexity-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="complexity-analysis">Complexity Analysis</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 64%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mutation (3-4 rollouts + reflection)</td>
+<td>3-4 LLM calls + 1 reflection call</td>
+</tr>
+<tr class="even">
+<td>Mini-batch evaluation</td>
+<td>3-4 metric evaluations</td>
+</tr>
+<tr class="odd">
+<td>Full validation evaluation</td>
+<td>N metric evaluations (N = valset size)</td>
+</tr>
+<tr class="even">
+<td>Pareto check</td>
+<td>O(F × N) comparisons (F = frontier size)</td>
+</tr>
+</tbody>
+</table>
+<p>The mini-batch gate is crucial for efficiency. Most mutations fail—they either don’t improve on their target examples or regress elsewhere. Catching failures early (3 evaluations) rather than late (N evaluations) saves ~90% of evaluation budget on rejected candidates.</p>
+<hr>
+</section>
+<section id="why-each-component-matters" class="level4">
+<h4 class="anchored" data-anchor-id="why-each-component-matters">Why Each Component Matters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 34%">
+<col style="width: 37%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Without it</th>
+<th>With it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Textual feedback</strong></td>
+<td>Optimizer sees only <code>score=0.6</code></td>
+<td>Optimizer reads “wrong answer, expected X, got Y because…”</td>
+</tr>
+<tr class="even">
+<td><strong>Pareto selection</strong></td>
+<td>Specialists discarded when aggregate drops</td>
+<td>Specialists preserved if they solve anything unique</td>
+</tr>
+<tr class="odd">
+<td><strong>Lineage tracking</strong></td>
+<td>No memory of evolutionary history</td>
+<td>Can identify divergent branches for merge</td>
+</tr>
+<tr class="even">
+<td><strong>Merge operation</strong></td>
+<td>Insights stay siloed in separate branches</td>
+<td>Orthogonal discoveries can combine</td>
+</tr>
+<tr class="odd">
+<td><strong>Mini-batch gating</strong></td>
+<td>Evaluate every candidate fully</td>
+<td>Reject obvious failures cheaply</td>
+</tr>
+</tbody>
+</table>
+<p>The components compound. Pareto selection preserves the diversity that makes merge valuable. Textual feedback makes both mutation and merge more effective. Mini-batch gating makes the whole loop affordable.</p>
+<hr>
+</section>
+<section id="what-gets-returned" class="level4">
+<h4 class="anchored" data-anchor-id="what-gets-returned">What Gets Returned</h4>
+<p>The algorithm returns <code>best_aggregate(pareto_frontier)</code>—the prompt with highest overall validation score. But for analysis, the full frontier is valuable: in DSPy, use <code>track_stats=True</code> to access all candidates and their per-instance scores.</p>
+<hr>
+</section>
+</section>
+<section id="bringing-it-together" class="level3">
+<h3 class="anchored" data-anchor-id="bringing-it-together">Bringing It Together</h3>
+<p>The algorithm above integrates everything we’ve built: reflective mutation extracts lessons from textual feedback, Pareto selection preserves specialist insights that greedy selection would discard, and merge recombines discoveries from divergent lineages.</p>
+<p>But what does all this machinery actually <em>produce</em>? The answer reveals why GEPA matters beyond just better benchmark scores.</p>
 </section>
 <section id="what-gepa-learns-domain-specific-knowledge-encoding" class="level3">
 <h3 class="anchored" data-anchor-id="what-gepa-learns-domain-specific-knowledge-encoding">What GEPA Learns: Domain-Specific Knowledge Encoding</h3>
@@ -1532,13 +1680,9 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 </section>
 <section id="limitation-knowledge-must-be-triggerable" class="level4">
 <h4 class="anchored" data-anchor-id="limitation-knowledge-must-be-triggerable">Limitation: Knowledge Must Be Triggerable</h4>
-<p>GEPA can only surface knowledge the base LLM already has. If the model doesn’t know that “CRT” means Chinese Remainder Theorem, no amount of reflection will discover it. The optimization extracts and organizes existing knowledge—it doesn’t create new knowledge.</p>
-<p>This is why GEPA works better with stronger base models: more latent knowledge to extract. And why, for domains requiring knowledge the LLM lacks, you’ll need to inject it through few-shot examples, retrieval augmentation, or explicit instructions.</p>
-<blockquote class="blockquote">
-<p><em>“Language models already have built a lot of prior knowledge… we can use all of this natural language information to make the LLM itself reflect on its mistakes and improve.”</em> — Lakshya A Agrawal</p>
-</blockquote>
+<p>GEPA can only surface knowledge the base LLM already has—it extracts and organizes existing knowledge, not creates new knowledge. This is why it works better with stronger base models: more latent knowledge to extract. For highly specialized domains (custom hardware APIs, proprietary protocols), you may need human-curated seed instructions or few-shot examples to bootstrap the reflection loop.</p>
 <hr>
-<p><em>Now that we understand the algorithm and what it produces, let’s look at how to use GEPA in practice.</em></p>
+<p>So far we’ve focused on <em>training</em>: optimize prompts on labeled examples, deploy the best one. But GEPA’s machinery—reflective mutation, Pareto selection, merge—can also be deployed at <em>inference time</em> as a search algorithm. This opens a second paradigm worth understanding.</p>
 </section>
 </section>
 </section>
@@ -1547,16 +1691,30 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 <p>Everything we’ve covered so far assumes a familiar workflow: optimize on training data, deploy the result on new tasks. But GEPA supports a second paradigm that inverts this relationship entirely.</p>
 <section id="two-paradigms-of-operation" class="level3">
 <h3 class="anchored" data-anchor-id="two-paradigms-of-operation">Two Paradigms of Operation</h3>
-<p><strong>Train-then-generalize</strong> (what we’ve built so far): - Optimize prompts on a training set - Select the best-aggregate prompt from the Pareto frontier - Deploy that prompt on new, unseen tasks - Goal: learn <em>generalizable</em> lessons that transfer</p>
-<p><strong>Test-time search</strong> (inference-time optimization): - You have a batch of hard tasks you need to solve <em>now</em> - Optimize directly on the tasks themselves - GEPA searches for solutions, storing the best prompt <em>per task</em> - Goal: maximize performance on <em>these specific instances</em></p>
+<p><strong>Train-then-generalize</strong> (what we’ve built so far):</p>
+<ul>
+<li>Optimize prompts on a training set</li>
+<li>Select the best-aggregate prompt from the Pareto frontier</li>
+<li>Deploy that prompt on new, unseen tasks</li>
+<li>Goal: learn <em>generalizable</em> lessons that transfer</li>
+</ul>
+<p><strong>Test-time search</strong> (inference-time optimization):</p>
+<ul>
+<li>You have a batch of hard tasks you need to solve <em>now</em></li>
+<li>Optimize directly on the tasks themselves</li>
+<li>GEPA searches for solutions, storing the best prompt <em>per task</em></li>
+<li>Goal: maximize performance on <em>these specific instances</em></li>
+</ul>
 <p>The mechanics are identical—reflective mutation, Pareto selection, merge. What changes is the intent: instead of learning transferable knowledge, you’re using GEPA as a <strong>search algorithm</strong> over the solution space. This aligns with the broader trend of <a href="https://openai.com/index/learning-to-reason-with-llms/">inference-time compute scaling</a>—investing more computation at inference to solve harder problems.</p>
-<p><strong>The key mechanical change</strong>: pass <code>valset=trainset</code> (or equivalently, omit <code>valset</code> and set <code>trainset</code> to your target tasks). This tells GEPA to optimize directly on the problems you’re trying to solve rather than holding out a separate validation set. See the <a href="https://dspy.ai/api/optimizers/GEPA/overview/">GEPA API documentation</a> for full parameter details.</p>
+<p><strong>The key mechanical change</strong>: In normal GEPA, you have separate <code>trainset</code> (to learn from via reflection) and <code>valset</code> (to evaluate generalization). The Pareto frontier tracks per-instance performance on <code>valset</code>, preserving prompts that generalize well.</p>
+<p>For test-time search, pass the <em>same</em> problems as both <code>trainset</code> and <code>valset</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test-time search: optimize directly on the tasks you want to solve</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>optimized <span class="op">=</span> GEPA(metric<span class="op">=</span>metric_with_feedback, auto<span class="op">=</span><span class="st">"medium"</span>).<span class="bu">compile</span>(</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    program,</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    trainset<span class="op">=</span>hard_problems,  <span class="co"># The actual tasks you need solved</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    valset<span class="op">=</span>hard_problems,    <span class="co"># Same set—no held-out validation</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    valset<span class="op">=</span>hard_problems,    <span class="co"># Same held-out validation</span></span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This tells GEPA: “I don’t care about generalization—optimize directly on <em>these specific problems</em>.” The Pareto frontier now tracks “best prompt for each problem” rather than “prompts that transfer to unseen data.” See the <a href="https://dspy.ai/api/optimizers/GEPA/overview/">GEPA API documentation</a> for full parameter details.</p>
 <blockquote class="blockquote">
 <p><em>“Given a batch of tasks that we want to solve and given some budget… GEPA can propose and update its own strategy to solve that particular task iteratively till that task is solved.”</em> — Lakshya A Agrawal</p>
 </blockquote>
@@ -1564,34 +1722,28 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 </section>
 <section id="why-gepa-beats-high-temperature-sampling" class="level3">
 <h3 class="anchored" data-anchor-id="why-gepa-beats-high-temperature-sampling">Why GEPA Beats High-Temperature Sampling</h3>
-<p>Traditional inference-time compute strategies generate many candidates by sampling at high temperature, then use a verifier or LLM-as-judge to pick the best one. But these samples tend to be <em>similar</em>—variations on the same approach.</p>
-<p>Recent research on <a href="https://arxiv.org/abs/2408.03314">test-time compute scaling</a> (Snell et al., 2024) shows that “compute-optimal” strategies—which adaptively allocate inference budget based on problem difficulty—can improve efficiency by <strong>more than 4x</strong> compared to traditional best-of-N sampling. In some cases, smaller models with optimized test-time compute outperform models <strong>14x larger</strong> that don’t use additional inference-time computation.</p>
-<p><strong>The intuition</strong>: High-temperature sampling produces variations <em>around</em> the same approach—different variable names, slightly different loop bounds, minor syntactic choices. GEPA’s reflective mutation proposes <em>structurally different</em> strategies based on what went wrong. When the feedback says “memory bandwidth bottleneck,” the next candidate might switch from a naive loop to shared-memory tiling—a qualitative change that temperature variation rarely discovers.</p>
-<p>The Pareto frontier then preserves these diverse strategies rather than converging on a single “best” approach.</p>
-<p>GEPA induces <strong>genuine diversity</strong> through two mechanisms:</p>
-<ol type="1">
-<li><strong>Pareto tracking</strong> — maintains candidates that each excel at <em>something different</em>, not just the single highest scorer</li>
-<li><strong>Reflective mutation</strong> — proposes structurally different approaches based on <em>what went wrong</em>, not random perturbations</li>
-</ol>
-<blockquote class="blockquote">
-<p><em>“Due to the way GEPA operates where it’s doing the Pareto candidate tracking and it’s doing reflective mutation, we find that GEPA is itself inducing a huge amount of diversity in the kinds of solutions that it generates.”</em> — Lakshya A Agrawal</p>
-</blockquote>
-<p>Rather than 100 slight variations of one approach, GEPA maintains a frontier of genuinely different strategies.</p>
-<p><strong>Concrete results</strong>: On the <a href="https://arxiv.org/abs/2103.03874">MATH benchmark</a>, GEPA achieves <strong>93% accuracy</strong> compared to 67% with basic DSPy ChainOfThought—a 26 percentage point improvement from prompt optimization alone, no fine-tuning required.</p>
+<p>Traditional inference-time strategies sample at high temperature to generate many candidates, then pick the best. But these samples tend to be <em>similar</em>—variations on the same approach. GEPA induces <strong>genuine diversity</strong> through Pareto tracking (maintaining candidates that excel at <em>something different</em>) and reflective mutation (proposing <em>structurally different</em> strategies based on what went wrong, not random perturbations).</p>
+<p>When feedback says “memory bandwidth bottleneck,” the next candidate might switch from a naive loop to shared-memory tiling—a qualitative change that temperature variation rarely discovers. On the <a href="https://arxiv.org/abs/2103.03874">MATH benchmark</a>, this approach achieves <strong>93% accuracy</strong> compared to 67% with basic DSPy ChainOfThought.</p>
 <hr>
 </section>
-<section id="self-bootstrapping-how-iteration-compounds" class="level3">
-<h3 class="anchored" data-anchor-id="self-bootstrapping-how-iteration-compounds">Self-Bootstrapping: How Iteration Compounds</h3>
-<p>GEPA’s iterative process creates a self-bootstrapping dynamic:</p>
+<section id="self-bootstrapping-at-inference" class="level3">
+<h3 class="anchored" data-anchor-id="self-bootstrapping-at-inference">Self-Bootstrapping at inference</h3>
+<p>During training, you iterate a fixed number of times and deploy the result. At inference time, you can keep iterating <em>on a single hard problem</em> until it’s solved—and GEPA’s reflective loop creates a self-bootstrapping dynamic:</p>
 <ol type="1">
-<li><strong>Round 1</strong>: Generate rollouts → get feedback (e.g., compiler error) → reflect → propose fix</li>
-<li><strong>Round 2</strong>: The code compiles, but now there’s a runtime error (division by zero) → reflect → propose fix</li>
-<li><strong>Round 3</strong>: Runtime works, but output is wrong → reflect → propose fix</li>
+<li><strong>Round 1</strong>: Generate rollout → compiler error (“undefined variable x”) → reflect → propose fix</li>
+<li><strong>Round 2</strong>: Code compiles → runtime error (division by zero) → reflect → propose fix<br>
+</li>
+<li><strong>Round 3</strong>: Runtime works → wrong output (“expected 42, got 41”) → reflect → propose fix</li>
+<li><strong>Round 4</strong>: Correct output ✓</li>
 </ol>
+<p>Each iteration surfaces <em>the next</em> failure mode—you can’t discover the runtime error until the compile error is fixed. Traditional sampling generates 100 candidates that all hit the same compiler error. GEPA’s iterative reflection <em>progresses through</em> the failure cascade.</p>
 <blockquote class="blockquote">
 <p><em>“It identifies new challenges that the system is going to encounter as well as at every step it is going to propose a solution to that challenge. So it’s kind of like self-bootstrapping data to train itself.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p>Each iteration surfaces a new failure mode and proposes a solution—generating increasingly challenging training signal from the task itself.</p>
+<p>This is why test-time GEPA can solve problems that stumped training: it has the budget to chase failure modes deeper than any fixed training run.</p>
+<blockquote class="blockquote">
+<p><strong>Note</strong>: When optimizing a batch of tasks, Pareto selection ensures that fixing one problem doesn’t discard prompts that solved others—see “Cross-Task Transfer Within a Batch” below.</p>
+</blockquote>
 <hr>
 </section>
 <section id="cross-task-transfer-within-a-batch" class="level3">
@@ -1631,6 +1783,21 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 <p><em>“One prompt will be highly specialized to the convolution one and this can work well for three-four task instances. Another might specialize to the summation one and this could cater to another three-four instances.”</em> — Lakshya A Agrawal</p>
 </blockquote>
 <p>When a new problem arrives, GEPA tries candidates from across the frontier—the convolution specialist might crack it, or the reduction specialist, or insights from both might merge.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="static/cross_task_transfer.webp" class="img-fluid figure-img"></p>
+<figcaption>Cross-Task Insight Transfer</figcaption>
+</figure>
+</div>
+<hr>
+</section>
+<section id="background-optimization-loops" class="level3">
+<h3 class="anchored" data-anchor-id="background-optimization-loops">Background Optimization Loops</h3>
+<p>The self-bootstrapping pattern suggests an intriguing application: <strong>background GEPA loops for personalization</strong> in tools like Cursor and other AI-assisted environments.</p>
+<blockquote class="blockquote">
+<p><em>“For your cursor agent use case, I can imagine that there can be a background GEPA loop that runs continuously and every time you give it feedback, it iterates and generates a new generalizing prompt… cursor can learn a user-specific prompt that works well specifically for you.”</em> — Lakshya A Agrawal</p>
+</blockquote>
+<p>Every correction you provide—rejecting a verbose explanation, fixing a code style—becomes a training signal that accumulates into a personalized prompt. The infrastructure isn’t widespread yet, but the pattern is clear: continuous adaptation rather than one-shot optimization.</p>
 <hr>
 </section>
 <section id="what-gepa-stores" class="level3">
@@ -1645,65 +1812,6 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 </ul>
 <p>You can deploy these domain-specific prompts for future similar tasks, or simply extract the outputs and move on.</p>
 <hr>
-</section>
-<section id="feedback-design-for-each-paradigm" class="level3">
-<h3 class="anchored" data-anchor-id="feedback-design-for-each-paradigm">Feedback Design for Each Paradigm</h3>
-<p>The paradigm choice shapes how you design feedback:</p>
-<p><strong>For train-then-generalize</strong> — extract transferable lessons:</p>
-<blockquote class="blockquote">
-<p><em>“You will ensure that there is no task-specific insights that the prompt captures. So you will write in your feedback something along the lines of ‘try to extract lessons out of this.’”</em> — Lakshya A Agrawal</p>
-</blockquote>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metric_generalizable(gold, pred, trace<span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> <span class="bu">int</span>(gold.answer <span class="op">==</span> pred.answer)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> score <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        feedback <span class="op">=</span> (</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"Failed: expected </span><span class="sc">{</span>gold<span class="sc">.</span>answer<span class="sc">}</span><span class="ss">, got </span><span class="sc">{</span>pred<span class="sc">.</span>answer<span class="sc">}</span><span class="ss">. "</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"Extract a GENERAL lesson that would help on similar problems."</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        feedback <span class="op">=</span> <span class="st">"Correct. What general strategy led to success?"</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"score"</span>: score, <span class="st">"feedback"</span>: feedback}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p><strong>For test-time search</strong> — hyper-specialize to the task:</p>
-<blockquote class="blockquote">
-<p><em>“If you’re doing simply an inference time search where you just care about the final outputs, then you will try to provide feedback which is as hyper-specialized to the task as possible.”</em> — Lakshya A Agrawal</p>
-</blockquote>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> metric_specialized(gold, pred, trace<span class="op">=</span><span class="va">None</span>):</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> <span class="bu">int</span>(gold.answer <span class="op">==</span> pred.answer)</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> score <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        feedback <span class="op">=</span> (</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"Your code failed with this particular compiler error: </span><span class="sc">{</span>pred<span class="sc">.</span>error<span class="sc">}</span><span class="ss">. "</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"Try to improve on this specific thing."</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>        feedback <span class="op">=</span> <span class="st">"Correct."</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">"score"</span>: score, <span class="st">"feedback"</span>: feedback}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<hr>
-</section>
-<section id="the-tutor-analogy-background-optimization-loops" class="level3">
-<h3 class="anchored" data-anchor-id="the-tutor-analogy-background-optimization-loops">The Tutor Analogy: Background Optimization Loops</h3>
-<p>This iterative pattern mirrors how students already work with AI tutoring systems:</p>
-<ol type="1">
-<li>Attempt problem → get solution</li>
-<li>See an error → receive feedback</li>
-<li>Tutor explains → improved understanding</li>
-<li>Repeat until mastered</li>
-</ol>
-<p>This suggests an intriguing application: <strong>background GEPA loops for personalization</strong>. Similar patterns are emerging in tools like <a href="https://www.cursor.com/">Cursor</a> and other AI-assisted development environments.</p>
-<blockquote class="blockquote">
-<p><em>“For your cursor agent use case, I can imagine that there can be a background GEPA loop that runs continuously and every time you give it feedback, it iterates and generates a new generalizing prompt… cursor can learn a user-specific prompt that works well specifically for you.”</em> — Lakshya A Agrawal</p>
-</blockquote>
-<p>Every time you provide feedback on an AI-generated solution, a background loop could update not just the current response but a <em>user-specific prompt</em> capturing your preferences and patterns.</p>
-<hr>
-</section>
-<section id="when-not-to-use-test-time-gepa" class="level3">
-<h3 class="anchored" data-anchor-id="when-not-to-use-test-time-gepa">When NOT to Use Test-Time GEPA</h3>
-<ul>
-<li><strong>Sparse feedback</strong> — If your metric only returns pass/fail with no explanation, GEPA can’t extract lessons</li>
-<li><strong>Tasks outside LLM knowledge</strong> — GEPA surfaces knowledge the model already has; genuinely novel information won’t emerge from reflection. For such domains, consider <a href="https://arxiv.org/abs/2005.11401">retrieval-augmented generation</a> to inject external knowledge</li>
-<li><strong>Tight latency constraints</strong> — Test-time GEPA typically runs 5-20 iterations, each involving LLM calls for rollout + reflection. Budget 30 seconds to 5 minutes per task depending on model latency and iteration count. Interactive use cases need a different approach.</li>
-<li><strong>Identical tasks</strong> — If your batch contains <em>identical</em> problems (not just related ones), optimize once and reuse. Cross-task transfer helps when problems are <em>related but distinct</em>—like different CUDA kernels that share optimization patterns but have different structures.</li>
-</ul>
-<hr>
 <p>When the conditions <em>are</em> right—rich feedback, high-value tasks worth the compute, domains where the LLM has strong priors—test-time GEPA can dramatically outperform sampling-based approaches. The next section demonstrates this on code generation: GEPA-optimized CUDA kernels that exceed human-written PyTorch baselines, in a domain where even frontier models like OpenAI-o1 and DeepSeek-R1 match the baseline on less than 20% of tasks.</p>
 </section>
 <section id="case-study-code-optimization-for-novel-hardware" class="level3">
@@ -1711,110 +1819,20 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 <p>The GEPA paper demonstrates test-time search on domains where GEPA’s strengths shine brightest: <strong>code optimization for hardware with limited pre-training data</strong>.</p>
 <section id="amd-npu-kernels-optimization-without-pre-training-knowledge" class="level4">
 <h4 class="anchored" data-anchor-id="amd-npu-kernels-optimization-without-pre-training-knowledge">AMD NPU Kernels: Optimization Without Pre-Training Knowledge</h4>
-<p>AMD’s NPU (Neural Processing Unit) represents a novel hardware architecture. LLMs have minimal pre-training knowledge about its programming model, memory hierarchy, or optimization patterns. The <a href="https://arxiv.org/abs/2507.14403">NPUEval benchmark</a> reveals just how challenging this is: even with compiler feedback and retrieval-augmented generation (RAG), state-of-the-art LLMs achieve only ~10% mean vectorization score across the dataset.</p>
-<p>GEPA succeeds here because it doesn’t need prior examples. Instead, it:</p>
-<ol type="1">
-<li><strong>Generates an initial kernel</strong> based on generic programming knowledge</li>
-<li><strong>Compiles and runs</strong> → receives compiler errors or performance metrics</li>
-<li><strong>Reflects on feedback</strong> → proposes targeted improvements</li>
-<li><strong>Iterates</strong> until the kernel compiles, runs correctly, and performs well</li>
-</ol>
-<p><strong>Why GEPA fits</strong>: The GEPA paper demonstrates results on NPUEval, showing that reflective mutation can extract optimization patterns even for hardware with minimal pre-training coverage—without requiring retraining or RAG.</p>
+<p>AMD’s NPU (Neural Processing Unit) represents a novel hardware architecture. LLMs have minimal pre-training knowledge about its programming model, memory hierarchy, or optimization patterns. The <a href="https://arxiv.org/abs/2507.14403">NPUEval benchmark</a> reveals just how challenging this is: even with compiler feedback and RAG, state-of-the-art LLMs achieve only ~10% mean vectorization score.</p>
+<p>GEPA’s approach doesn’t require prior examples—it iteratively generates kernels, receives compiler errors or performance metrics, reflects on feedback, and proposes targeted improvements. The compiler error messages contain the fix: “Symbol not found: <code>npu_matmul</code>” triggers reflection that surfaces the correct API.</p>
 <blockquote class="blockquote">
 <p><em>“GEPA can be used to generate optimized kernels for AMD’s NPU hardware, which is a very novel hardware architecture, without any pre-training knowledge because of how novel the architecture is.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p>The compiler error messages contain the fix. “Symbol not found: <code>npu_matmul</code>” triggers reflection that surfaces the correct API. “Memory alignment error at line 47” points directly to what needs fixing.</p>
 </section>
 <section id="cuda-kernels-outperforming-human-baselines" class="level4">
 <h4 class="anchored" data-anchor-id="cuda-kernels-outperforming-human-baselines">CUDA Kernels: Outperforming Human Baselines</h4>
-<p><a href="https://scalingintelligence.stanford.edu/blogs/kernelbench/">KernelBench</a> (Stanford, 2025) evaluates LLMs on generating efficient CUDA kernels—a task where even frontier models struggle. The benchmark reveals a sobering baseline: <strong>frontier reasoning models match the PyTorch baseline on less than 20% of tasks</strong> using the fast₁ metric (kernels that are both correct <em>and</em> faster than PyTorch). This isn’t a matter of prompting—efficient GPU programming requires optimization patterns (memory coalescing, shared memory tiling, warp-level primitives) that models haven’t learned to apply reliably.</p>
-<p><strong>The impact of iterative feedback</strong>: The KernelBench paper demonstrates that feedback-driven refinement dramatically improves results. By providing execution results and profiler feedback in context, fast₁ scores improved from 12%, 36%, and 12% to <strong>43%, 72%, and 18%</strong> respectively across their test configurations. This is exactly the mechanism GEPA exploits—but with systematic Pareto tracking and reflective mutation rather than ad-hoc iteration.</p>
+<p><a href="https://scalingintelligence.stanford.edu/blogs/kernelbench/">KernelBench</a> (Stanford, 2025) evaluates LLMs on generating efficient CUDA kernels. The benchmark reveals a sobering baseline: <strong>frontier reasoning models match the PyTorch baseline on less than 20% of tasks</strong> using the fast₁ metric (correct <em>and</em> faster than PyTorch). Efficient GPU programming requires optimization patterns (memory coalescing, shared memory tiling, warp-level primitives) that models haven’t learned to apply reliably.</p>
+<p>The KernelBench paper shows that feedback-driven refinement dramatically improves results—fast₁ scores jumped 3-6x when execution results and profiler feedback were provided in context. GEPA applies this same principle systematically, with Pareto tracking to preserve diverse optimization strategies rather than ad-hoc iteration.</p>
 <blockquote class="blockquote">
 <p><em>“For CUDA we show results on KernelBench where GEPA was able to generate better kernels, sometimes even outperforming the PyTorch baseline which are human-written.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p><strong>Related evolutionary approaches show further gains</strong>: Stanford’s separate test-time evolutionary search (distinct from GEPA, published in their <a href="https://crfm.stanford.edu/2025/05/28/fast-kernels.html">Fast Kernels blog post</a>) produces kernels achieving <strong>103-133% of PyTorch reference performance</strong> on foundational operators like Conv2D—demonstrating that structured search with execution feedback can exceed human-optimized baselines.</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 27%">
-<col style="width: 44%">
-<col style="width: 27%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Method</th>
-<th>Performance</th>
-<th>Source</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Base LLM (one-shot)</td>
-<td>~3-15% fast₁</td>
-<td>KernelBench paper</td>
-</tr>
-<tr class="even">
-<td>Frontier reasoning (o1, R1)</td>
-<td>Match baseline on &lt;20% of tasks</td>
-<td>KernelBench paper</td>
-</tr>
-<tr class="odd">
-<td>With execution + profiler feedback</td>
-<td>43-72% fast₁ (3-6x improvement)</td>
-<td>KernelBench paper</td>
-</tr>
-<tr class="even">
-<td>Evolutionary test-time search</td>
-<td>103-133% of PyTorch on select kernels</td>
-<td>Stanford CRFM (separate from GEPA)</td>
-</tr>
-<tr class="odd">
-<td>GEPA</td>
-<td>“Significant speedups over PyTorch-eager”</td>
-<td>GEPA paper Fig. 11</td>
-</tr>
-</tbody>
-</table>
-<p>The gap matters commercially: <a href="https://scalingintelligence.stanford.edu/blogs/kernelbench/">efficient compilers often lag behind new GPU architectures by over two years</a>—approximately one year for CUDA experts to develop optimized implementations and another year to generalize into compilers. GEPA-style optimization could bridge that gap by generating optimized kernels for new hardware before traditional toolchains catch up.</p>
-<p><strong>Why code optimization is ideal for GEPA:</strong></p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 41%">
-<col style="width: 58%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Property</th>
-<th>Why it helps</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Rich textual feedback</strong></td>
-<td>Compiler errors, profiler output, runtime exceptions all explain <em>why</em> something failed</td>
-</tr>
-<tr class="even">
-<td><strong>Verifiable correctness</strong></td>
-<td>Unit tests and benchmarks provide unambiguous signal</td>
-</tr>
-<tr class="odd">
-<td><strong>Iterative refinement</strong></td>
-<td>Each failed compilation reveals the next fix to try</td>
-</tr>
-<tr class="even">
-<td><strong>Cross-task transfer</strong></td>
-<td>Insights about memory coalescing on one kernel help others</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="the-self-bootstrapping-dynamic" class="level4">
-<h4 class="anchored" data-anchor-id="the-self-bootstrapping-dynamic">The Self-Bootstrapping Dynamic</h4>
-<p>A typical GEPA optimization trajectory for CUDA kernels follows this pattern:</p>
-<p><strong>Iteration 1</strong>: Generate naive kernel → compiler error “undeclared identifier <code>threadIdx</code>” - Reflection: “CUDA kernels require explicit thread indexing. Add <code>threadIdx.x</code> and <code>blockIdx.x</code>.”</p>
-<p><strong>Iteration 2</strong>: Compiles, but runtime error (out of bounds) - Reflection: “Need bounds checking. Add <code>if (idx &lt; n)</code> guard.”</p>
-<p><strong>Iteration 3</strong>: Runs correctly, but 10x slower than baseline - Profiler feedback: “Memory bandwidth: 12% of peak. Non-coalesced access pattern.” - Reflection: “Reorganize memory access for coalescing. Use shared memory for reductions.”</p>
-<p><strong>Iteration 4</strong>: 1.2x faster than PyTorch baseline</p>
-<p>Each iteration surfaced a new challenge <em>and</em> its solution—generating increasingly sophisticated training signal from the task itself.</p>
+<p>The <a href="#self-bootstrapping-at-inference">self-bootstrapping dynamic</a> is especially effective here: each compilation error or profiler bottleneck reveals the next fix, letting GEPA progress through failure cascades that stump one-shot sampling.</p>
 </section>
 <section id="cross-kernel-transfer" class="level4">
 <h4 class="anchored" data-anchor-id="cross-kernel-transfer">Cross-Kernel Transfer</h4>
@@ -1822,16 +1840,7 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 <blockquote class="blockquote">
 <p><em>“If I discover an insight that works well on task one, there is a high possibility that it will also work well on task two.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p>GEPA exploits the relatedness of kernels in a batch. As it optimizes each kernel, the Pareto frontier accumulates specialized prompts—one excelling at memory-bound operations (convolutions), another at compute-bound work (matrix multiplies), a third at reductions. When a new kernel arrives, candidates from across the frontier are tried. Memory tiling strategies discovered on convolution kernels may transfer to pooling; warp-level primitives learned for reductions may help softmax.</p>
-<p>This cross-task transfer is why batch optimization outperforms solving each kernel independently—the accumulated optimization knowledge benefits later tasks.</p>
-</section>
-<section id="beyond-kernels" class="level4">
-<h4 class="anchored" data-anchor-id="beyond-kernels">Beyond Kernels</h4>
-<p>The same pattern extends to other code optimization domains where execution produces rich textual feedback:</p>
-<blockquote class="blockquote">
-<p><em>“There are many other tasks where it can be used—for example, with unit tests to generate code patches.”</em> — Lakshya A Agrawal</p>
-</blockquote>
-<p><strong>Bug fixing</strong> (test failures explain what’s wrong), <strong>performance optimization</strong> (profiler output identifies bottlenecks), and <strong>API migration</strong> (deprecation warnings specify changes) all fit GEPA’s feedback-driven model.</p>
+<p>As GEPA optimizes each kernel, the Pareto frontier accumulates specialized prompts—one excelling at memory-bound operations (convolutions), another at compute-bound work (matrix multiplies), a third at reductions. Memory tiling strategies discovered on convolution kernels may transfer to pooling; warp-level primitives learned for reductions may help softmax. This cross-task transfer is why batch optimization outperforms solving each kernel independently.</p>
 </section>
 </section>
 </section>
@@ -1865,16 +1874,6 @@ Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel
 <li>Feedback is <strong>purely scalar</strong> with no explanatory signal</li>
 <li>The task is <strong>already solved</strong> by few-shot prompting</li>
 <li>You need <strong>sub-second latency</strong></li>
-</ul>
-<hr>
-</section>
-<section id="known-limitations" class="level3">
-<h3 class="anchored" data-anchor-id="known-limitations">Known Limitations</h3>
-<p>GEPA isn’t a silver bullet:</p>
-<ul>
-<li><p><strong>Reflection quality varies by domain</strong> — GEPA excels when the LLM has strong prior knowledge. On highly specialized domains where the base model is weak, reflection produces generic advice rather than actionable fixes.</p></li>
-<li><p><strong>Feedback bottleneck</strong> — The optimizer is only as good as its feedback. If your metric returns “wrong” without explaining <em>why</em>, GEPA degrades to expensive random search.</p></li>
-<li><p><strong>Validation set size</strong> — With fewer than 30 validation examples, prompts can overfit to idiosyncrasies of those specific instances.</p></li>
 </ul>
 <hr>
 </section>
