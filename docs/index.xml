@@ -27,11 +27,11 @@
 <p>You’ve spent hours tuning your agentic pipeline. The system prompt is 500 words of carefully crafted instructions. It works… 70% of the time. You have 50 labeled examples. Now what?</p>
 <p>Fine-tuning requires thousands of samples. Reinforcement learning needs expensive rollout collection. Manual prompt iteration doesn’t scale. You’re stuck.</p>
 <p>But what if you could match RL’s optimization performance using 50 examples instead of 5,000?</p>
-<p><strong><a href="https://arxiv.org/abs/2507.19457">GEPA</a></strong> (Genetic-Pareto) achieves exactly this—by exploiting something traditional optimization ignores: the rich textual traces that LLM systems already produce. Instead of reducing a complex trajectory to a single scalar reward, GEPA lets the LLM <em>reflect on its own failures</em> and propose improvements directly.</p>
+<p><strong><a href="https://arxiv.org/abs/2507.19457">GEPA</a></strong> (Genetic-Pareto) does exactly this—by exploiting something traditional optimization ignores: the detailed textual traces that LLM systems already produce. Instead of reducing a complex trajectory to a single scalar reward, GEPA lets the LLM <em>reflect on its own failures</em> and propose improvements directly.</p>
 <p>In this post, we’ll unpack how it works, why modern LLMs’ improving self-reflection capabilities make this approach newly viable, and what it means for practitioners building compound AI systems.</p>
 <section id="the-problem-scalar-rewards-and-expensive-rollouts" class="level3">
 <h3 class="anchored" data-anchor-id="the-problem-scalar-rewards-and-expensive-rollouts">The Problem: Scalar Rewards and Expensive Rollouts</h3>
-<p>Traditional AI optimization techniques—reinforcement learning and fine-tuning—have achieved remarkable results in domains with abundant data or cheap rollouts (complete execution traces from input to output). But what happens when evaluation is expensive?</p>
+<p>Traditional AI optimization techniques—reinforcement learning and fine-tuning—have achieved str results in domains with abundant data or cheap rollouts (complete execution traces from input to output). But what happens when evaluation is expensive?</p>
 <p>Consider:</p>
 <ul>
 <li><strong>Agentic pipelines</strong> that invoke simulations, query rate-limited APIs, or run multi-step tool chains</li>
@@ -39,7 +39,7 @@
 <li><strong>Complex reasoning tasks</strong> with expensive verification steps</li>
 </ul>
 <p>Collecting thousands of rollouts simply isn’t feasible in these settings.</p>
-<p>The core issue: <strong>RL learns by comparison</strong>. A 500-step trajectory collapses to <code>reward = 0.73</code>. Did step 12 fail? Was the reasoning sound but the final answer malformed? The scalar tells you nothing. To extract signal, RL must compare many trajectories—<em>this one scored 0.8, that one scored 0.4, what differed?</em>—requiring sample counts that expensive domains can’t support.</p>
+<p>Why? <strong>RL learns by comparison</strong>. A 500-step trajectory collapses to <code>reward = 0.73</code>. Did step 12 fail? Was the reasoning sound but the final answer malformed? The scalar tells you nothing. To extract signal, RL must compare many trajectories—<em>this one scored 0.8, that one scored 0.4, what differed?</em>—requiring sample counts that expensive domains can’t support.</p>
 <blockquote class="blockquote">
 <p><em>RL and fine-tuning require generating large amounts of rollouts to gather scalar learning signals—sample inefficient by design.</em></p>
 </blockquote>
@@ -53,15 +53,15 @@
 <li><strong>Environment feedback</strong> — Compiler errors don’t just say “failed.” They say <code>cannot find symbol 'x', did you mean 'y'?</code> API responses return structured explanations. Profilers report exactly which function consumed 80% of runtime.</li>
 <li><strong>Evaluation rubrics</strong> — LLM-as-judge systems don’t just score 3/5. They explain: “Response was accurate but exceeded the 200-word limit. Missing the requested bullet-point format. Tone too formal for the specified Slack context.”</li>
 </ul>
-<p>Each of these is dramatically richer than <code>reward = 0.73</code>.</p>
-<p><strong>The key realization</strong>: these traces aren’t just logs for debugging—they’re potential <em>input to the optimizer</em>. A compiler error that says “did you mean ‘y’?” contains the fix. A rubric that says “too verbose” specifies exactly what to change.</p>
+<p>Each of these is far more informative than <code>reward = 0.73</code>.</p>
+<p>But here’s the thing: these traces aren’t just logs for debugging—they’re potential <em>input to the optimizer</em>. A compiler error that says “did you mean ‘y’?” contains the fix. A rubric that says “too verbose” specifies exactly what to change.</p>
 <p>Traditional RL ignores all of this. It reduces the entire trajectory to a scalar, then tries to reconstruct what went wrong by comparing thousands of trajectories.</p>
 <p>But what if we could just… read the feedback?</p>
 <p>This is the opportunity GEPA exploits. The question becomes: can an LLM reflect on these traces and propose improvements directly?</p>
 </section>
 <section id="the-opportunity-llms-can-reflect-on-their-own-failures" class="level3">
 <h3 class="anchored" data-anchor-id="the-opportunity-llms-can-reflect-on-their-own-failures">The Opportunity: LLMs Can Reflect on Their Own Failures</h3>
-<p>Here’s the key insight enabling a new optimization paradigm: <strong>LLMs already have prior knowledge about the domains they’re working in, and they’re increasingly capable of self-reflection.</strong></p>
+<p><strong>LLMs already have prior knowledge about the domains they’re working in, and they’re increasingly capable of self-reflection.</strong></p>
 <p>Consider what happens with different types of feedback:</p>
 <p><strong>Compiler errors</strong> — When the compiler returns <code>cannot find symbol 'x', did you mean 'y'?</code>, the LLM doesn’t need thousands of examples to learn the fix. It already knows the library’s API. One error message is enough.</p>
 <blockquote class="blockquote">
@@ -70,9 +70,8 @@
 <p><strong>LLM-as-judge feedback</strong> — When a judge says “your summary was accurate but exceeded the 200-word limit and used overly formal tone for Slack,” the model can directly incorporate “be concise, match casual tone” into its next attempt. No statistical signal extraction required.</p>
 <p><strong>Reasoning trace failures</strong> — When a multi-hop QA trace shows the model correctly retrieved “Paris is the capital of France” but then hallucinated “Paris is in Germany,” the failure point is <em>visible in the text</em>. You can see exactly where the reasoning derailed.</p>
 <p><strong>Privacy-aware rewriting (PUPA task)</strong> — In the paper’s experiments, an LLM must rewrite prompts to remove private information while preserving response quality. The LLM-as-judge explains <em>why</em> a rewrite failed—“leaked the user’s company name” or “removed too much context, degrading response quality”—giving the optimizer actionable signal from each example.</p>
-<section id="the-core-asymmetry" class="level4">
-<h4 class="anchored" data-anchor-id="the-core-asymmetry">The Core Asymmetry</h4>
-<p>This is the fundamental difference GEPA exploits:</p>
+<section id="how-they-compare" class="level4">
+<h4 class="anchored" data-anchor-id="how-they-compare">How They Compare</h4>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 40%">
@@ -99,26 +98,26 @@
 </section>
 <section id="from-fixes-to-generalizable-rules" class="level4">
 <h4 class="anchored" data-anchor-id="from-fixes-to-generalizable-rules">From Fixes to Generalizable Rules</h4>
-<p>Better still, modern LLMs don’t just extract point fixes—they can derive <em>generalizable lessons</em>:</p>
+<p>Modern LLMs don’t just extract point fixes—they can derive <em>generalizable lessons</em>:</p>
 <ul>
-<li>Not just “use <code>y</code> instead of <code>x</code>” → but “always verify symbol names against the library’s namespace before generating code”</li>
-<li>Not just “response was too long” → but “for Slack contexts, limit responses to 150 words and use bullet points”</li>
-<li>Not just “leaked company name” → but “scan for proper nouns and replace with generic placeholders”</li>
+<li>Beyond “use <code>y</code> instead of <code>x</code>”: “always verify symbol names against the library’s namespace before generating code”</li>
+<li>Beyond “response was too long”: “for Slack contexts, limit responses to 150 words and use bullet points”</li>
+<li>Beyond “leaked company name”: “scan for proper nouns and replace with generic placeholders”</li>
 </ul>
 <blockquote class="blockquote">
 <p><em>“LLMs can reflect on their own entire trajectories and extract lessons or generalizable rules that can be incorporated into the prompt.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p>These rules get folded directly into the prompt as instructions—compounding improvements across examples rather than treating each failure in isolation.</p>
-<p>This capability unlock—LLMs that can genuinely reflect and generalize—is what makes GEPA viable now when it wouldn’t have been two years ago.</p>
+<p>These rules get folded directly into the prompt as instructions—accumulating improvements across examples rather than treating each failure in isolation.</p>
+<p>LLMs that can genuinely reflect and generalize make this approach viable now.</p>
 </section>
 </section>
-<section id="why-now-the-reflection-capability-unlock" class="level3">
-<h3 class="anchored" data-anchor-id="why-now-the-reflection-capability-unlock">Why Now? The Reflection Capability Unlock</h3>
+<section id="why-this-works-now" class="level3">
+<h3 class="anchored" data-anchor-id="why-this-works-now">Why This Works Now</h3>
 <p>This approach wasn’t viable with earlier LLMs. In March 2023, roboticist <a href="https://evjang.com/2023/03/26/self-reflection.html">Eric Jang observed</a> that self-reflection capability “seems to be emergent in GPT-4 but not GPT-3.5 or Claude.” When asked to write a non-rhyming poem, GPT-4 produced rhymes—but when prompted “did the poem meet the assignment?” it apologized and corrected itself. GPT-3.5 and Claude couldn’t recognize their errors.</p>
 <p>The <a href="https://arxiv.org/abs/2303.11366">Reflexion paper</a> (NeurIPS 2023) demonstrated the impact quantitatively: by maintaining verbal reflections across trials, LLMs achieved 91% on HumanEval coding benchmark versus GPT-4’s baseline 80%—without any weight updates. Similarly, <a href="https://arxiv.org/abs/2303.17651">Self-Refine</a> showed ~20% average improvement by having the same LLM generate, critique, and refine iteratively.</p>
-<p>But there’s a crucial nuance. A <a href="https://aclanthology.org/2024.tacl-1.78/">comprehensive 2024 survey</a> found that pure “intrinsic” self-correction—where the LLM reflects with no external signal—rarely helps, and can even degrade performance. What <em>does</em> work is self-correction with <strong>reliable external feedback</strong>: compiler errors, test results, structured rubrics.</p>
-<p>This is precisely what GEPA exploits. The <a href="https://arxiv.org/abs/2305.11738">CRITIC paper</a> (ICLR 2024) highlights that external feedback is “crucial” for successful self-improvement. GEPA doesn’t ask the LLM to magically know it was wrong. It feeds the LLM rich textual feedback—the compiler said this, the profiler showed that, the judge flagged this rubric—and asks it to reflect on <em>that</em>.</p>
-<p>The capability unlock isn’t “LLMs can now introspect perfectly.” It’s “LLMs can now <em>process feedback and generalize lessons</em> effectively.”</p>
+<p>But there’s a catch. A <a href="https://aclanthology.org/2024.tacl-1.78/">comprehensive 2024 survey</a> found that pure “intrinsic” self-correction—where the LLM reflects with no external signal—rarely helps, and can even degrade performance. What <em>does</em> work is self-correction with <strong>reliable external feedback</strong>: compiler errors, test results, structured rubrics.</p>
+<p>GEPA exploits exactly this. The <a href="https://arxiv.org/abs/2305.11738">CRITIC paper</a> (ICLR 2024) highlights that external feedback is “crucial” for successful self-improvement. GEPA doesn’t ask the LLM to magically know it was wrong. It feeds the LLM rich textual feedback—the compiler said this, the profiler showed that, the judge flagged this rubric—and asks it to reflect on <em>that</em>.</p>
+<p>The shift: LLMs can now <em>process feedback and generalize lessons</em> effectively—not that they introspect perfectly.</p>
 <blockquote class="blockquote">
 <p><em>“Earlier LLMs could not actually reflect that well on their trajectories and extract meaningful insights or lessons… But now we are seeing that as LLMs are getting better they can also reflect on their own entire trajectories and extract lessons that can be incorporated into the prompt.”</em> — Lakshya A Agrawal</p>
 </blockquote>
@@ -189,7 +188,7 @@
 </section>
 <section id="gepa-2025-the-reflection-shift" class="level4">
 <h4 class="anchored" data-anchor-id="gepa-2025-the-reflection-shift">GEPA (2025): The Reflection Shift</h4>
-<p>GEPA breaks from this trajectory in two fundamental ways:</p>
+<p>GEPA breaks from this trajectory in two ways:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 36%">
@@ -228,12 +227,12 @@
 <li><code>prompt_C</code>: 7/10 overall, no unique strengths</li>
 </ul>
 <p>Greedy selection keeps only <code>prompt_A</code>. Pareto selection keeps both <code>prompt_A</code> <em>and</em> <code>prompt_B</code>—because B’s insights about hard cases might combine with A’s general strength. <code>prompt_C</code> gets dropped (dominated by A on everything).</p>
-<p>The contrast with prior optimizers is stark: OPRO knows the score dropped from 0.8 to 0.6. GEPA reads the compiler error that explains why—and proposes the fix directly.</p>
+<p>The difference: OPRO knows the score dropped from 0.8 to 0.6. GEPA reads the compiler error that explains why—and proposes the fix directly.</p>
 </section>
 </section>
 <section id="how-gepa-works-building-it-from-scratch" class="level2">
 <h2 class="anchored" data-anchor-id="how-gepa-works-building-it-from-scratch">How GEPA Works: Building It From Scratch</h2>
-<p>GEPA combines two key innovations: <strong>reflective prompt mutation</strong> (learning from textual feedback) and <strong>Pareto selection</strong> (preserving diverse specialists). Each is powerful alone; together they compound.</p>
+<p>GEPA combines two key innovations: <strong>reflective prompt mutation</strong> (learning from textual feedback) and <strong>Pareto selection</strong> (preserving diverse specialists). Each helps on its own; combined, they reinforce each other.</p>
 <p>We’ll build them from scratch in this section:</p>
 <ol type="1">
 <li><p><strong>Reflective mutation</strong> — How GEPA extracts generalizable lessons from rollout traces and feedback, proposing improved prompts directly. This is where the sample efficiency comes from.</p></li>
@@ -417,41 +416,9 @@ font-style: inherit;">=</span>train_set,</span>
 background-color: null;
 font-style: inherit;">=</span>val_set,</span>
 <span id="cb4-13">)</span></code></pre></div></div>
-<p>That’s it. GEPA handles the evolutionary loop, Pareto selection, and reflective mutation internally.</p>
-<hr>
-<p><strong>What’s happening under the hood?</strong></p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 44%">
-<col style="width: 56%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Component</th>
-<th>What it does</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Textual feedback</strong></td>
-<td>Your metric returns <em>why</em> something failed, not just a score</td>
-</tr>
-<tr class="even">
-<td><strong>Reflective mutation</strong></td>
-<td>An LLM reads the feedback and proposes improved instructions</td>
-</tr>
-<tr class="odd">
-<td><strong>Pareto selection</strong></td>
-<td>Diverse specialists are preserved, not just the “best” prompt</td>
-</tr>
-<tr class="even">
-<td><strong>Merge operations</strong></td>
-<td>Insights from divergent lineages get combined</td>
-</tr>
-</tbody>
-</table>
-<p>The rest of this section explains <em>why</em> each of these pieces matters and how they work together. If you just want to use GEPA, the code above is all you need—see the <a href="https://dspy.ai/api/optimizers/GEPA/overview/">DSPy GEPA API Reference</a> for full parameter details.</p>
-<p>Now let’s make this concrete by building the core mechanism from scratch.</p>
+<p>GEPA handles the evolutionary loop, Pareto selection, and reflective mutation internally. If you just want to use it, the code above is sufficient—see the <a href="https://dspy.ai/api/optimizers/GEPA/overview/">DSPy GEPA API Reference</a> for full parameter details.</p>
+<p>But what’s actually happening? Your metric returns <em>why</em> something failed (not just a score), an LLM reads that feedback and proposes improved instructions, Pareto selection preserves diverse specialists rather than just the highest-scoring prompt, and merge operations combine insights from divergent lineages.</p>
+<p>The rest of this section builds the core mechanism from scratch.</p>
 </section>
 <section id="gepa-reflective-prompt-evolution-flow-diagram-from-paper" class="level3">
 <h3 class="anchored" data-anchor-id="gepa-reflective-prompt-evolution-flow-diagram-from-paper">GEPA: REFLECTIVE PROMPT EVOLUTION (Flow diagram from paper)</h3>
@@ -461,12 +428,12 @@ font-style: inherit;">=</span>val_set,</span>
 <figcaption>GEPA Flowchart</figcaption>
 </figure>
 </div>
-<p>The diagram above shows how these pieces fit together. Starting from the candidate pool (left), GEPA evaluates each prompt on every training task to build a per-instance scores matrix. Pareto filtering then preserves prompts that excel at <em>something</em>—not just the highest aggregate scorer. New candidates emerge either through <strong>reflective mutation</strong> (learning from textual feedback on a minibatch) or <strong>merge</strong> (combining insights from two specialists). Only candidates that pass a cheap minibatch screening get full evaluation.</p>
-<p>Let’s now build the core mechanism—reflective mutation—from scratch to see exactly how the “Reflect and Propose New Prompt” step works.</p>
+<p>The diagram above shows GEPA’s loop. Each prompt is evaluated on every training task, producing a per-instance score matrix. Pareto filtering preserves prompts that excel at something no other prompt beats. New candidates come from <strong>reflective mutation</strong> (analyzing textual feedback) or <strong>merge</strong> (combining two specialists’ insights). Only candidates passing a minibatch screen get full evaluation.</p>
+<p>The next section implements reflective mutation: the “Reflect and Propose New Prompt” step in the diagram.</p>
 </section>
 <section id="hands-on-building-reflective-mutation-from-scratch" class="level3">
 <h3 class="anchored" data-anchor-id="hands-on-building-reflective-mutation-from-scratch">Hands-On: Building Reflective Mutation from Scratch</h3>
-<p>Let’s make this concrete by implementing GEPA’s core mechanism on a real task.</p>
+<p>To see how this works by implementing GEPA’s core mechanism on a real task.</p>
 <p><strong>The Problem: AIME Math Competition</strong></p>
 <p>We’ll optimize prompts for solving <a href="https://en.wikipedia.org/wiki/American_Invitational_Mathematics_Examination">AIME</a> (American Invitational Mathematics Examination) problems — challenging competition math that tests algebra, number theory, geometry, and combinatorics. These problems are hard: even frontier LLMs struggle without careful prompting.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="im" style="color: #00769E;
@@ -1176,12 +1143,12 @@ Expert solution approach:
 Let R(x)=P(x)+Q(x). Since the x²-terms of P and Q have leading coefficient 1, 
 R(x) is quadratic with leading coefficient 2. Given the roots condition, we can 
 write R(x) = 2(x-r₁)(x-r₂). Expanding and comparing coefficients...</code></pre>
-<p>With rich feedback, the reflection LLM can extract <em>specific strategies</em> from the expert solution rather than having to guess what went wrong. This is the key insight from the GEPA paper: <strong>the feedback contains the fix</strong>.</p>
+<p>With rich feedback, the reflection LLM can extract <em>specific strategies</em> from the expert solution rather than having to guess what went wrong. This is what makes GEPA sample-efficient: <strong>the feedback contains the fix</strong>.</p>
 <p>Compare this to RL, which would only see <code>reward = 0</code> and have to statistically infer what went wrong across thousands of trajectories.</p>
 <hr>
 </section>
-<section id="key-takeaways" class="level3">
-<h3 class="anchored" data-anchor-id="key-takeaways">Key Takeaways</h3>
+<section id="what-we-learned" class="level3">
+<h3 class="anchored" data-anchor-id="what-we-learned">What We Learned</h3>
 <ol type="1">
 <li><strong>Reflective mutation works</strong> — Even with minimal feedback, the LLM extracted useful domain knowledge</li>
 <li><strong>Greedy selection fails</strong> — Iteration 3’s collapse shows why we need to preserve specialist insights</li>
@@ -1959,24 +1926,20 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 </tbody>
 </table>
 <p>Greedy selection caused our iteration 3 collapse—the number-theory prompt overwrote the algebra prompt’s insights. Pareto selection prevents this by construction: you can’t remove a prompt from the frontier unless something else does everything it does, <em>plus more</em>.</p>
-<p>This is the core of GEPA’s sample efficiency. Instead of needing thousands of examples to statistically rediscover lost insights, the frontier <strong>never loses them in the first place</strong>.</p>
+<p>This drives GEPA’s sample efficiency. Instead of needing thousands of examples to statistically rediscover lost insights, the frontier retains them automatically.</p>
 <hr>
-<p>We just saw Pareto selection preserve iteration 3’s prompt despite its 10% aggregate score—because it solved instance #9, which nothing else could. But this raises a question: <em>why</em> does keeping “losers” help optimization? Shouldn’t we focus resources on the best candidates?</p>
-<p>The answer comes from <strong>quality-diversity</strong> algorithms, a family of techniques from evolutionary computation that GEPA draws from directly.</p>
+<p>Pareto selection preserved iteration 3’s prompt despite its 10% aggregate score—because it solved instance #9, which nothing else could. The intuition for why keeping “losers” helps comes from <strong>quality-diversity</strong> algorithms in evolutionary computation.</p>
 </section>
 </section>
 <section id="why-pareto-works-quality-diversity-and-map-elites" class="level3">
 <h3 class="anchored" data-anchor-id="why-pareto-works-quality-diversity-and-map-elites">Why Pareto Works: Quality-Diversity and Map Elites</h3>
-<p>We’ve now built both core mechanisms from scratch—reflective mutation and Pareto selection. Before diving into the full algorithm, let’s briefly step back and understand <em>why</em> this approach works so well.</p>
-<p>The Pareto frontier isn’t a novel invention—it draws from <strong>quality-diversity (QD)</strong> algorithms, a family of techniques from evolutionary computation that have proven remarkably effective in domains where diversity itself is valuable.</p>
-<section id="the-core-insight" class="level4">
-<h4 class="anchored" data-anchor-id="the-core-insight">The Core Insight</h4>
+<p>We’ve now built both core mechanisms from scratch—reflective mutation and Pareto selection. Before diving into the full algorithm, let’s step back and understand <em>why</em> this approach works so well.</p>
+<p>The Pareto frontier isn’t a novel invention—it draws from <strong>quality-diversity (QD)</strong> algorithms, a family of techniques from evolutionary computation that work well when diversity itself is valuable.</p>
 <p>Traditional optimization asks: <em>“What’s the single best solution?”</em></p>
 <p>Quality-diversity asks: <em>“What’s the best solution of each <em>type</em>?”</em></p>
 <p>Complex problems often have multiple valid approaches. A chess engine that always plays aggressively might beat one that always plays defensively—but the best engine knows <em>both</em> styles and picks situationally. Maintaining diverse specialists, then combining their insights, outperforms converging prematurely on one “best” approach.</p>
-</section>
-<section id="map-elites-the-inspiration" class="level4">
-<h4 class="anchored" data-anchor-id="map-elites-the-inspiration">Map Elites: The Inspiration</h4>
+<section id="map-elites" class="level4">
+<h4 class="anchored" data-anchor-id="map-elites">Map Elites</h4>
 <p><a href="https://arxiv.org/abs/1504.04909">Map Elites</a> (Mouret &amp; Clune, 2015) maintains an <em>archive</em> organized by behavior:</p>
 <ol type="1">
 <li><strong>Define behavior dimensions</strong> — characteristics describing <em>how</em> a solution works (not just how well)</li>
@@ -1984,7 +1947,7 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 <li><strong>Keep the best per bin</strong> — new solutions compete only within their niche</li>
 <li><strong>Mutate from the archive</strong> — sample from any occupied bin, mutate, place in appropriate bin</li>
 </ol>
-<p>The result: diverse specialists, each optimal <em>of its type</em>. <strong>Key insight</strong>: the archive provides <em>stepping stones</em>—a mutation from one niche might discover something useful for another. Diversity isn’t just nice to have; it’s a search strategy.</p>
+<p>The result: diverse specialists, each optimal <em>of its type</em>. The archive provides <em>stepping stones</em>: a mutation from one niche might discover something useful for another. Diversity doubles as a search strategy.</p>
 </section>
 <section id="gepas-adaptation-validation-instances-as-niches" class="level4">
 <h4 class="anchored" data-anchor-id="gepas-adaptation-validation-instances-as-niches">GEPA’s Adaptation: Validation Instances as Niches</h4>
@@ -2019,13 +1982,13 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 <blockquote class="blockquote">
 <p><em>“By tracking the best-performing candidate on each validation instance, GEPA can maintain all the domain-specific insights that solve any of these problems.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p>This directly motivated GEPA’s design: Pareto selection over per-instance scores naturally implements QD’s “best per niche” principle, while the merge operation recombines insights across niches—exactly what stepping-stone search requires.</p>
+<p>This motivated GEPA’s design: Pareto selection over per-instance scores naturally implements QD’s “best per niche” principle, while the merge operation recombines insights across niches—exactly what stepping-stone search requires.</p>
 <p>With both mechanisms in place, there’s one more operation that makes GEPA powerful: <strong>merge</strong>—combining insights from divergent lineages.</p>
 </section>
 </section>
 <section id="the-lineage-tree-and-system-aware-merge" class="level3">
 <h3 class="anchored" data-anchor-id="the-lineage-tree-and-system-aware-merge">The Lineage Tree and System-Aware Merge</h3>
-<p>Pareto selection preserves specialists—but it creates a new problem: <strong>insights get siloed in separate branches</strong>.</p>
+<p>Pareto selection preserves specialists—but it creates a new problem: insights get siloed in separate branches.</p>
 <p>Consider what happens after 10 iterations of GEPA on AIME problems:</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -2044,7 +2007,7 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 <li>P5 knows CRT, but misses the algebraic setup</li>
 </ul>
 <p>With mutation alone, P4 would need to <em>independently rediscover</em> number theory (which P5 already knows), or vice versa. The knowledge exists in our population—just in different branches.</p>
-<p><strong>Merge</strong> solves this by combining insights from divergent lineages into a single candidate.</p>
+<p>Merge addresses this by combining insights from divergent lineages into a single candidate.</p>
 <hr>
 </section>
 <section id="how-merge-works" class="level4">
@@ -2086,8 +2049,11 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 </tr>
 </tbody>
 </table>
-<p><strong>Merged offspring P6:</strong> &gt; “Approach: (1) For equation systems, subtract pairwise to expose factor relationships—enumerate all cases including edge cases. (2) When modular conditions appear, apply CRT and check for contradictions. (3) Competition problems often combine both: set up the algebra first, then use number-theoretic constraints to eliminate impossible cases.”</p>
-<p>P6 inherits both toolkits AND adds <strong>meta-knowledge</strong> about when to combine them. This is the “system-aware” part—the merge understands the semantics of what it’s combining.</p>
+<p><strong>Merged offspring P6:</strong></p>
+<blockquote class="blockquote">
+<p>“Approach: (1) For equation systems, subtract pairwise to expose factor relationships—enumerate all cases including edge cases. (2) When modular conditions appear, apply CRT and check for contradictions. (3) Competition problems often combine both: set up the algebra first, then use number-theoretic constraints to eliminate impossible cases.”</p>
+</blockquote>
+<p>P6 inherits both toolkits and adds meta-knowledge about when to combine them. This is the “system-aware” part—the merge understands the semantics of what it’s combining.</p>
 <hr>
 </section>
 <section id="when-to-merge-vs.-mutate" class="level4">
@@ -2172,29 +2138,20 @@ font-style: inherit;">return</span> frontier.best_aggregate()</span></code></pre
 <p>LLM merge produces: “Set up algebra first, then apply number-theoretic constraints.” (coherent synthesis)</p>
 <hr>
 </section>
-<section id="the-compounding-effect" class="level4">
-<h4 class="anchored" data-anchor-id="the-compounding-effect">The Compounding Effect</h4>
-<p>The components reinforce each other:</p>
-<ol type="1">
-<li><strong>Pareto selection</strong> preserves the diversity that makes merge valuable</li>
-<li><strong>Lineage tracking</strong> identifies which candidates come from divergent branches<br>
-</li>
-<li><strong>Merge</strong> recombines orthogonal discoveries into unified candidates</li>
-<li><strong>Pareto selection</strong> then preserves successful merges alongside remaining specialists</li>
-</ol>
-<p>Without Pareto selection, there’s nothing interesting to merge—you’d just have variants of one “best” prompt. Without merge, insights stay siloed even when the frontier is diverse.</p>
+<section id="how-the-pieces-fit" class="level4">
+<h4 class="anchored" data-anchor-id="how-the-pieces-fit">How the Pieces Fit</h4>
+<p>Pareto selection preserves the diversity that makes merge valuable in the first place. Lineage tracking tells us which candidates come from divergent branches. Merge recombines their discoveries, and then Pareto selection preserves successful merges alongside the remaining specialists.</p>
+<p>If you only kept one “best” prompt, there’d be nothing interesting to merge. And without merge, insights stay siloed even when the frontier is diverse.</p>
 <blockquote class="blockquote">
-<p><strong>Implementation note</strong>: The full GEPA implementation includes safeguards to ensure merge candidates actually have different insights worth combining—checking for common ancestors, avoiding redundant merges, and verifying that descendants improved on their ancestor. See the <a href="https://github.com/stanfordnlp/dspy">DSPy source</a> for details.</p>
+<p><strong>Implementation note</strong>: The full GEPA implementation includes safeguards to ensure merge candidates actually have different insights worth combining (checking for common ancestors, avoiding redundant merges, verifying that descendants improved on their ancestor). See the <a href="https://github.com/stanfordnlp/dspy">DSPy source</a> for details.</p>
 </blockquote>
-<p>Mutation explores <em>depth</em>—refining one approach through successive reflections.<br>
-Merge explores <em>breadth</em>—combining orthogonal discoveries from parallel paths.</p>
-<p>Together, they cover the search space efficiently: diversify through mutation, consolidate through merge, preserve all valuable discoveries through Pareto selection.</p>
+<p>Mutation refines a single lineage through reflection. Merge recombines what parallel lineages discovered. Pareto selection preserves both.</p>
 <p>With reflective mutation, Pareto selection, and merge all in place, here’s how they combine into GEPA’s full optimization loop.</p>
 </section>
 </section>
 <section id="the-complete-algorithm" class="level3">
 <h3 class="anchored" data-anchor-id="the-complete-algorithm">The Complete Algorithm</h3>
-<p>With all pieces in place, here’s how they combine into the full optimization loop.</p>
+<p>Here’s how the pieces combine into the full optimization loop.</p>
 <section id="algorithm-overview" class="level4">
 <h4 class="anchored" data-anchor-id="algorithm-overview">Algorithm Overview</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="im" style="color: #00769E;
@@ -2764,7 +2721,12 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 <p><em>“We propose one new candidate, do a mini-batch evaluation to see whether this new candidate improves on this mini-batch or not. And if it does improve, then we track the score for this new candidate on all validation instances.”</em> — Lakshya A Agrawal</p>
 </blockquote>
 <p><strong>4. Pareto Update</strong></p>
-<p>The frontier update follows the dominance logic we implemented earlier: - <strong>Reject</strong> new candidates dominated by existing ones (they add nothing) - <strong>Remove</strong> existing candidates dominated by the new one (they’re obsolete) - <strong>Keep</strong> all non-dominated candidates (each offers unique value)</p>
+<p>The frontier update follows the dominance logic we implemented earlier:</p>
+<ul>
+<li><strong>Reject</strong> new candidates dominated by existing ones (they add nothing)</li>
+<li><strong>Remove</strong> existing candidates dominated by the new one (they’re obsolete)</li>
+<li><strong>Keep</strong> all non-dominated candidates (each offers unique value)</li>
+</ul>
 <hr>
 </section>
 <section id="complexity-analysis" class="level4">
@@ -2799,7 +2761,7 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 </tr>
 </tbody>
 </table>
-<p>The mini-batch gate is crucial for efficiency. Most mutations fail—they either don’t improve on their target examples or regress elsewhere. Catching failures early (3 evaluations) rather than late (N evaluations) saves ~90% of evaluation budget on rejected candidates.</p>
+<p>The mini-batch gate matters because most mutations fail—they either don’t improve on their target examples or regress elsewhere. Catching failures early (3 evaluations) rather than late (N evaluations) saves ~90% of evaluation budget on rejected candidates.</p>
 <hr>
 </section>
 <section id="why-each-component-matters" class="level4">
@@ -2845,24 +2807,20 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 </tr>
 </tbody>
 </table>
-<p>The components compound. Pareto selection preserves the diversity that makes merge valuable. Textual feedback makes both mutation and merge more effective. Mini-batch gating makes the whole loop affordable.</p>
+<p>These interact: Pareto selection preserves the diversity that makes merge valuable, textual feedback makes both mutation and merge more effective, and mini-batch gating keeps evaluation costs reasonable.</p>
 <hr>
 </section>
 <section id="what-gets-returned" class="level4">
 <h4 class="anchored" data-anchor-id="what-gets-returned">What Gets Returned</h4>
 <p>The algorithm returns <code>best_aggregate(pareto_frontier)</code>—the prompt with highest overall validation score. But for analysis, the full frontier is valuable: in DSPy, use <code>track_stats=True</code> to access all candidates and their per-instance scores.</p>
 <hr>
+<p>That’s the full loop. Now let’s see what the optimized prompts actually look like.</p>
 </section>
-</section>
-<section id="bringing-it-together" class="level3">
-<h3 class="anchored" data-anchor-id="bringing-it-together">Bringing It Together</h3>
-<p>The algorithm above integrates everything we’ve built: reflective mutation extracts lessons from textual feedback, Pareto selection preserves specialist insights that greedy selection would discard, and merge recombines discoveries from divergent lineages.</p>
-<p>But what does all this machinery actually <em>produce</em>? The answer reveals why GEPA matters beyond just better benchmark scores.</p>
 </section>
 <section id="what-gepa-learns-domain-specific-knowledge-encoding" class="level3">
 <h3 class="anchored" data-anchor-id="what-gepa-learns-domain-specific-knowledge-encoding">What GEPA Learns: Domain-Specific Knowledge Encoding</h3>
-<p>We’ve built the full algorithm—reflective mutation, Pareto selection, merge. But what does all this machinery actually <em>produce</em>? Let’s examine the output: prompts that encode domain expertise.</p>
-<p>One of GEPA’s most striking capabilities is its ability to <strong>encode domain-specific knowledge directly into prompts</strong>—transforming tacit expertise into explicit instructions that persist across examples.</p>
+<p>We’ve built the full algorithm. What does all this machinery actually <em>produce</em>? The output is prompts that encode domain expertise.</p>
+<p>GEPA can <strong>encode domain-specific knowledge directly into prompts</strong>—turning what experts know implicitly into explicit instructions that persist across examples.</p>
 <section id="prompts-as-knowledge-containers" class="level4">
 <h4 class="anchored" data-anchor-id="prompts-as-knowledge-containers">Prompts as Knowledge Containers</h4>
 <p>Traditional optimization treats prompts as opaque strings to be scored. GEPA treats them as <strong>knowledge containers</strong> that accumulate insights through the reflection loop:</p>
@@ -2906,7 +2864,7 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 <h4 class="anchored" data-anchor-id="three-categories-of-captured-knowledge">Three Categories of Captured Knowledge</h4>
 <p>We observe GEPA capturing different types of domain expertise (our interpretive taxonomy, not from the paper):</p>
 <p><strong>1. Format and Interface Knowledge</strong> - Output schemas (“return JSON with keys: answer, reasoning”) - API conventions (“use library.method(), not library_method()”) - Parsing requirements (“integers only, no leading zeros”)</p>
-<p>This is easiest to extract—format errors produce explicit feedback.</p>
+<p>This is easiest to extract since format errors produce explicit feedback.</p>
 <p><strong>2. Strategic Knowledge</strong> - Problem-solving heuristics (“try small cases first”) - Domain patterns (“competition problems often combine algebra and number theory”) - Failure mode awareness (“watch for off-by-one errors in counting”)</p>
 <p>This emerges from reflecting on <em>why</em> approaches failed, not just <em>that</em> they failed.</p>
 <p><strong>3. Factual Domain Knowledge</strong> - API names and signatures (“torch.einsum, not torch.einstein_sum”) - Domain constants (“standard gravity = 9.81 m/s²”) - Constraint relationships (“in valid Sudoku, each row/column/box contains 1-9 exactly once”)</p>
@@ -2914,7 +2872,7 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 </section>
 <section id="why-prompts-beat-weights-sometimes" class="level4">
 <h4 class="anchored" data-anchor-id="why-prompts-beat-weights-sometimes">Why Prompts Beat Weights (Sometimes)</h4>
-<p>Fine-tuning encodes knowledge in model weights—opaque, distributed, hard to inspect. GEPA encodes knowledge in natural language—readable, editable, composable.</p>
+<p>Fine-tuning encodes knowledge in model weights—opaque, distributed, hard to inspect. GEPA encodes knowledge in natural language—readable and editable.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -2946,27 +2904,25 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 </tr>
 </tbody>
 </table>
-<p>A GEPA-optimized prompt can be read by a human to understand what strategies it learned, edited to add domain knowledge the optimizer missed, and even transferred to different LLMs.</p>
+<p>A GEPA-optimized prompt can be read by a human to understand what strategies it learned. You can edit it to add domain knowledge the optimizer missed, or transfer it to different LLMs.</p>
 </section>
 <section id="the-preservation-problem" class="level4">
 <h4 class="anchored" data-anchor-id="the-preservation-problem">The Preservation Problem</h4>
-<p>Knowledge accumulation has a failure mode: <strong>new insights can overwrite old ones</strong>. We saw this in our hands-on experiment—iteration 3’s number theory insights overwrote iteration 2’s algebra insights, causing catastrophic forgetting.</p>
-<p>This is precisely why GEPA uses <strong>Pareto selection</strong>. By preserving prompts that are best on <em>any</em> validation instance, Pareto ensures specialized knowledge survives even when aggregate scores dip. The algebra specialist and number theory specialist both stay on the frontier—and the merge operation can later combine their insights.</p>
-<blockquote class="blockquote">
-<p><em>Without Pareto selection, GEPA would be a knowledge accumulator that periodically erases its own discoveries.</em></p>
-</blockquote>
+<p>But new insights can overwrite old ones. We saw this in our hands-on experiment when iteration 3’s number theory insights overwrote iteration 2’s algebra insights, causing catastrophic forgetting.</p>
+<p>Pareto selection prevents this. By preserving prompts that are best on <em>any</em> validation instance, it keeps specialized knowledge around even when aggregate scores dip. The algebra specialist and number theory specialist both stay on the frontier, and the merge operation can later combine their insights.</p>
+<p>Without this, GEPA would periodically erase its own discoveries.</p>
 </section>
 <section id="limitation-knowledge-must-be-triggerable" class="level4">
 <h4 class="anchored" data-anchor-id="limitation-knowledge-must-be-triggerable">Limitation: Knowledge Must Be Triggerable</h4>
-<p>GEPA can only surface knowledge the base LLM already has—it extracts and organizes existing knowledge, not creates new knowledge. This is why it works better with stronger base models: more latent knowledge to extract. For highly specialized domains (custom hardware APIs, proprietary protocols), you may need human-curated seed instructions or few-shot examples to bootstrap the reflection loop.</p>
+<p>GEPA can only surface knowledge the base LLM already has. It’s extraction, not creation. Stronger base models yield better results because there’s more latent knowledge to work with. For specialized domains (custom hardware APIs, proprietary protocols), you may need human-written seed instructions or few-shot examples to get the reflection loop started.</p>
 <hr>
-<p>So far we’ve focused on <em>training</em>: optimize prompts on labeled examples, deploy the best one. But GEPA’s machinery—reflective mutation, Pareto selection, merge—can also be deployed at <em>inference time</em> as a search algorithm. This opens a second paradigm worth understanding.</p>
+<p>So far we’ve focused on <em>training</em>: optimize prompts on labeled examples, deploy the best one. But GEPA’s machinery—reflective mutation, Pareto selection, merge—can also run at <em>inference time</em> as a search algorithm.</p>
 </section>
 </section>
 </section>
 <section id="beyond-training-gepa-for-inference-time-search" class="level2">
 <h2 class="anchored" data-anchor-id="beyond-training-gepa-for-inference-time-search">Beyond Training: GEPA for Inference-Time Search</h2>
-<p>Everything we’ve covered so far assumes a familiar workflow: optimize on training data, deploy the result on new tasks. But GEPA supports a second paradigm that inverts this relationship entirely.</p>
+<p>Everything we’ve covered so far assumes a familiar workflow: optimize on training data, deploy the result on new tasks. But GEPA supports a second paradigm that flips this on its head.</p>
 <section id="two-paradigms-of-operation" class="level3">
 <h3 class="anchored" data-anchor-id="two-paradigms-of-operation">Two Paradigms of Operation</h3>
 <p><strong>Train-then-generalize</strong> (what we’ve built so far):</p>
@@ -2983,7 +2939,7 @@ font-style: inherit;">'lineage'</span>: lineage,</span>
 <li>GEPA searches for solutions, storing the best prompt <em>per task</em></li>
 <li>Goal: maximize performance on <em>these specific instances</em></li>
 </ul>
-<p>The mechanics are identical—reflective mutation, Pareto selection, merge. What changes is the intent: instead of learning transferable knowledge, you’re using GEPA as a <strong>search algorithm</strong> over the solution space. This aligns with the broader trend of <a href="https://openai.com/index/learning-to-reason-with-llms/">inference-time compute scaling</a>—investing more computation at inference to solve harder problems.</p>
+<p>The mechanics are identical—reflective mutation, Pareto selection, merge. What changes is the intent: instead of learning transferable knowledge, you’re using GEPA as a <strong>search algorithm</strong> over the solution space. This is an instance of <a href="https://openai.com/index/learning-to-reason-with-llms/">inference-time compute scaling</a>—investing more computation at inference to solve harder problems.</p>
 <p><strong>The key mechanical change</strong>: In normal GEPA, you have separate <code>trainset</code> (to learn from via reflection) and <code>valset</code> (to evaluate generalization). The Pareto frontier tracks per-instance performance on <code>valset</code>, preserving prompts that generalize well.</p>
 <p>For test-time search, pass the <em>same</em> problems as both <code>trainset</code> and <code>valset</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
@@ -3091,11 +3047,11 @@ font-style: inherit;"># Same held-out validation</span></span>
 </section>
 <section id="background-optimization-loops" class="level3">
 <h3 class="anchored" data-anchor-id="background-optimization-loops">Background Optimization Loops</h3>
-<p>The self-bootstrapping pattern suggests an intriguing application: <strong>background GEPA loops for personalization</strong> in tools like Cursor and other AI-assisted environments.</p>
+<p>The self-bootstrapping pattern suggests a natural application: <strong>background GEPA loops for personalization</strong> in tools like Cursor and other AI-assisted environments.</p>
 <blockquote class="blockquote">
 <p><em>“For your cursor agent use case, I can imagine that there can be a background GEPA loop that runs continuously and every time you give it feedback, it iterates and generates a new generalizing prompt… cursor can learn a user-specific prompt that works well specifically for you.”</em> — Lakshya A Agrawal</p>
 </blockquote>
-<p>Every correction you provide—rejecting a verbose explanation, fixing a code style—becomes a training signal that accumulates into a personalized prompt. The infrastructure isn’t widespread yet, but the pattern is clear: continuous adaptation rather than one-shot optimization.</p>
+<p>Every correction you provide—rejecting a verbose explanation, fixing a code style—becomes a training signal that accumulates into a personalized prompt. The infrastructure isn’t widespread yet, but the pattern points toward continuous adaptation rather than one-shot optimization.</p>
 <hr>
 </section>
 <section id="what-gepa-stores" class="level3">
@@ -3110,14 +3066,14 @@ font-style: inherit;"># Same held-out validation</span></span>
 </ul>
 <p>You can deploy these domain-specific prompts for future similar tasks, or simply extract the outputs and move on.</p>
 <hr>
-<p>When the conditions <em>are</em> right—rich feedback, high-value tasks worth the compute, domains where the LLM has strong priors—test-time GEPA can dramatically outperform sampling-based approaches. The next section demonstrates this on code generation: GEPA-optimized CUDA kernels that exceed human-written PyTorch baselines, in a domain where even frontier models like OpenAI-o1 and DeepSeek-R1 match the baseline on less than 20% of tasks.</p>
+<p>When the conditions <em>are</em> right—rich feedback, high-value tasks worth the compute, domains where the LLM has strong priors—test-time GEPA can beat sampling-based approaches. The next section demonstrates this on code generation: GEPA-optimized CUDA kernels that exceed human-written PyTorch baselines, in a domain where even frontier models like OpenAI-o1 and DeepSeek-R1 match the baseline on less than 20% of tasks.</p>
 </section>
 <section id="case-study-code-optimization-for-novel-hardware" class="level3">
 <h3 class="anchored" data-anchor-id="case-study-code-optimization-for-novel-hardware">Case Study: Code Optimization for Novel Hardware</h3>
-<p>The GEPA paper demonstrates test-time search on domains where GEPA’s strengths shine brightest: <strong>code optimization for hardware with limited pre-training data</strong>.</p>
+<p>The GEPA paper demonstrates test-time search on <strong>code optimization for hardware with limited pre-training data</strong>—a domain well-suited to GEPA’s reflective approach.</p>
 <section id="amd-npu-kernels-optimization-without-pre-training-knowledge" class="level4">
 <h4 class="anchored" data-anchor-id="amd-npu-kernels-optimization-without-pre-training-knowledge">AMD NPU Kernels: Optimization Without Pre-Training Knowledge</h4>
-<p>AMD’s NPU (Neural Processing Unit) represents a novel hardware architecture. LLMs have minimal pre-training knowledge about its programming model, memory hierarchy, or optimization patterns. The <a href="https://arxiv.org/abs/2507.14403">NPUEval benchmark</a> reveals just how challenging this is: even with compiler feedback and RAG, state-of-the-art LLMs achieve only ~10% mean vectorization score.</p>
+<p>AMD’s NPU (Neural Processing Unit) represents a novel hardware architecture. LLMs have minimal pre-training knowledge about its programming model, memory hierarchy, or optimization patterns. The <a href="https://arxiv.org/abs/2507.14403">NPUEval benchmark</a> shows how difficult this is: even with compiler feedback and RAG, state-of-the-art LLMs achieve only ~10% mean vectorization score.</p>
 <p>GEPA’s approach doesn’t require prior examples—it iteratively generates kernels, receives compiler errors or performance metrics, reflects on feedback, and proposes targeted improvements. The compiler error messages contain the fix: “Symbol not found: <code>npu_matmul</code>” triggers reflection that surfaces the correct API.</p>
 <blockquote class="blockquote">
 <p><em>“GEPA can be used to generate optimized kernels for AMD’s NPU hardware, which is a very novel hardware architecture, without any pre-training knowledge because of how novel the architecture is.”</em> — Lakshya A Agrawal</p>
@@ -3125,8 +3081,8 @@ font-style: inherit;"># Same held-out validation</span></span>
 </section>
 <section id="cuda-kernels-outperforming-human-baselines" class="level4">
 <h4 class="anchored" data-anchor-id="cuda-kernels-outperforming-human-baselines">CUDA Kernels: Outperforming Human Baselines</h4>
-<p><a href="https://scalingintelligence.stanford.edu/blogs/kernelbench/">KernelBench</a> (Stanford, 2025) evaluates LLMs on generating efficient CUDA kernels. The benchmark reveals a sobering baseline: <strong>frontier reasoning models match the PyTorch baseline on less than 20% of tasks</strong> using the fast₁ metric (correct <em>and</em> faster than PyTorch). Efficient GPU programming requires optimization patterns (memory coalescing, shared memory tiling, warp-level primitives) that models haven’t learned to apply reliably.</p>
-<p>The KernelBench paper shows that feedback-driven refinement dramatically improves results—fast₁ scores jumped 3-6x when execution results and profiler feedback were provided in context. GEPA applies this same principle systematically, with Pareto tracking to preserve diverse optimization strategies rather than ad-hoc iteration.</p>
+<p><a href="https://scalingintelligence.stanford.edu/blogs/kernelbench/">KernelBench</a> (Stanford, 2025) evaluates LLMs on generating efficient CUDA kernels. The benchmark sets a low baseline: <strong>frontier reasoning models match the PyTorch baseline on less than 20% of tasks</strong> using the fast₁ metric (correct <em>and</em> faster than PyTorch). Efficient GPU programming requires optimization patterns (memory coalescing, shared memory tiling, warp-level primitives) that models haven’t learned to apply reliably.</p>
+<p>The KernelBench paper shows that feedback-driven refinement improves results substantially—fast₁ scores jumped 3-6x when execution results and profiler feedback were provided in context. GEPA applies this same principle systematically, with Pareto tracking to preserve diverse optimization strategies rather than ad-hoc iteration.</p>
 <blockquote class="blockquote">
 <p><em>“For CUDA we show results on KernelBench where GEPA was able to generate better kernels, sometimes even outperforming the PyTorch baseline which are human-written.”</em> — Lakshya A Agrawal</p>
 </blockquote>
@@ -3145,8 +3101,8 @@ font-style: inherit;"># Same held-out validation</span></span>
 <section id="conclusion-when-to-reach-for-gepa" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion-when-to-reach-for-gepa">Conclusion: When to Reach for GEPA</h2>
 <p>We opened with a familiar bind: 50 labeled examples, a prompt that works 70% of the time, and no scalable path forward. GEPA changes that calculus—matching RL’s optimization performance at a fraction of the sample cost by doing something RL can’t: <em>reading the feedback</em>.</p>
-<p>The results speak for themselves: 46.6% → 56.6% on AIME math competition problems. 67% → 93% on MATH benchmark. CUDA kernels that outperform human-written PyTorch baselines. All achieved through prompt optimization alone, no fine-tuning required.</p>
-<p>This represents a genuinely new point in the optimization design space—one that becomes viable as LLMs get better at self-reflection. Where RL needs thousands of trajectories to statistically isolate what went wrong, GEPA reads the compiler error and proposes the fix. That’s not incremental improvement—it’s a 100x reduction in sample requirements.</p>
+<p>On AIME math problems: 46.6% → 56.6%. On MATH benchmark: 67% → 93%. CUDA kernels that outperform human-written PyTorch baselines. All through prompt optimization alone, no fine-tuning required.</p>
+<p>As LLMs have gotten better at self-reflection, this kind of optimization has become practical. Where RL needs thousands of trajectories to statistically isolate what went wrong, GEPA reads the compiler error and proposes the fix.</p>
 <hr>
 <section id="use-gepa-for-train-then-generalize-when" class="level3">
 <h3 class="anchored" data-anchor-id="use-gepa-for-train-then-generalize-when">Use GEPA for Train-Then-Generalize When:</h3>
