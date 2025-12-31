@@ -149,7 +149,7 @@ window.Quarto = {
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
@@ -235,7 +235,54 @@ window.Quarto = {
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-problem-scalar-rewards-and-expensive-rollouts" id="toc-the-problem-scalar-rewards-and-expensive-rollouts" class="nav-link active" data-scroll-target="#the-problem-scalar-rewards-and-expensive-rollouts">The Problem: Scalar Rewards and Expensive Rollouts</a></li>
+  <li><a href="#the-insight-llm-pipelines-generate-rich-textual-traces" id="toc-the-insight-llm-pipelines-generate-rich-textual-traces" class="nav-link" data-scroll-target="#the-insight-llm-pipelines-generate-rich-textual-traces">The Insight: LLM Pipelines Generate Rich Textual Traces</a></li>
+  <li><a href="#the-opportunity-llms-can-reflect-on-their-own-failures" id="toc-the-opportunity-llms-can-reflect-on-their-own-failures" class="nav-link" data-scroll-target="#the-opportunity-llms-can-reflect-on-their-own-failures">The Opportunity: LLMs Can Reflect on Their Own Failures</a></li>
+  <li><a href="#why-this-works-now" id="toc-why-this-works-now" class="nav-link" data-scroll-target="#why-this-works-now">Why This Works Now</a></li>
+  <li><a href="#optimizer-evolution-from-few-shot-to-reflection" id="toc-optimizer-evolution-from-few-shot-to-reflection" class="nav-link" data-scroll-target="#optimizer-evolution-from-few-shot-to-reflection">Optimizer Evolution: From Few-Shot to Reflection</a></li>
+  <li><a href="#how-gepa-works-building-it-from-scratch" id="toc-how-gepa-works-building-it-from-scratch" class="nav-link" data-scroll-target="#how-gepa-works-building-it-from-scratch">How GEPA Works: Building It From Scratch</a>
+  <ul class="collapse">
+  <li><a href="#quick-start-using-gepa-in-30-seconds" id="toc-quick-start-using-gepa-in-30-seconds" class="nav-link" data-scroll-target="#quick-start-using-gepa-in-30-seconds">Quick Start: Using GEPA in 30 Seconds</a></li>
+  <li><a href="#gepa-reflective-prompt-evolution-flow-diagram-from-paper" id="toc-gepa-reflective-prompt-evolution-flow-diagram-from-paper" class="nav-link" data-scroll-target="#gepa-reflective-prompt-evolution-flow-diagram-from-paper">GEPA: REFLECTIVE PROMPT EVOLUTION (Flow diagram from paper)</a></li>
+  <li><a href="#hands-on-building-reflective-mutation-from-scratch" id="toc-hands-on-building-reflective-mutation-from-scratch" class="nav-link" data-scroll-target="#hands-on-building-reflective-mutation-from-scratch">Hands-On: Building Reflective Mutation from Scratch</a></li>
+  <li><a href="#step-1-the-feedback-function" id="toc-step-1-the-feedback-function" class="nav-link" data-scroll-target="#step-1-the-feedback-function">Step 1: The Feedback Function</a></li>
+  <li><a href="#step-2-the-reflection-prompt" id="toc-step-2-the-reflection-prompt" class="nav-link" data-scroll-target="#step-2-the-reflection-prompt">Step 2: The Reflection Prompt</a></li>
+  <li><a href="#step-3-the-complete-optimization-loop" id="toc-step-3-the-complete-optimization-loop" class="nav-link" data-scroll-target="#step-3-the-complete-optimization-loop">Step 3: The Complete Optimization Loop</a></li>
+  <li><a href="#what-actually-happened" id="toc-what-actually-happened" class="nav-link" data-scroll-target="#what-actually-happened">What Actually Happened</a></li>
+  <li><a href="#the-greedy-selection-problem" id="toc-the-greedy-selection-problem" class="nav-link" data-scroll-target="#the-greedy-selection-problem">The Greedy Selection Problem</a></li>
+  <li><a href="#the-missing-ingredient-rich-feedback" id="toc-the-missing-ingredient-rich-feedback" class="nav-link" data-scroll-target="#the-missing-ingredient-rich-feedback">The Missing Ingredient: Rich Feedback</a></li>
+  <li><a href="#what-we-learned" id="toc-what-we-learned" class="nav-link" data-scroll-target="#what-we-learned">What We Learned</a></li>
+  <li><a href="#hands-on-building-the-pareto-frontier" id="toc-hands-on-building-the-pareto-frontier" class="nav-link" data-scroll-target="#hands-on-building-the-pareto-frontier">Hands-On: Building the Pareto Frontier</a></li>
+  <li><a href="#why-pareto-works-quality-diversity-and-map-elites" id="toc-why-pareto-works-quality-diversity-and-map-elites" class="nav-link" data-scroll-target="#why-pareto-works-quality-diversity-and-map-elites">Why Pareto Works: Quality-Diversity and Map Elites</a></li>
+  <li><a href="#the-lineage-tree-and-system-aware-merge" id="toc-the-lineage-tree-and-system-aware-merge" class="nav-link" data-scroll-target="#the-lineage-tree-and-system-aware-merge">The Lineage Tree and System-Aware Merge</a></li>
+  <li><a href="#the-complete-algorithm" id="toc-the-complete-algorithm" class="nav-link" data-scroll-target="#the-complete-algorithm">The Complete Algorithm</a></li>
+  <li><a href="#what-gepa-learns-domain-specific-knowledge-encoding" id="toc-what-gepa-learns-domain-specific-knowledge-encoding" class="nav-link" data-scroll-target="#what-gepa-learns-domain-specific-knowledge-encoding">What GEPA Learns: Domain-Specific Knowledge Encoding</a></li>
+  </ul></li>
+  <li><a href="#beyond-training-gepa-for-inference-time-search" id="toc-beyond-training-gepa-for-inference-time-search" class="nav-link" data-scroll-target="#beyond-training-gepa-for-inference-time-search">Beyond Training: GEPA for Inference-Time Search</a>
+  <ul class="collapse">
+  <li><a href="#two-paradigms-of-operation" id="toc-two-paradigms-of-operation" class="nav-link" data-scroll-target="#two-paradigms-of-operation">Two Paradigms of Operation</a></li>
+  <li><a href="#why-gepa-beats-high-temperature-sampling" id="toc-why-gepa-beats-high-temperature-sampling" class="nav-link" data-scroll-target="#why-gepa-beats-high-temperature-sampling">Why GEPA Beats High-Temperature Sampling</a></li>
+  <li><a href="#self-bootstrapping-at-inference" id="toc-self-bootstrapping-at-inference" class="nav-link" data-scroll-target="#self-bootstrapping-at-inference">Self-Bootstrapping at inference</a></li>
+  <li><a href="#cross-task-transfer-within-a-batch" id="toc-cross-task-transfer-within-a-batch" class="nav-link" data-scroll-target="#cross-task-transfer-within-a-batch">Cross-Task Transfer Within a Batch</a></li>
+  <li><a href="#background-optimization-loops" id="toc-background-optimization-loops" class="nav-link" data-scroll-target="#background-optimization-loops">Background Optimization Loops</a></li>
+  <li><a href="#what-gepa-stores" id="toc-what-gepa-stores" class="nav-link" data-scroll-target="#what-gepa-stores">What GEPA Stores</a></li>
+  <li><a href="#case-study-code-optimization-for-novel-hardware" id="toc-case-study-code-optimization-for-novel-hardware" class="nav-link" data-scroll-target="#case-study-code-optimization-for-novel-hardware">Case Study: Code Optimization for Novel Hardware</a></li>
+  </ul></li>
+  <li><a href="#conclusion-when-to-reach-for-gepa" id="toc-conclusion-when-to-reach-for-gepa" class="nav-link" data-scroll-target="#conclusion-when-to-reach-for-gepa">Conclusion: When to Reach for GEPA</a>
+  <ul class="collapse">
+  <li><a href="#use-gepa-for-train-then-generalize-when" id="toc-use-gepa-for-train-then-generalize-when" class="nav-link" data-scroll-target="#use-gepa-for-train-then-generalize-when">Use GEPA for Train-Then-Generalize When:</a></li>
+  <li><a href="#use-gepa-for-test-time-search-when" id="toc-use-gepa-for-test-time-search-when" class="nav-link" data-scroll-target="#use-gepa-for-test-time-search-when">Use GEPA for Test-Time Search When:</a></li>
+  <li><a href="#stick-with-traditional-approaches-when" id="toc-stick-with-traditional-approaches-when" class="nav-link" data-scroll-target="#stick-with-traditional-approaches-when">Stick with Traditional Approaches When:</a></li>
+  <li><a href="#get-started" id="toc-get-started" class="nav-link" data-scroll-target="#get-started">Get Started</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
 

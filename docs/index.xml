@@ -10,7 +10,1172 @@
 <atom:link href="https://risheekkumar.in/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog about tech, programming, and life.</description>
 <generator>quarto-1.8.26</generator>
-<lastBuildDate>Sat, 20 Dec 2025 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 30 Dec 2025 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>Programmatic Prompt Optimization: Replacing Intuition with Algorithms</title>
+  <dc:creator>Risheek kumar B</dc:creator>
+  <link>https://risheekkumar.in/posts/gepa-impact/gepa_impact_final.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>I’d built plenty of successful POCs with LLM prompts. Impressive in demos, but when it came time to deploy at scale, precision wasn’t good enough… recall wasn’t high. I’d tried methods from many prompt tutorials from <a href="https://platform.openai.com/docs/guides/prompt-engineering">openai</a>, <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview">claude</a> etc.</p>
+<p>Manual prompt engineering is fundamentally trial and error. What works today might fail tomorrow and there’s no systematic way to improve it.</p>
+<p>My task at hand was getting insights from unstructured customer interaction data. I’d spent three weeks fine-tuning a single prompt by hand, iterating through variations, hoping to stumble on something that worked consistently. It wasn’t cutting it. Even if this worked now, what about model upgrades? What about maintenance?</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>The key observation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>LLMs are remarkably good at <em>giving feedback</em>. They can look at their own outputs and tell you exactly what went wrong. So why couldn’t they convert that feedback into better prompts automatically?</p>
+</div>
+</div>
+<p>I searched for tools that could achieve this out of pure desperation. That’s when I stumbled upon <a href="https://thedataquarry.com/blog/learning-dspy-1-the-power-of-good-abstractions/">DSPy</a> and the concept of prompt optimizers: systems that treat prompt engineering as an optimization problem rather than an art. When <a href="https://dspy.ai/tutorials/gepa_aime/">GEPA</a> was released, I knew I had to test it.</p>
+<p>Think of it like compilation: you write high-level code (your task definition), and the compiler transforms it into optimized machine instructions (a prompt that actually works). You don’t hand-tune assembly, so why hand-tune prompts?</p>
+<section id="the-pilot" class="level2">
+<h2 class="anchored" data-anchor-id="the-pilot">The Pilot</h2>
+<p>I needed a simple test to see if GEPA could work for my use case. So I created a synthetic dataset of 27 sales call transcripts that represented a real challenge we face: <strong>detecting presence of required behaviors and predicting call quality (good/bad)</strong>. The transcripts were hand-labeled across 7 behavior categories <code>(introduction, needs, value proposition, objection handling, benefit reinforcement, risk reduction, and closing)</code>. Small enough to iterate fast, realistic enough to validate the approach—and representative of a problem I’d hit repeatedly: intent extraction and call evaluation look easy for a few cases, but precision and recall tank at scale.</p>
+<p>I expected weeks of iteration. Instead, I got meaningful results in a single run. Usually a show piece like this would be carefully selected sample to show the power of the approach. Here this is literally first attempt, that in itself tells the power of the approach.</p>
+<div id="fc5bed8c" class="cell" data-time_run="2025-12-31T10:47:07.998250+00:00" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+  <div style="display:flex; flex-wrap:wrap; gap:20px; font-family:system-ui,-apple-system,sans-serif;">
+    <div style="flex:1 1 300px; background:#f8f9fa; border-radius:12px; padding:20px; border:1px solid #e0e0e0;">
+      <h3 style="margin:0 0 12px 0; color:#1a73e8; font-size:14px; text-transform:uppercase; letter-spacing:1px;" class="anchored">📞 Input: Call Transcript</h3>
+      <div style="background:white; padding:16px; border-radius:8px; font-size:13px; line-height:1.6; max-height:300px; overflow-y:auto; white-space:pre-wrap; color:#333;">agent: Hi, good afternoon! This is Maya calling from Citi Corp. Am I speaking with Jordan Lee?
+
+customer: Yes, this is Jordan.
+
+agent: Great, Jordan. How are you doing today?
+
+customer: I'm good, thanks. Busy afternoon, but I have a few minutes.
+
+agent: I appreciate you taking the time...</div>
+    </div>
+    <div style="flex:1 1 300px; background:#f0f7f0; border-radius:12px; padding:20px; border:1px solid #c8e6c9;">
+      <h3 style="margin:0 0 12px 0; color:#2e7d32; font-size:14px; text-transform:uppercase; letter-spacing:1px;" class="anchored">📊 Output: Analysis</h3>
+      <div style="background:white; padding:16px; border-radius:8px; margin-bottom:12px;">
+        <div style="font-size:12px; color:#666; margin-bottom:4px;">Call Quality</div>
+        <div style="font-size:24px; font-weight:600; color:#2e7d32;">✓ Good</div>
+      </div>
+      <div style="background:white; padding:16px; border-radius:8px;">
+        <div style="font-size:12px; color:#666; margin-bottom:8px;">Detected Categories</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Introduction/Rapport ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Need Assessment ✓</span>
+          <span style="background:#ffebee; color:#c62828; padding:4px 10px; border-radius:16px; font-size:12px;">Value Proposition ✗</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Objection Handling ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Benefit Reinforcement ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Risk Reduction ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Call to Action ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Cost</th>
+<th>Time</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Manual prompt engineering</td>
+<td>$100-1000 (engineer time)</td>
+<td>Days to weeks</td>
+<td>72%</td>
+</tr>
+<tr class="even">
+<td><strong>GEPA</strong></td>
+<td>~$2</td>
+<td>10 hours</td>
+<td>81%</td>
+</tr>
+<tr class="odd">
+<td>GEPA with error analysis</td>
+<td>~$0.5</td>
+<td>3 hours</td>
+<td>90%</td>
+</tr>
+</tbody>
+</table>
+<p>The optimizer ran for about 10 hours, cost roughly $2, and explored over 200 prompt variants. Through genetic mutation and Pareto selection, it whittled those down to 9 “survivors”—prompts that excelled at different subsets of the problem. The best performer jumped from 72% to 81% accuracy, a lift I hadn’t achieved in months of manual tuning.</p>
+<p>The intermediate prompts evolving caught my eye. I could see the optimizer discovering nuances I’d never thought to include: explicit definitions for each category, step-by-step rules for edge cases, domain-specific guidance about soft pulls versus hard pulls. The quality of the reasoning it produced while iterating was genuinely impressive.</p>
+<p>Hopefully I have convinced you that this method is powerful, lets see how i did it and you can follow similar steps for yours as well.</p>
+</section>
+</section>
+<section id="detailed-implementation-of-gepa" class="level2">
+<h2 class="anchored" data-anchor-id="detailed-implementation-of-gepa">Detailed Implementation of GEPA</h2>
+<p>Let’s first understand what GEPA does, then dive into code for this specific usecase. If you want deeper dive on how GEPA works, i have previously written a detailed piece here: <a href="https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html">GEPA</a></p>
+<p>Code-first folks: here’s the notebook: <a href="https://github.com/risheekkumarb/gepa-impact-article/blob/main/exploration%20v2.ipynb">github link</a></p>
+<blockquote class="blockquote">
+<p>We’ll use DSPy to run GEPA. If you’re new to DSPy, it’s a framework that treats prompts as code you can optimize programmatically. For background, see <a href="https://thedataquarry.com/blog/learning-dspy-3-working-with-optimizers/">The Data Quarry’s guide</a>.</p>
+</blockquote>
+<hr>
+<section id="how-gepa-works" class="level3">
+<h3 class="anchored" data-anchor-id="how-gepa-works">How GEPA Works</h3>
+<p>GEPA (Genetic-Pareto Algorithm) differs from traditional optimization in three key ways:</p>
+<ol type="1">
+<li><p><strong>Reflective Mutation</strong>: The LLM <em>reads failure feedback</em> and proposes targeted improvements. It’s not random guessing—it’s reasoning about what went wrong.</p></li>
+<li><p><strong>Pareto Selection</strong>: Instead of keeping only the single best prompt, GEPA maintains a “frontier” of diverse specialists. One prompt might excel at detecting objection handling; another at predicting outcomes. This prevents catastrophic forgetting.</p></li>
+<li><p><strong>Text-as-Feedback</strong>: Traditional RL uses scalar rewards. GEPA exploits rich textual feedback (“You incorrectly marked this as rapport-building because…”) to guide mutations precisely.</p></li>
+</ol>
+<hr>
+</section>
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<p>To Use GEPA, we need 3 components.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 34%">
+<col style="width: 39%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>What it does</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DSPy Signature</strong></td>
+<td>Your baseline prompt defining the task</td>
+<td>The “prompt” being optimized</td>
+</tr>
+<tr class="even">
+<td><strong>Metric &amp; Feedback</strong></td>
+<td>Returns score + textual feedback</td>
+<td>Tells optimizer what “good” looks like <em>and why</em></td>
+</tr>
+<tr class="odd">
+<td><strong>Dataset</strong></td>
+<td>Labeled examples (train/val/test)</td>
+<td>Ground truth for evaluation</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<section id="the-dspy-signature" class="level4">
+<h4 class="anchored" data-anchor-id="the-dspy-signature">The DSPy Signature</h4>
+<p>In DSPy, A Signature defines input/output schema; the instructions in the docstring become part of the prompt. My initial prompt was embarrassingly simple—just two lines:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">class</span> CallAnalysis(dspy.Signature):</span>
+<span id="cb1-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb1-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Read the provided call transcript and analyze it comprehensively.</span></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Determine both: (1) which categories the agent displayed, and </span></span>
+<span id="cb1-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    (2) whether the call will lead to conversion or customer retention.</span></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb1-7">    message: <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dspy.InputField()</span>
+<span id="cb1-8">    categories: List[Literal[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"introduction_rapport_building"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"need_assessment_qualification"</span>, </span>
+<span id="cb1-9">                             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"value_proposition_feature_mapping"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"objection_handling"</span>, </span>
+<span id="cb1-10">                             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"benefit_reinforcement"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"risk_reduction_trust_building"</span>, </span>
+<span id="cb1-11">                             <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"call_to_action_closing"</span>]] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dspy.OutputField()</span>
+<span id="cb1-12">    final_result: Literal[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'good'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'bad'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dspy.OutputField()</span>
+<span id="cb1-13"></span>
+<span id="cb1-14">program <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dspy.ChainOfThought(CallAnalysis)</span></code></pre></div></div>
+<hr>
+</section>
+<section id="metric-function" class="level4">
+<h4 class="anchored" data-anchor-id="metric-function">Metric Function</h4>
+<p>A Metric tells us whether we are moving in the right direction. In this case, accuracy of categories detected and final prediction that whether call was good or bad - both were important. Hence metric will be mean of both the entities</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> call_qual_metric(gold, pred):</span>
+<span id="cb2-2">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> gold <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> pred <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.0</span></span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> category_qual_metric(gold, pred):</span>
+<span id="cb2-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Compute score for categories using set operations."""</span></span>
+<span id="cb2-6">    pred_set <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">set</span>(pred)</span>
+<span id="cb2-7">    gold_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k, v <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> gold.items() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> v}</span>
+<span id="cb2-8">    gold_false <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k, v <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> gold.items() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> v}</span>
+<span id="cb2-9">    </span>
+<span id="cb2-10">    correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(gold_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> pred_set) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(gold_false <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> pred_set)</span>
+<span id="cb2-11">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> correct <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(gold)</span>
+<span id="cb2-12"></span>
+<span id="cb2-13"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> comb_metric(gold, pred, trace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>, pred_name<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>, pred_trace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>):</span>
+<span id="cb2-14">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Overall metric combining both scores."""</span></span>
+<span id="cb2-15">    call_qual <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> call_qual_metric(gold.final_result, pred.final_result)</span>
+<span id="cb2-16">    category_qual <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> category_qual_metric(gold.categories, pred.categories)</span>
+<span id="cb2-17">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (call_qual <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> category_qual) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span></code></pre></div></div>
+<hr>
+</section>
+<section id="adding-feedback" class="level4">
+<h4 class="anchored">Adding Feedback</h4>
+<p>This is the key enabler. A basic metric only returns a score but not <em>why</em> it failed. With feedback, the optimizer can reason about failures and propose targeted fixes.</p>
+<div id="535ea46d" class="cell" data-hide_input="true" data-time_run="2025-12-31T10:21:01.090786+00:00">
+<div class="cell-output cell-output-display" data-execution_count="0">
+
+<style>
+  .compare-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .compare-box { flex: 1; min-width: 280px; border: 2px solid #ccc; padding: 15px; border-radius: 8px; }
+  .compare-box.basic { background: #f9f9f9; border-color: #ccc; }
+  .compare-box.feedback { background: #f0fff0; border-color: #27ae60; }
+  .compare-box h3 { margin-top: 0; }
+  .compare-box pre { white-space: pre-wrap; font-size: 11px; overflow-x: auto; }
+  @media (max-width: 600px) {
+    .compare-container { flex-direction: column; }
+    .compare-box { min-width: 100%; }
+  }
+</style>
+<div class="compare-container">
+  <div class="compare-box basic">
+    <h3 style="color: #d35400;" class="anchored" data-anchor-id="adding-feedback">❌ Metric (Score Only)</h3>
+    <pre>def comb_metric(example, pred):
+    gold_cat = json.loads(example['answer'])
+    gold_final = example['final_result']
+
+    # Category score
+    correct = sum(1 for k, v in gold_cat.items() 
+                  if (v and k in pred.categories) or 
+                     (not v and k not in pred.categories))
+    cat_score = correct / len(gold_cat)
+
+    # Final result score
+    final_score = 1.0 if gold_final == pred.final_result else 0.0
+
+    return (cat_score + final_score) / 2</pre>
+    <br>
+    <p><b>Problem:</b> Optimizer only knows "0.7" — no idea <i>why</i> it failed.</p>
+  </div>
+  <div class="compare-box feedback">
+    <h3 style="color: #27ae60;" class="anchored">✅ Metric with Feedback</h3>
+    <pre>def comb_metric_with_feedback(example, pred, pred_name=None):
+    # ... same scoring logic as above ...
+
+    # Generate textual feedback
+    if gold_final != pred.final_result:
+        fb = f"Incorrect: predicted {pred.final_result}, actual {gold_final}"
+    else:
+        fb = f"Correct: {gold_final}"
+
+    if incorrectly_included:
+        fb += f"\nFalse positives: {incorrectly_included}"
+    if incorrectly_excluded:
+        fb += f"\nMissed categories: {incorrectly_excluded}"
+
+    return dspy.Prediction(score=score, feedback=fb)</pre>
+    <br>
+    <p><b>Benefit:</b> Optimizer sees "Missed: intro_rapport" → can propose targeted fix.</p>
+  </div>
+</div>
+</div>
+</div>
+<p><strong>Code example:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> call_qual_feedback(gold, pred):</span>
+<span id="cb3-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">""" Generate feedback for final result module. """</span></span>
+<span id="cb3-3">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> gold <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> pred:</span>
+<span id="cb3-4">        fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"You correctly classified the sales call as `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>gold<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`. This sales call is indeed `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>gold<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`."</span></span>
+<span id="cb3-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span>:</span>
+<span id="cb3-6">        fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"You incorrectly classified the sales call as `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>pred<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`. The correct sales call is `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>gold<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`. Think about how you could have reasoned to get the correct sales call label."</span></span>
+<span id="cb3-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> fb</span>
+<span id="cb3-8"></span>
+<span id="cb3-9"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> category_qual_feedback(gold, pred):</span>
+<span id="cb3-10">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Generate feedback using set operations."""</span></span>
+<span id="cb3-11">    pred_set <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">set</span>(pred)</span>
+<span id="cb3-12">    gold_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k, v <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> gold.items() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> v}</span>
+<span id="cb3-13">    gold_false <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> k, v <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> gold.items() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> v}</span>
+<span id="cb3-14">    </span>
+<span id="cb3-15">    correctly_included <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> gold_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> pred_set</span>
+<span id="cb3-16">    incorrectly_included <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> gold_false <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> pred_set</span>
+<span id="cb3-17">    incorrectly_excluded <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> gold_true <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> pred_set</span>
+<span id="cb3-18">    correctly_excluded <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> gold_false <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> pred_set</span>
+<span id="cb3-19">    </span>
+<span id="cb3-20">    score <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(correctly_included) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(correctly_excluded)) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(gold)</span>
+<span id="cb3-21">    </span>
+<span id="cb3-22">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> score <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>:</span>
+<span id="cb3-23">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Perfect. Correctly identified: `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>correctly_included<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`."</span>, score</span>
+<span id="cb3-24">    </span>
+<span id="cb3-25">    fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Correctly identified: `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>correctly_included<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-26">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> incorrectly_included:</span>
+<span id="cb3-27">        fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"False positives: `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>incorrectly_included<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-28">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> incorrectly_excluded:</span>
+<span id="cb3-29">        fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> <span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"Missed: `</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>incorrectly_excluded<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`.</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span></span>
+<span id="cb3-30">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> fb</span>
+<span id="cb3-31"></span>
+<span id="cb3-32"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> comb_metric_with_feedback(gold, pred, trace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>, pred_name<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>, pred_trace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>):</span>
+<span id="cb3-33">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""</span></span>
+<span id="cb3-34"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Computes a score and provides feedback for the call analysis prediction.</span></span>
+<span id="cb3-35"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    Returns total score if pred_name is None, otherwise returns dspy.Prediction with score and feedback.</span></span>
+<span id="cb3-36"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">    """</span></span>
+<span id="cb3-37">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute feedback and scores</span></span>
+<span id="cb3-38">    cal_fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> call_qual_feedback(gold.final_result, pred.final_result)</span>
+<span id="cb3-39">    cat_fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> category_qual_feedback(gold.categories, pred.categories)</span>
+<span id="cb3-40">    fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> cal_fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> cat_fb</span>
+<span id="cb3-41">    score <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> comb_metric(gold, pred)</span>
+<span id="cb3-42">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> dspy.Prediction(score<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>score, feedback<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>fb)</span></code></pre></div></div>
+<hr>
+</section>
+</section>
+<section id="running-gepa" class="level3">
+<h3 class="anchored" data-anchor-id="running-gepa">Running GEPA</h3>
+<p>With prerequisites in place, optimization is straightforward:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> dspy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> GEPA</span>
+<span id="cb4-2"></span>
+<span id="cb4-3">optimizer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> GEPA(</span>
+<span id="cb4-4">    metric<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>comb_metric_with_feedback,</span>
+<span id="cb4-5">    auto<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"light"</span>,</span>
+<span id="cb4-6">)</span>
+<span id="cb4-7"></span>
+<span id="cb4-8">optimized_program <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> optimizer.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">compile</span>(program, trainset<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>tset, valset<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>vset)</span></code></pre></div></div>
+<hr>
+</section>
+<section id="post-gepa-run" class="level3">
+<h3 class="anchored" data-anchor-id="post-gepa-run">Post GEPA run</h3>
+<p>GEPA ran for 10 hrs on my PC. I saw the 2-line prompt evolve into ~1,500 words of instruction discovering nuances like “a bare greeting isn’t rapport-building; look for warmth and time acknowledgment”.</p>
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Pay Attention
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In some cases, it came up with better instructions and heuristics than me. Kindah felt fearful yet exciting.</p>
+</div>
+</div>
+<div id="e43eb8ba" class="cell" data-hide_input="true" data-time_run="2025-12-31T10:22:24.379298+00:00">
+<div class="cell-output cell-output-display" data-execution_count="0">
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+  <div style="flex: 1 1 300px; min-width: 280px; border: 2px solid #ccc; padding: 15px; border-radius: 8px; background: #f9f9f9;">
+    <h3 style="color: #d35400; margin-top: 0;" class="anchored">Initial Prompt</h3>
+    <pre style="white-space: pre-wrap; font-size: 12px;">Read the provided call transcript and analyze it comprehensively.
+Determine both: (1) which categories the agent displayed, and (2) whether the call will lead to conversion or customer retention.</pre>
+  </div>
+  <div style="flex: 1 1 300px; min-width: 280px; border: 2px solid #27ae60; padding: 15px; border-radius: 8px; background: #f0fff0;">
+    <h3 style="color: #27ae60; margin-top: 0;" class="anchored">Optimized Prompt (GEPA)</h3>
+    <pre style="white-space: pre-wrap; font-size: 11px; max-height: 400px; overflow-y: auto;">New Instructions for Analyzing Banking/Card Transaction Call Transcripts
+
+Overview
+You are an analysis assistant whose job is to evaluate sales/transact‑ion-focused call transcripts in the banking/credit-card domain. For each transcript, produce a compact, structured analysis with two main objectives:
+  (a) identify the agent behavior categories demonstrated (from the seven pillars below), and
+  (b) judge whether the call outcome is good or bad.
+
+Inputs you will receive
+- A complete transcript of a single call between an agent and a customer. Transcripts may include labels such as "agent:" and "customer:" and may cover topics like card offers, fees, rewards, security, and next steps.
+
+What you must produce (three sections exactly)
+1) reasoning
+   - Provide a concise, bullets-style justification for every pillar category you detected in the transcript.
+   - Include short quotes or paraphrases from the transcript to illustrate why the category applies. Do not introduce facts or assumptions beyond what is in the transcript.
+   - If you detect a strength/weakness signal about the outcome, include a brief, one- to two-sentence note here describing how strong the signal is and what would push it toward conversion or toward retention.
+   - This section may contain a small, optional note about outcome strength, but must not introduce information outside the transcript.
+
+2) categories
+   - Output a Python-like list of the detected pillar categories in the exact order they first appeared in the transcript.
+   - Example format: ['introduction_rapport_building', 'need_assessment_qualification', ...]
+
+3) final_result
+   - A single word indicating the call outcome:
+     - good — the call demonstrates strong agent performance and is likely to lead to conversion or retention.
+     - bad — the call shows weak agent performance or missed opportunities.
+   - Do not add any qualifiers in this field; use exactly one of the two keywords above.
+
+Optional but encouraged: assess the strength of the outcome
+- If you include it (recommendation), place this assessment only in reasoning as the optional strength_of_outcome note. Keep it concise (one or two sentences). It should address:
+  - How strong is the good/bad signal?
+  - What would most likely push the outcome toward good or toward bad?
+
+Pillar definitions (seven bank/card-specific categories)
+- introduction_rapport_building
+  - Includes opening greetings, courtesy, acknowledgment of time, and attempts to establish rapport.
+  - Examples: greetings, confirming time, polite introductions, small talk about fit or time constraints.
+- need_assessment_qualification
+  - Involves asking about customer needs, usage, spend patterns, eligibility checks, and whether the product fits (e.g., business vs personal, employee cards, annual fees, soft vs hard pulls).
+- value_proposition_feature_mapping
+  - Linking card features to tangible, customer-relevant benefits (rewards, protections, credits) and showing how those features align with stated needs.
+- objection_handling
+  - Addressing concerns about price, complexity, trust, enrollment, or process obstacles. Includes acknowledging concerns and offering clarifications or mitigations.
+- benefit_reinforcement
+  - Reiterating concrete benefits and value after objections or hesitations, often tying back to the customer's stated needs.
+- risk_reduction_trust_building
+  - Providing security assurances, privacy protections, non-hard-pull options, guarantees, terms clarity, or brand trust signals.
+- call_to_action_closing
+  - Concrete next steps or commitments: soft checks, secure links, email/mail options, scheduling follow-ups, or instructions to apply/get more information.
+
+How to apply the rules
+- For every transcript, read from start to finish. Mark each pillar as soon as its criteria are clearly demonstrated.
+- If a single utterance clearly satisfies more than one pillar, count it under all applicable pillars.
+- If a pillar is not clearly demonstrated anywhere in the transcript, do not include it in the categories list.
+- Record the detected pillars in the exact order of their first appearance in the transcript.
+- The final_result should reflect the overall trajectory of the call as described above.
+
+Output constraints and format
+- Do not introduce any facts not present in the transcript.
+- Do not insert subjective opinions beyond what is grounded in the transcript.
+- Use the exact section headings and formatting:
+  reasoning
+  categories
+  final_result
+- Do not include extraneous content beyond the three sections above.
+
+Domain-specific considerations
+- You may encounter references to soft pulls vs hard pulls, online applications, secure links, email follow-ups, or scheduled follow-ups. Treat these as legitimate "call_to_action_closing" or "risk_reduction_trust_building" elements as appropriate.
+- When quoting or paraphrasing, keep quotes brief and focused on the reason for the pillar.
+- If PII appears in the transcript (e.g., partial SSN or addresses), quote minimally and do not reveal full sensitive data in your justification. You may paraphrase or reference the presence of sensitive data without reproducing it.
+
+Example behavior (not to reproduce here)
+- A transcript with strong agent behaviors and clear next steps is more likely good; a transcript with missed opportunities, customer hesitation, or weak closing is more likely bad.
+
+End result
+- Return exactly three sections for every transcript analyzed, with the content governed by the rules above. This format enables consistent, comparable, and transparent analysis across transcripts.</pre>
+  </div>
+</div>
+</div>
+</div>
+<p>Result: <strong>72% → 81% accuracy</strong>. More importantly, the process was repeatable.</p>
+<p>For a deeper technical dive: <a href="https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html">GEPA Deepdive</a></p>
+</section>
+</section>
+<section id="breaking-through-the-81-ceiling-with-error-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="breaking-through-the-81-ceiling-with-error-analysis">Breaking Through the 81% Ceiling with Error Analysis</h2>
+<p>With the above proof, I deployed it internally and it worked reliably wherever it was implemented properly. But I wasn’t satisfied. When I manually reviewed the failing cases, something bothered me: these weren’t hard examples. Given a hint, the LLM could easily get them right. So why was it failing?</p>
+<p>So I dug in and exported the misclassified examples to a spreadsheet and studied them systematically:</p>
+<div style="overflow-x: auto;">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input (truncated)</th>
+<th>Actual</th>
+<th>Predicted</th>
+<th>What Went Wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tyler calling from dominos… “sounds good, I’ll send that link…”</td>
+<td>bad</td>
+<td>good</td>
+<td>Customer showed hesitation (“I’m really not sure…”) but agent rushed to close</td>
+</tr>
+<tr class="even">
+<td>Mark from JP calling about credit solutions…</td>
+<td>rapport = <strong>false</strong></td>
+<td>rapport = <strong>true</strong></td>
+<td>Agent said “Hi, this is Mark from JP” with no warmth or rapport signals</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The pattern became clear:</strong> the model was over-detecting <code>introduction_rapport_building</code>—treating any greeting as rapport. It also sometimes marked calls as “good” just because next steps existed, even when the customer showed clear hesitation.</p>
+<style>
+  .flow-container { 
+    display: flex; 
+    flex-direction: row; /* Force horizontal by default */
+    flex-wrap: nowrap; /* Keep it on one line for desktop */
+    gap: 12px; 
+    justify-content: center; 
+    align-items: center; 
+    font-family: system-ui, sans-serif; 
+    padding: 20px 0; 
+  }
+  .flow-box { 
+    background: #f8f9fa; 
+    border: 2px solid #ddd; 
+    border-radius: 10px; 
+    padding: 16px 20px; 
+    text-align: center; 
+    flex: 1; /* Allows boxes to share space equally */
+    max-width: 180px; 
+  }
+  .flow-box h4 { margin: 0 0 6px 0; font-size: 14px; color: #333; }
+  .flow-box p { margin: 0; font-size: 12px; color: #666; }
+  .flow-box.start { border-color: #1a73e8; background: #e8f0fe; }
+  .flow-box.process { border-color: #f9ab00; background: #fef7e0; }
+  .flow-box.result { border-color: #34a853; background: #e6f4ea; }
+  .flow-arrow { font-size: 24px; color: #999; flex-shrink: 0; }
+
+  /* Responsive: Switch to vertical at 800px or less */
+  @media (max-width: 800px) {
+    .flow-container { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .flow-box { max-width: 100%; width: 200px; } /* Fixed width looks better in vertical stacks */
+  }
+</style>
+<div class="flow-container">
+<div class="flow-box start">
+<h4 class="anchored">
+🎯 GEPA Run 1
+</h4>
+<p>
+72% → 81%
+</p>
+</div>
+<span class="flow-arrow">→</span>
+<div class="flow-box process">
+<h4 class="anchored">
+🔍 Error Analysis
+</h4>
+<p>
+Export failures, find patterns
+</p>
+</div>
+<span class="flow-arrow">→</span>
+<div class="flow-box process">
+<h4 class="anchored">
+✏️ Add Feedback
+</h4>
+<p>
+Targeted hints for failures
+</p>
+</div>
+<span class="flow-arrow">→</span>
+<div class="flow-box result">
+<h4 class="anchored">
+🚀 GEPA Run 2
+</h4>
+<p>
+81% → 90%
+</p>
+</div>
+</div>
+<section id="the-solution-targeted-feedback-in-the-metric" class="level3">
+<h3 class="anchored" data-anchor-id="the-solution-targeted-feedback-in-the-metric">The Solution: Targeted Feedback in the Metric</h3>
+<p>My hunch was simple: if I could teach the optimizer <em>why</em> these specific cases failed, it could learn the distinctions. I added a <code>feedback</code> column to my dataset and filled it only for mistagged cases—writing out precisely why my label was correct. For example:</p>
+<blockquote class="blockquote">
+<p><em>“The agent said ‘Hi, this is Mark from JP’ without warmth, time acknowledgment, or rapport-building. A bare introduction doesn’t qualify as introduction_rapport_building.”</em></p>
+</blockquote>
+<style>
+  .iter-table { border-collapse: collapse; font-family: system-ui, sans-serif; font-size: 13px; }
+  .iter-table th, .iter-table td { padding: 10px 14px; border: 1px solid #ddd; text-align: center; }
+  .iter-table th { background: #f5f5f5; font-weight: 600; }
+  .iter-table .example { text-align: left; font-weight: 500; }
+  .iter-table .pass { background: #c8e6c9; color: #2e7d32; }
+  .iter-table .fail { background: #ffcdd2; color: #c62828; }
+  .iter-table .fb { background: #fff8e1; font-size: 11px; text-align: left; max-width: 180px; }
+  .iter-table .na { color: #999; }
+</style>
+<div style="overflow-x: auto;">
+<table class="iter-table">
+<tbody><tr>
+<th>
+Example
+</th>
+<th>
+Iter 1
+</th>
+<th>
+Feedback
+</th>
+<th>
+Iter 2
+</th>
+<th>
+Feedback
+</th>
+<th>
+Iter 3
+</th>
+</tr>
+<tr>
+<td class="example">
+Tyler
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Look for hesitation signals
+</td>
+<td class="pass">
+✅
+</td>
+<td class="na">
+—
+</td>
+<td class="na">
+—
+</td>
+</tr>
+<tr>
+<td class="example">
+Mark
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Greeting ≠ rapport
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Need warmth/courtesy
+</td>
+<td class="pass">
+✅
+</td>
+</tr>
+<tr>
+<td class="example">
+John
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Greeting ≠ rapport
+</td>
+<td class="pass">
+✅
+</td>
+<td class="na">
+—
+</td>
+<td class="na">
+—
+</td>
+</tr>
+</tbody></table>
+</div>
+<p>Then I passed this feedback directly to GEPA through the metric function:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> comb_metric_with_feedback(gold, pred, trace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>, pred_name<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>, pred_trace<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>):</span>
+<span id="cb5-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Metric that returns score + feedback, including targeted hints for known failure cases."""</span></span>
+<span id="cb5-3">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute scores</span></span>
+<span id="cb5-4">    call_qual <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> call_qual_metric(gold.final_result, pred.final_result)</span>
+<span id="cb5-5">    category_qual <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> category_qual_metric(gold.categories, pred.categories)</span>
+<span id="cb5-6">    score <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (call_qual <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> category_qual) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb5-7">    </span>
+<span id="cb5-8">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Generate base feedback</span></span>
+<span id="cb5-9">    cal_fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> call_qual_feedback(gold.final_result, pred.final_result)</span>
+<span id="cb5-10">    cat_fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> category_qual_feedback(gold.categories, pred.categories)</span>
+<span id="cb5-11">    fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> cal_fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> cat_fb</span>
+<span id="cb5-12"></span>
+<span id="cb5-13">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Append targeted feedback from the dataset (if present)</span></span>
+<span id="cb5-14">    fb <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+=</span> gold.feedback</span>
+<span id="cb5-15"></span>
+<span id="cb5-16">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> dspy.Prediction(score<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>score, feedback<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>fb)</span></code></pre></div></div>
+<p>Now when GEPA’s reflective mutations analyze failures, they see specific guidance like “look for warmth signals, not just greetings” instead of generic “wrong answer” feedback.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>💡 Pro tip:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You could use an LLM to generate this feedback automatically, but doing it manually gives you fine-grained control over how the final prompt evolves. The LLM might miss the exact nuance you care about. In short, you’re writing the prompt <b>through</b> feedback.</p>
+</div>
+</div>
+</section>
+<section id="the-result" class="level3">
+<h3 class="anchored" data-anchor-id="the-result">The Result</h3>
+<p><strong>81% → 90% accuracy</strong> in just 3 hours and ~$0.50.</p>
+<p>The key insight: GEPA’s genetic mutations work best when they have precise feedback to reason about. Generic “wrong answer” feedback produces generic improvements. Targeted feedback like “you’re conflating greetings with rapport” produces targeted fixes.</p>
+</section>
+</section>
+<section id="lessons-learned-recommended-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="lessons-learned-recommended-workflow">Lessons Learned &amp; Recommended Workflow</h2>
+<p>The biggest lesson wasn’t technical, it was psychological. I stopped thinking of prompts as things I <em>write</em> and started thinking of them as things I <em>evolve</em>. My job shifted from “craft the perfect prompt” to “define what good looks like and let the system find it.”</p>
+<section id="when-not-to-use-gepa" class="level3">
+<h3 class="anchored" data-anchor-id="when-not-to-use-gepa">When NOT to Use GEPA</h3>
+<p>GEPA only works when you can clearly define “correct.” If you can’t reliably label examples yourself or if the target is fuzzy or subjective, the optimizer will chase noise. I tried it on a sentiment task where human annotators disagreed 30% of the time. The results were inconsistent. <strong>Rule: if you can’t do it clearly as a human, don’t expect GEPA to figure it out.</strong></p>
+</section>
+<section id="my-recommended-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="my-recommended-workflow">My Recommended Workflow</h3>
+<ol type="1">
+<li><p><strong>Start with a clear metric and a personally-validated dataset.</strong> 20-50 examples you’ve labeled yourself, understanding the edge cases.</p></li>
+<li><p><strong>Run GEPA → Review failures → Add targeted feedback.</strong> Study misclassified examples. Write <em>specific</em> explanations of why your label is correct.</p></li>
+<li><p><strong>Run GEPA again → Stop when acceptable → Deploy.</strong> One or two iterations usually suffice. Don’t chase perfection.</p></li>
+<li><p><strong>Post-deployment: monitor, collect failures, iterate.</strong> Production surfaces edge cases. Add them with feedback and re-run as needed.</p></li>
+</ol>
+<hr>
+<p>The complete Jupyter notebook: <a href="https://github.com/risheekkumarb/gepa-impact-article/blob/main/exploration%20v2.ipynb">github link</a></p>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>code</category>
+  <category>research paper</category>
+  <category>impact</category>
+  <guid>https://risheekkumar.in/posts/gepa-impact/gepa_impact_final.html</guid>
+  <pubDate>Tue, 30 Dec 2025 18:30:00 GMT</pubDate>
+  <media:content url="https://risheekkumar.in/posts/gepa-impact/static/blogpost_image.webp" medium="image" type="image/webp"/>
+</item>
 <item>
   <title>GEPA Deepdive</title>
   <dc:creator>Risheek kumar B</dc:creator>

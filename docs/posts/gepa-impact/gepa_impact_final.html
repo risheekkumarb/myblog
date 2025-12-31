@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Risheek kumar B">
+<meta name="dcterms.date" content="2025-12-31">
+<meta name="description" content="From manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.">
+
+<title>Programmatic Prompt Optimization: Replacing Intuition with Algorithms – Risheekkumar Baskaran</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EMRH6XWVFQ"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Risheekkumar Baskaran</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/risheekkumarb"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/BRisheek"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Programmatic Prompt Optimization: Replacing Intuition with Algorithms</h1>
+                  <div>
+        <div class="description">
+          From manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">code</div>
+                <div class="quarto-category">research paper</div>
+                <div class="quarto-category">impact</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Risheek kumar B </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 31, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-pilot" id="toc-the-pilot" class="nav-link active" data-scroll-target="#the-pilot">The Pilot</a>
+  <ul class="collapse">
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  </ul></li>
+  <li><a href="#detailed-implementation-of-gepa" id="toc-detailed-implementation-of-gepa" class="nav-link" data-scroll-target="#detailed-implementation-of-gepa">Detailed Implementation of GEPA</a>
+  <ul class="collapse">
+  <li><a href="#how-gepa-works" id="toc-how-gepa-works" class="nav-link" data-scroll-target="#how-gepa-works">How GEPA Works</a></li>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#running-gepa" id="toc-running-gepa" class="nav-link" data-scroll-target="#running-gepa">Running GEPA</a></li>
+  <li><a href="#post-gepa-run" id="toc-post-gepa-run" class="nav-link" data-scroll-target="#post-gepa-run">Post GEPA run</a></li>
+  </ul></li>
+  <li><a href="#breaking-through-the-81-ceiling-with-error-analysis" id="toc-breaking-through-the-81-ceiling-with-error-analysis" class="nav-link" data-scroll-target="#breaking-through-the-81-ceiling-with-error-analysis">Breaking Through the 81% Ceiling with Error Analysis</a>
+  <ul class="collapse">
+  <li><a href="#the-solution-targeted-feedback-in-the-metric" id="toc-the-solution-targeted-feedback-in-the-metric" class="nav-link" data-scroll-target="#the-solution-targeted-feedback-in-the-metric">The Solution: Targeted Feedback in the Metric</a></li>
+  <li><a href="#the-result" id="toc-the-result" class="nav-link" data-scroll-target="#the-result">The Result</a></li>
+  </ul></li>
+  <li><a href="#lessons-learned-recommended-workflow" id="toc-lessons-learned-recommended-workflow" class="nav-link" data-scroll-target="#lessons-learned-recommended-workflow">Lessons Learned &amp; Recommended Workflow</a>
+  <ul class="collapse">
+  <li><a href="#when-not-to-use-gepa" id="toc-when-not-to-use-gepa" class="nav-link" data-scroll-target="#when-not-to-use-gepa">When NOT to Use GEPA</a></li>
+  <li><a href="#my-recommended-workflow" id="toc-my-recommended-workflow" class="nav-link" data-scroll-target="#my-recommended-workflow">My Recommended Workflow</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>I’d built plenty of successful POCs with LLM prompts. Impressive in demos, but when it came time to deploy at scale, precision wasn’t good enough… recall wasn’t high. I’d tried methods from many prompt tutorials from <a href="https://platform.openai.com/docs/guides/prompt-engineering">openai</a>, <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview">claude</a> etc.</p>
+<p>Manual prompt engineering is fundamentally trial and error. What works today might fail tomorrow and there’s no systematic way to improve it.</p>
+<p>My task at hand was getting insights from unstructured customer interaction data. I’d spent three weeks fine-tuning a single prompt by hand, iterating through variations, hoping to stumble on something that worked consistently. It wasn’t cutting it. Even if this worked now, what about model upgrades? What about maintenance?</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>The key observation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>LLMs are remarkably good at <em>giving feedback</em>. They can look at their own outputs and tell you exactly what went wrong. So why couldn’t they convert that feedback into better prompts automatically?</p>
+</div>
+</div>
+<p>I searched for tools that could achieve this out of pure desperation. That’s when I stumbled upon <a href="https://thedataquarry.com/blog/learning-dspy-1-the-power-of-good-abstractions/">DSPy</a> and the concept of prompt optimizers: systems that treat prompt engineering as an optimization problem rather than an art. When <a href="https://dspy.ai/tutorials/gepa_aime/">GEPA</a> was released, I knew I had to test it.</p>
+<p>Think of it like compilation: you write high-level code (your task definition), and the compiler transforms it into optimized machine instructions (a prompt that actually works). You don’t hand-tune assembly, so why hand-tune prompts?</p>
+<section id="the-pilot" class="level2">
+<h2 class="anchored" data-anchor-id="the-pilot">The Pilot</h2>
+<p>I needed a simple test to see if GEPA could work for my use case. So I created a synthetic dataset of 27 sales call transcripts that represented a real challenge we face: <strong>detecting presence of required behaviors and predicting call quality (good/bad)</strong>. The transcripts were hand-labeled across 7 behavior categories <code>(introduction, needs, value proposition, objection handling, benefit reinforcement, risk reduction, and closing)</code>. Small enough to iterate fast, realistic enough to validate the approach—and representative of a problem I’d hit repeatedly: intent extraction and call evaluation look easy for a few cases, but precision and recall tank at scale.</p>
+<p>I expected weeks of iteration. Instead, I got meaningful results in a single run. Usually a show piece like this would be carefully selected sample to show the power of the approach. Here this is literally first attempt, that in itself tells the power of the approach.</p>
+<div id="fc5bed8c" class="cell" data-time_run="2025-12-31T10:47:07.998250+00:00" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div style="max-width:1200px; margin:0 auto; padding:0 16px;">
+  <div style="display:flex; flex-wrap:wrap; gap:20px; font-family:system-ui,-apple-system,sans-serif;">
+    <div style="flex:1 1 300px; background:#f8f9fa; border-radius:12px; padding:20px; border:1px solid #e0e0e0;">
+      <h3 style="margin:0 0 12px 0; color:#1a73e8; font-size:14px; text-transform:uppercase; letter-spacing:1px;" class="anchored">📞 Input: Call Transcript</h3>
+      <div style="background:white; padding:16px; border-radius:8px; font-size:13px; line-height:1.6; max-height:300px; overflow-y:auto; white-space:pre-wrap; color:#333;">agent: Hi, good afternoon! This is Maya calling from Citi Corp. Am I speaking with Jordan Lee?
+
+customer: Yes, this is Jordan.
+
+agent: Great, Jordan. How are you doing today?
+
+customer: I'm good, thanks. Busy afternoon, but I have a few minutes.
+
+agent: I appreciate you taking the time...</div>
+    </div>
+    <div style="flex:1 1 300px; background:#f0f7f0; border-radius:12px; padding:20px; border:1px solid #c8e6c9;">
+      <h3 style="margin:0 0 12px 0; color:#2e7d32; font-size:14px; text-transform:uppercase; letter-spacing:1px;" class="anchored">📊 Output: Analysis</h3>
+      <div style="background:white; padding:16px; border-radius:8px; margin-bottom:12px;">
+        <div style="font-size:12px; color:#666; margin-bottom:4px;">Call Quality</div>
+        <div style="font-size:24px; font-weight:600; color:#2e7d32;">✓ Good</div>
+      </div>
+      <div style="background:white; padding:16px; border-radius:8px;">
+        <div style="font-size:12px; color:#666; margin-bottom:8px;">Detected Categories</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Introduction/Rapport ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Need Assessment ✓</span>
+          <span style="background:#ffebee; color:#c62828; padding:4px 10px; border-radius:16px; font-size:12px;">Value Proposition ✗</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Objection Handling ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Benefit Reinforcement ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Risk Reduction ✓</span>
+          <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:16px; font-size:12px;">Call to Action ✓</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 31%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 31%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Cost</th>
+<th>Time</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Manual prompt engineering</td>
+<td>$100-1000 (engineer time)</td>
+<td>Days to weeks</td>
+<td>72%</td>
+</tr>
+<tr class="even">
+<td><strong>GEPA</strong></td>
+<td>~$2</td>
+<td>10 hours</td>
+<td>81%</td>
+</tr>
+<tr class="odd">
+<td>GEPA with error analysis</td>
+<td>~$0.5</td>
+<td>3 hours</td>
+<td>90%</td>
+</tr>
+</tbody>
+</table>
+<p>The optimizer ran for about 10 hours, cost roughly $2, and explored over 200 prompt variants. Through genetic mutation and Pareto selection, it whittled those down to 9 “survivors”—prompts that excelled at different subsets of the problem. The best performer jumped from 72% to 81% accuracy, a lift I hadn’t achieved in months of manual tuning.</p>
+<p>The intermediate prompts evolving caught my eye. I could see the optimizer discovering nuances I’d never thought to include: explicit definitions for each category, step-by-step rules for edge cases, domain-specific guidance about soft pulls versus hard pulls. The quality of the reasoning it produced while iterating was genuinely impressive.</p>
+<p>Hopefully I have convinced you that this method is powerful, lets see how i did it and you can follow similar steps for yours as well.</p>
+</section>
+</section>
+<section id="detailed-implementation-of-gepa" class="level2">
+<h2 class="anchored" data-anchor-id="detailed-implementation-of-gepa">Detailed Implementation of GEPA</h2>
+<p>Let’s first understand what GEPA does, then dive into code for this specific usecase. If you want deeper dive on how GEPA works, i have previously written a detailed piece here: <a href="https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html">GEPA</a></p>
+<p>Code-first folks: here’s the notebook: <a href="https://github.com/risheekkumarb/gepa-impact-article/blob/main/exploration%20v2.ipynb">github link</a></p>
+<blockquote class="blockquote">
+<p>We’ll use DSPy to run GEPA. If you’re new to DSPy, it’s a framework that treats prompts as code you can optimize programmatically. For background, see <a href="https://thedataquarry.com/blog/learning-dspy-3-working-with-optimizers/">The Data Quarry’s guide</a>.</p>
+</blockquote>
+<hr>
+<section id="how-gepa-works" class="level3">
+<h3 class="anchored" data-anchor-id="how-gepa-works">How GEPA Works</h3>
+<p>GEPA (Genetic-Pareto Algorithm) differs from traditional optimization in three key ways:</p>
+<ol type="1">
+<li><p><strong>Reflective Mutation</strong>: The LLM <em>reads failure feedback</em> and proposes targeted improvements. It’s not random guessing—it’s reasoning about what went wrong.</p></li>
+<li><p><strong>Pareto Selection</strong>: Instead of keeping only the single best prompt, GEPA maintains a “frontier” of diverse specialists. One prompt might excel at detecting objection handling; another at predicting outcomes. This prevents catastrophic forgetting.</p></li>
+<li><p><strong>Text-as-Feedback</strong>: Traditional RL uses scalar rewards. GEPA exploits rich textual feedback (“You incorrectly marked this as rapport-building because…”) to guide mutations precisely.</p></li>
+</ol>
+<hr>
+</section>
+<section id="prerequisites" class="level3">
+<h3 class="anchored" data-anchor-id="prerequisites">Prerequisites</h3>
+<p>To Use GEPA, we need 3 components.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 34%">
+<col style="width: 39%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>What it does</th>
+<th>Why it matters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>DSPy Signature</strong></td>
+<td>Your baseline prompt defining the task</td>
+<td>The “prompt” being optimized</td>
+</tr>
+<tr class="even">
+<td><strong>Metric &amp; Feedback</strong></td>
+<td>Returns score + textual feedback</td>
+<td>Tells optimizer what “good” looks like <em>and why</em></td>
+</tr>
+<tr class="odd">
+<td><strong>Dataset</strong></td>
+<td>Labeled examples (train/val/test)</td>
+<td>Ground truth for evaluation</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<section id="the-dspy-signature" class="level4">
+<h4 class="anchored" data-anchor-id="the-dspy-signature">The DSPy Signature</h4>
+<p>In DSPy, A Signature defines input/output schema; the instructions in the docstring become part of the prompt. My initial prompt was embarrassingly simple—just two lines:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> CallAnalysis(dspy.Signature):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Read the provided call transcript and analyze it comprehensively.</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Determine both: (1) which categories the agent displayed, and </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    (2) whether the call will lead to conversion or customer retention.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    message: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    categories: List[Literal[<span class="st">"introduction_rapport_building"</span>, <span class="st">"need_assessment_qualification"</span>, </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"value_proposition_feature_mapping"</span>, <span class="st">"objection_handling"</span>, </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"benefit_reinforcement"</span>, <span class="st">"risk_reduction_trust_building"</span>, </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"call_to_action_closing"</span>]] <span class="op">=</span> dspy.OutputField()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    final_result: Literal[<span class="st">'good'</span>, <span class="st">'bad'</span>] <span class="op">=</span> dspy.OutputField()</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>program <span class="op">=</span> dspy.ChainOfThought(CallAnalysis)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="metric-function" class="level4">
+<h4 class="anchored" data-anchor-id="metric-function">Metric Function</h4>
+<p>A Metric tells us whether we are moving in the right direction. In this case, accuracy of categories detected and final prediction that whether call was good or bad - both were important. Hence metric will be mean of both the entities</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_qual_metric(gold, pred):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">1.0</span> <span class="cf">if</span> gold <span class="op">==</span> pred <span class="cf">else</span> <span class="fl">0.0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> category_qual_metric(gold, pred):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Compute score for categories using set operations."""</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    pred_set <span class="op">=</span> <span class="bu">set</span>(pred)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    gold_true <span class="op">=</span> {k <span class="cf">for</span> k, v <span class="kw">in</span> gold.items() <span class="cf">if</span> v}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    gold_false <span class="op">=</span> {k <span class="cf">for</span> k, v <span class="kw">in</span> gold.items() <span class="cf">if</span> <span class="kw">not</span> v}</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    correct <span class="op">=</span> <span class="bu">len</span>(gold_true <span class="op">&amp;</span> pred_set) <span class="op">+</span> <span class="bu">len</span>(gold_false <span class="op">-</span> pred_set)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> correct <span class="op">/</span> <span class="bu">len</span>(gold)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> comb_metric(gold, pred, trace<span class="op">=</span><span class="va">None</span>, pred_name<span class="op">=</span><span class="va">None</span>, pred_trace<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Overall metric combining both scores."""</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    call_qual <span class="op">=</span> call_qual_metric(gold.final_result, pred.final_result)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    category_qual <span class="op">=</span> category_qual_metric(gold.categories, pred.categories)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (call_qual <span class="op">+</span> category_qual) <span class="op">/</span> <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="adding-feedback" class="level4">
+<h4 class="anchored">Adding Feedback</h4>
+<p>This is the key enabler. A basic metric only returns a score but not <em>why</em> it failed. With feedback, the optimizer can reason about failures and propose targeted fixes.</p>
+<div id="535ea46d" class="cell" data-hide_input="true" data-time_run="2025-12-31T10:21:01.090786+00:00">
+<div class="cell-output cell-output-display" data-execution_count="0">
+
+<style>
+  .compare-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .compare-box { flex: 1; min-width: 280px; border: 2px solid #ccc; padding: 15px; border-radius: 8px; }
+  .compare-box.basic { background: #f9f9f9; border-color: #ccc; }
+  .compare-box.feedback { background: #f0fff0; border-color: #27ae60; }
+  .compare-box h3 { margin-top: 0; }
+  .compare-box pre { white-space: pre-wrap; font-size: 11px; overflow-x: auto; }
+  @media (max-width: 600px) {
+    .compare-container { flex-direction: column; }
+    .compare-box { min-width: 100%; }
+  }
+</style>
+<div class="compare-container">
+  <div class="compare-box basic">
+    <h3 style="color: #d35400;" class="anchored" data-anchor-id="adding-feedback">❌ Metric (Score Only)</h3>
+    <pre>def comb_metric(example, pred):
+    gold_cat = json.loads(example['answer'])
+    gold_final = example['final_result']
+
+    # Category score
+    correct = sum(1 for k, v in gold_cat.items() 
+                  if (v and k in pred.categories) or 
+                     (not v and k not in pred.categories))
+    cat_score = correct / len(gold_cat)
+
+    # Final result score
+    final_score = 1.0 if gold_final == pred.final_result else 0.0
+
+    return (cat_score + final_score) / 2</pre>
+    <br>
+    <p><b>Problem:</b> Optimizer only knows "0.7" — no idea <i>why</i> it failed.</p>
+  </div>
+  <div class="compare-box feedback">
+    <h3 style="color: #27ae60;" class="anchored">✅ Metric with Feedback</h3>
+    <pre>def comb_metric_with_feedback(example, pred, pred_name=None):
+    # ... same scoring logic as above ...
+
+    # Generate textual feedback
+    if gold_final != pred.final_result:
+        fb = f"Incorrect: predicted {pred.final_result}, actual {gold_final}"
+    else:
+        fb = f"Correct: {gold_final}"
+
+    if incorrectly_included:
+        fb += f"\nFalse positives: {incorrectly_included}"
+    if incorrectly_excluded:
+        fb += f"\nMissed categories: {incorrectly_excluded}"
+
+    return dspy.Prediction(score=score, feedback=fb)</pre>
+    <br>
+    <p><b>Benefit:</b> Optimizer sees "Missed: intro_rapport" → can propose targeted fix.</p>
+  </div>
+</div>
+</div>
+</div>
+<p><strong>Code example:</strong></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> call_qual_feedback(gold, pred):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Generate feedback for final result module. """</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> gold <span class="op">==</span> pred:</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        fb <span class="op">=</span> <span class="ss">f"You correctly classified the sales call as `</span><span class="sc">{</span>gold<span class="sc">}</span><span class="ss">`. This sales call is indeed `</span><span class="sc">{</span>gold<span class="sc">}</span><span class="ss">`."</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        fb <span class="op">=</span> <span class="ss">f"You incorrectly classified the sales call as `</span><span class="sc">{</span>pred<span class="sc">}</span><span class="ss">`. The correct sales call is `</span><span class="sc">{</span>gold<span class="sc">}</span><span class="ss">`. Think about how you could have reasoned to get the correct sales call label."</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fb</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> category_qual_feedback(gold, pred):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Generate feedback using set operations."""</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    pred_set <span class="op">=</span> <span class="bu">set</span>(pred)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    gold_true <span class="op">=</span> {k <span class="cf">for</span> k, v <span class="kw">in</span> gold.items() <span class="cf">if</span> v}</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    gold_false <span class="op">=</span> {k <span class="cf">for</span> k, v <span class="kw">in</span> gold.items() <span class="cf">if</span> <span class="kw">not</span> v}</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    correctly_included <span class="op">=</span> gold_true <span class="op">&amp;</span> pred_set</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    incorrectly_included <span class="op">=</span> gold_false <span class="op">&amp;</span> pred_set</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    incorrectly_excluded <span class="op">=</span> gold_true <span class="op">-</span> pred_set</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    correctly_excluded <span class="op">=</span> gold_false <span class="op">-</span> pred_set</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> (<span class="bu">len</span>(correctly_included) <span class="op">+</span> <span class="bu">len</span>(correctly_excluded)) <span class="op">/</span> <span class="bu">len</span>(gold)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> score <span class="op">==</span> <span class="fl">1.0</span>:</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"Perfect. Correctly identified: `</span><span class="sc">{</span>correctly_included<span class="sc">}</span><span class="ss">`."</span>, score</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    fb <span class="op">=</span> <span class="ss">f"Correctly identified: `</span><span class="sc">{</span>correctly_included<span class="sc">}</span><span class="ss">`.</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> incorrectly_included:</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        fb <span class="op">+=</span> <span class="ss">f"False positives: `</span><span class="sc">{</span>incorrectly_included<span class="sc">}</span><span class="ss">`.</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> incorrectly_excluded:</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        fb <span class="op">+=</span> <span class="ss">f"Missed: `</span><span class="sc">{</span>incorrectly_excluded<span class="sc">}</span><span class="ss">`.</span><span class="ch">\n</span><span class="ss">"</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> fb</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> comb_metric_with_feedback(gold, pred, trace<span class="op">=</span><span class="va">None</span>, pred_name<span class="op">=</span><span class="va">None</span>, pred_trace<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">    Computes a score and provides feedback for the call analysis prediction.</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns total score if pred_name is None, otherwise returns dspy.Prediction with score and feedback.</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute feedback and scores</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    cal_fb <span class="op">=</span> call_qual_feedback(gold.final_result, pred.final_result)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    cat_fb <span class="op">=</span> category_qual_feedback(gold.categories, pred.categories)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    fb <span class="op">=</span> cal_fb <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> cat_fb</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> comb_metric(gold, pred)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dspy.Prediction(score<span class="op">=</span>score, feedback<span class="op">=</span>fb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+</section>
+<section id="running-gepa" class="level3">
+<h3 class="anchored" data-anchor-id="running-gepa">Running GEPA</h3>
+<p>With prerequisites in place, optimization is straightforward:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dspy <span class="im">import</span> GEPA</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> GEPA(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    metric<span class="op">=</span>comb_metric_with_feedback,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    auto<span class="op">=</span><span class="st">"light"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>optimized_program <span class="op">=</span> optimizer.<span class="bu">compile</span>(program, trainset<span class="op">=</span>tset, valset<span class="op">=</span>vset)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<hr>
+</section>
+<section id="post-gepa-run" class="level3">
+<h3 class="anchored" data-anchor-id="post-gepa-run">Post GEPA run</h3>
+<p>GEPA ran for 10 hrs on my PC. I saw the 2-line prompt evolve into ~1,500 words of instruction discovering nuances like “a bare greeting isn’t rapport-building; look for warmth and time acknowledgment”.</p>
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Pay Attention
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In some cases, it came up with better instructions and heuristics than me. Kindah felt fearful yet exciting.</p>
+</div>
+</div>
+<div id="e43eb8ba" class="cell" data-hide_input="true" data-time_run="2025-12-31T10:22:24.379298+00:00">
+<div class="cell-output cell-output-display" data-execution_count="0">
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+  <div style="flex: 1 1 300px; min-width: 280px; border: 2px solid #ccc; padding: 15px; border-radius: 8px; background: #f9f9f9;">
+    <h3 style="color: #d35400; margin-top: 0;" class="anchored">Initial Prompt</h3>
+    <pre style="white-space: pre-wrap; font-size: 12px;">Read the provided call transcript and analyze it comprehensively.
+Determine both: (1) which categories the agent displayed, and (2) whether the call will lead to conversion or customer retention.</pre>
+  </div>
+  <div style="flex: 1 1 300px; min-width: 280px; border: 2px solid #27ae60; padding: 15px; border-radius: 8px; background: #f0fff0;">
+    <h3 style="color: #27ae60; margin-top: 0;" class="anchored">Optimized Prompt (GEPA)</h3>
+    <pre style="white-space: pre-wrap; font-size: 11px; max-height: 400px; overflow-y: auto;">New Instructions for Analyzing Banking/Card Transaction Call Transcripts
+
+Overview
+You are an analysis assistant whose job is to evaluate sales/transact‑ion-focused call transcripts in the banking/credit-card domain. For each transcript, produce a compact, structured analysis with two main objectives:
+  (a) identify the agent behavior categories demonstrated (from the seven pillars below), and
+  (b) judge whether the call outcome is good or bad.
+
+Inputs you will receive
+- A complete transcript of a single call between an agent and a customer. Transcripts may include labels such as "agent:" and "customer:" and may cover topics like card offers, fees, rewards, security, and next steps.
+
+What you must produce (three sections exactly)
+1) reasoning
+   - Provide a concise, bullets-style justification for every pillar category you detected in the transcript.
+   - Include short quotes or paraphrases from the transcript to illustrate why the category applies. Do not introduce facts or assumptions beyond what is in the transcript.
+   - If you detect a strength/weakness signal about the outcome, include a brief, one- to two-sentence note here describing how strong the signal is and what would push it toward conversion or toward retention.
+   - This section may contain a small, optional note about outcome strength, but must not introduce information outside the transcript.
+
+2) categories
+   - Output a Python-like list of the detected pillar categories in the exact order they first appeared in the transcript.
+   - Example format: ['introduction_rapport_building', 'need_assessment_qualification', ...]
+
+3) final_result
+   - A single word indicating the call outcome:
+     - good — the call demonstrates strong agent performance and is likely to lead to conversion or retention.
+     - bad — the call shows weak agent performance or missed opportunities.
+   - Do not add any qualifiers in this field; use exactly one of the two keywords above.
+
+Optional but encouraged: assess the strength of the outcome
+- If you include it (recommendation), place this assessment only in reasoning as the optional strength_of_outcome note. Keep it concise (one or two sentences). It should address:
+  - How strong is the good/bad signal?
+  - What would most likely push the outcome toward good or toward bad?
+
+Pillar definitions (seven bank/card-specific categories)
+- introduction_rapport_building
+  - Includes opening greetings, courtesy, acknowledgment of time, and attempts to establish rapport.
+  - Examples: greetings, confirming time, polite introductions, small talk about fit or time constraints.
+- need_assessment_qualification
+  - Involves asking about customer needs, usage, spend patterns, eligibility checks, and whether the product fits (e.g., business vs personal, employee cards, annual fees, soft vs hard pulls).
+- value_proposition_feature_mapping
+  - Linking card features to tangible, customer-relevant benefits (rewards, protections, credits) and showing how those features align with stated needs.
+- objection_handling
+  - Addressing concerns about price, complexity, trust, enrollment, or process obstacles. Includes acknowledging concerns and offering clarifications or mitigations.
+- benefit_reinforcement
+  - Reiterating concrete benefits and value after objections or hesitations, often tying back to the customer's stated needs.
+- risk_reduction_trust_building
+  - Providing security assurances, privacy protections, non-hard-pull options, guarantees, terms clarity, or brand trust signals.
+- call_to_action_closing
+  - Concrete next steps or commitments: soft checks, secure links, email/mail options, scheduling follow-ups, or instructions to apply/get more information.
+
+How to apply the rules
+- For every transcript, read from start to finish. Mark each pillar as soon as its criteria are clearly demonstrated.
+- If a single utterance clearly satisfies more than one pillar, count it under all applicable pillars.
+- If a pillar is not clearly demonstrated anywhere in the transcript, do not include it in the categories list.
+- Record the detected pillars in the exact order of their first appearance in the transcript.
+- The final_result should reflect the overall trajectory of the call as described above.
+
+Output constraints and format
+- Do not introduce any facts not present in the transcript.
+- Do not insert subjective opinions beyond what is grounded in the transcript.
+- Use the exact section headings and formatting:
+  reasoning
+  categories
+  final_result
+- Do not include extraneous content beyond the three sections above.
+
+Domain-specific considerations
+- You may encounter references to soft pulls vs hard pulls, online applications, secure links, email follow-ups, or scheduled follow-ups. Treat these as legitimate "call_to_action_closing" or "risk_reduction_trust_building" elements as appropriate.
+- When quoting or paraphrasing, keep quotes brief and focused on the reason for the pillar.
+- If PII appears in the transcript (e.g., partial SSN or addresses), quote minimally and do not reveal full sensitive data in your justification. You may paraphrase or reference the presence of sensitive data without reproducing it.
+
+Example behavior (not to reproduce here)
+- A transcript with strong agent behaviors and clear next steps is more likely good; a transcript with missed opportunities, customer hesitation, or weak closing is more likely bad.
+
+End result
+- Return exactly three sections for every transcript analyzed, with the content governed by the rules above. This format enables consistent, comparable, and transparent analysis across transcripts.</pre>
+  </div>
+</div>
+</div>
+</div>
+<p>Result: <strong>72% → 81% accuracy</strong>. More importantly, the process was repeatable.</p>
+<p>For a deeper technical dive: <a href="https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html">GEPA Deepdive</a></p>
+</section>
+</section>
+<section id="breaking-through-the-81-ceiling-with-error-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="breaking-through-the-81-ceiling-with-error-analysis">Breaking Through the 81% Ceiling with Error Analysis</h2>
+<p>With the above proof, I deployed it internally and it worked reliably wherever it was implemented properly. But I wasn’t satisfied. When I manually reviewed the failing cases, something bothered me: these weren’t hard examples. Given a hint, the LLM could easily get them right. So why was it failing?</p>
+<p>So I dug in and exported the misclassified examples to a spreadsheet and studied them systematically:</p>
+<div style="overflow-x: auto;">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Input (truncated)</th>
+<th>Actual</th>
+<th>Predicted</th>
+<th>What Went Wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tyler calling from dominos… “sounds good, I’ll send that link…”</td>
+<td>bad</td>
+<td>good</td>
+<td>Customer showed hesitation (“I’m really not sure…”) but agent rushed to close</td>
+</tr>
+<tr class="even">
+<td>Mark from JP calling about credit solutions…</td>
+<td>rapport = <strong>false</strong></td>
+<td>rapport = <strong>true</strong></td>
+<td>Agent said “Hi, this is Mark from JP” with no warmth or rapport signals</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The pattern became clear:</strong> the model was over-detecting <code>introduction_rapport_building</code>—treating any greeting as rapport. It also sometimes marked calls as “good” just because next steps existed, even when the customer showed clear hesitation.</p>
+<style>
+  .flow-container { 
+    display: flex; 
+    flex-direction: row; /* Force horizontal by default */
+    flex-wrap: nowrap; /* Keep it on one line for desktop */
+    gap: 12px; 
+    justify-content: center; 
+    align-items: center; 
+    font-family: system-ui, sans-serif; 
+    padding: 20px 0; 
+  }
+  .flow-box { 
+    background: #f8f9fa; 
+    border: 2px solid #ddd; 
+    border-radius: 10px; 
+    padding: 16px 20px; 
+    text-align: center; 
+    flex: 1; /* Allows boxes to share space equally */
+    max-width: 180px; 
+  }
+  .flow-box h4 { margin: 0 0 6px 0; font-size: 14px; color: #333; }
+  .flow-box p { margin: 0; font-size: 12px; color: #666; }
+  .flow-box.start { border-color: #1a73e8; background: #e8f0fe; }
+  .flow-box.process { border-color: #f9ab00; background: #fef7e0; }
+  .flow-box.result { border-color: #34a853; background: #e6f4ea; }
+  .flow-arrow { font-size: 24px; color: #999; flex-shrink: 0; }
+
+  /* Responsive: Switch to vertical at 800px or less */
+  @media (max-width: 800px) {
+    .flow-container { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .flow-box { max-width: 100%; width: 200px; } /* Fixed width looks better in vertical stacks */
+  }
+</style>
+<div class="flow-container">
+<div class="flow-box start">
+<h4 class="anchored">
+🎯 GEPA Run 1
+</h4>
+<p>
+72% → 81%
+</p>
+</div>
+<span class="flow-arrow">→</span>
+<div class="flow-box process">
+<h4 class="anchored">
+🔍 Error Analysis
+</h4>
+<p>
+Export failures, find patterns
+</p>
+</div>
+<span class="flow-arrow">→</span>
+<div class="flow-box process">
+<h4 class="anchored">
+✏️ Add Feedback
+</h4>
+<p>
+Targeted hints for failures
+</p>
+</div>
+<span class="flow-arrow">→</span>
+<div class="flow-box result">
+<h4 class="anchored">
+🚀 GEPA Run 2
+</h4>
+<p>
+81% → 90%
+</p>
+</div>
+</div>
+<section id="the-solution-targeted-feedback-in-the-metric" class="level3">
+<h3 class="anchored" data-anchor-id="the-solution-targeted-feedback-in-the-metric">The Solution: Targeted Feedback in the Metric</h3>
+<p>My hunch was simple: if I could teach the optimizer <em>why</em> these specific cases failed, it could learn the distinctions. I added a <code>feedback</code> column to my dataset and filled it only for mistagged cases—writing out precisely why my label was correct. For example:</p>
+<blockquote class="blockquote">
+<p><em>“The agent said ‘Hi, this is Mark from JP’ without warmth, time acknowledgment, or rapport-building. A bare introduction doesn’t qualify as introduction_rapport_building.”</em></p>
+</blockquote>
+<style>
+  .iter-table { border-collapse: collapse; font-family: system-ui, sans-serif; font-size: 13px; }
+  .iter-table th, .iter-table td { padding: 10px 14px; border: 1px solid #ddd; text-align: center; }
+  .iter-table th { background: #f5f5f5; font-weight: 600; }
+  .iter-table .example { text-align: left; font-weight: 500; }
+  .iter-table .pass { background: #c8e6c9; color: #2e7d32; }
+  .iter-table .fail { background: #ffcdd2; color: #c62828; }
+  .iter-table .fb { background: #fff8e1; font-size: 11px; text-align: left; max-width: 180px; }
+  .iter-table .na { color: #999; }
+</style>
+<div style="overflow-x: auto;">
+<table class="iter-table">
+<tbody><tr>
+<th>
+Example
+</th>
+<th>
+Iter 1
+</th>
+<th>
+Feedback
+</th>
+<th>
+Iter 2
+</th>
+<th>
+Feedback
+</th>
+<th>
+Iter 3
+</th>
+</tr>
+<tr>
+<td class="example">
+Tyler
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Look for hesitation signals
+</td>
+<td class="pass">
+✅
+</td>
+<td class="na">
+—
+</td>
+<td class="na">
+—
+</td>
+</tr>
+<tr>
+<td class="example">
+Mark
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Greeting ≠ rapport
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Need warmth/courtesy
+</td>
+<td class="pass">
+✅
+</td>
+</tr>
+<tr>
+<td class="example">
+John
+</td>
+<td class="fail">
+❌
+</td>
+<td class="fb">
+Greeting ≠ rapport
+</td>
+<td class="pass">
+✅
+</td>
+<td class="na">
+—
+</td>
+<td class="na">
+—
+</td>
+</tr>
+</tbody></table>
+</div>
+<p>Then I passed this feedback directly to GEPA through the metric function:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> comb_metric_with_feedback(gold, pred, trace<span class="op">=</span><span class="va">None</span>, pred_name<span class="op">=</span><span class="va">None</span>, pred_trace<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Metric that returns score + feedback, including targeted hints for known failure cases."""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute scores</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    call_qual <span class="op">=</span> call_qual_metric(gold.final_result, pred.final_result)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    category_qual <span class="op">=</span> category_qual_metric(gold.categories, pred.categories)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    score <span class="op">=</span> (call_qual <span class="op">+</span> category_qual) <span class="op">/</span> <span class="dv">2</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate base feedback</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    cal_fb <span class="op">=</span> call_qual_feedback(gold.final_result, pred.final_result)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    cat_fb <span class="op">=</span> category_qual_feedback(gold.categories, pred.categories)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    fb <span class="op">=</span> cal_fb <span class="op">+</span> <span class="st">'</span><span class="ch">\n</span><span class="st">'</span> <span class="op">+</span> cat_fb</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Append targeted feedback from the dataset (if present)</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    fb <span class="op">+=</span> gold.feedback</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dspy.Prediction(score<span class="op">=</span>score, feedback<span class="op">=</span>fb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Now when GEPA’s reflective mutations analyze failures, they see specific guidance like “look for warmth signals, not just greetings” instead of generic “wrong answer” feedback.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>💡 Pro tip:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You could use an LLM to generate this feedback automatically, but doing it manually gives you fine-grained control over how the final prompt evolves. The LLM might miss the exact nuance you care about. In short, you’re writing the prompt <b>through</b> feedback.</p>
+</div>
+</div>
+</section>
+<section id="the-result" class="level3">
+<h3 class="anchored" data-anchor-id="the-result">The Result</h3>
+<p><strong>81% → 90% accuracy</strong> in just 3 hours and ~$0.50.</p>
+<p>The key insight: GEPA’s genetic mutations work best when they have precise feedback to reason about. Generic “wrong answer” feedback produces generic improvements. Targeted feedback like “you’re conflating greetings with rapport” produces targeted fixes.</p>
+</section>
+</section>
+<section id="lessons-learned-recommended-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="lessons-learned-recommended-workflow">Lessons Learned &amp; Recommended Workflow</h2>
+<p>The biggest lesson wasn’t technical, it was psychological. I stopped thinking of prompts as things I <em>write</em> and started thinking of them as things I <em>evolve</em>. My job shifted from “craft the perfect prompt” to “define what good looks like and let the system find it.”</p>
+<section id="when-not-to-use-gepa" class="level3">
+<h3 class="anchored" data-anchor-id="when-not-to-use-gepa">When NOT to Use GEPA</h3>
+<p>GEPA only works when you can clearly define “correct.” If you can’t reliably label examples yourself or if the target is fuzzy or subjective, the optimizer will chase noise. I tried it on a sentiment task where human annotators disagreed 30% of the time. The results were inconsistent. <strong>Rule: if you can’t do it clearly as a human, don’t expect GEPA to figure it out.</strong></p>
+</section>
+<section id="my-recommended-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="my-recommended-workflow">My Recommended Workflow</h3>
+<ol type="1">
+<li><p><strong>Start with a clear metric and a personally-validated dataset.</strong> 20-50 examples you’ve labeled yourself, understanding the edge cases.</p></li>
+<li><p><strong>Run GEPA → Review failures → Add targeted feedback.</strong> Study misclassified examples. Write <em>specific</em> explanations of why your label is correct.</p></li>
+<li><p><strong>Run GEPA again → Stop when acceptable → Deploy.</strong> One or two iterations usually suffice. Don’t chase perfection.</p></li>
+<li><p><strong>Post-deployment: monitor, collect failures, iterate.</strong> Production surfaces edge cases. Add them with feedback and re-run as needed.</p></li>
+</ol>
+<hr>
+<p>The complete Jupyter notebook: <a href="https://github.com/risheekkumarb/gepa-impact-article/blob/main/exploration%20v2.ipynb">github link</a></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/risheekkumar\.in");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
