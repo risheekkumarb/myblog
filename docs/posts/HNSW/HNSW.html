@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Risheek kumar B">
+<meta name="dcterms.date" content="2025-06-14">
+<meta name="description" content="This post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.">
+
+<title>HNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search – Risheekkumar Baskaran</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EMRH6XWVFQ"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Risheekkumar Baskaran</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/risheekkumarb"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/BRisheek"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">HNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search</h1>
+                  <div>
+        <div class="description">
+          This post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">code</div>
+                <div class="quarto-category">research paper</div>
+                <div class="quarto-category">impact</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Risheek kumar B </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 14, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#step-1-the-data-structure" id="toc-step-1-the-data-structure" class="nav-link active" data-scroll-target="#step-1-the-data-structure">Step 1: The Data Structure</a></li>
+  <li><a href="#step-2-building-the-graph-insertion" id="toc-step-2-building-the-graph-insertion" class="nav-link" data-scroll-target="#step-2-building-the-graph-insertion">Step 2: Building the Graph — Insertion</a></li>
+  <li><a href="#step-3-search-navigating-the-graph" id="toc-step-3-search-navigating-the-graph" class="nav-link" data-scroll-target="#step-3-search-navigating-the-graph">Step 3: Search — Navigating the Graph</a></li>
+  <li><a href="#step-4-verification-does-it-actually-work" id="toc-step-4-verification-does-it-actually-work" class="nav-link" data-scroll-target="#step-4-verification-does-it-actually-work">Step 4: Verification — Does It Actually Work?</a></li>
+  <li><a href="#whats-next-from-toy-to-production" id="toc-whats-next-from-toy-to-production" class="nav-link" data-scroll-target="#whats-next-from-toy-to-production">What’s Next: From Toy to Production</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>You’re building a feature that lets users upload an image and find visually similar ones from a database of millions. The math is straightforward — compute how “close” two image embeddings are using cosine distance, return the closest matches.</p>
+<p>You try the naive approach: compare the query against every single image. It works perfectly on your test set of 1,000 images. Then you deploy to production with 10 million images, and each query takes 3 seconds. Users leave.</p>
+<p>This is the <strong>nearest neighbor problem</strong> — and it shows up everywhere:</p>
+<ul>
+<li><strong>Search engines</strong>: “find documents similar to this one”</li>
+<li><strong>Recommendation systems</strong>: “users who liked this also liked…”</li>
+<li><strong>RAG pipelines</strong>: “retrieve the most relevant chunks for this question”</li>
+</ul>
+<p>Brute force is O(n·d) per query — linear in the number of vectors. For small datasets it’s fine. For millions of vectors at production latency requirements, it’s a non-starter.</p>
+<p>HNSW (Hierarchical Navigable Small World) solves this by organizing your vectors into a <strong>layered graph</strong> that you can navigate greedily — like taking highways to get close to your destination, then switching to local roads for the final stretch. Instead of checking every vector, you hop through the graph following the most promising connections.</p>
+<p>The result: queries that are nearly as accurate as brute force (which is still the gold standard for exact nearest neighbors), but orders of magnitude faster. HNSW trades a tiny bit of accuracy for huge speed gains — a tradeoff that’s almost always worth it in production.</p>
+<blockquote class="blockquote">
+<p><em>This article is one of our learning attempts — we built a toy HNSW implementation from scratch to understand the algorithm before using production libraries. The code is simplified for clarity, not optimized for performance.</em></p>
+</blockquote>
+<p>Next, let’s understand the layered graph structure that makes this possible →</p>
+<section id="step-1-the-data-structure" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-the-data-structure">Step 1: The Data Structure</h2>
+<p>Before writing any algorithms, we need to decide how to <em>hold</em> all this information. HNSW organizes your data into <strong>multiple layers</strong> of a graph — each layer contains nodes (your vectors) connected to their nearest neighbors:</p>
+<ul>
+<li><strong>Layer 0 (bottom)</strong>: Contains <em>every</em> vector, with dense local connections. This is where precise, final search happens.</li>
+<li><strong>Layer 1</strong>: A subset of vectors — roughly 30% reach here.</li>
+<li><strong>Layer 2+</strong>: Exponentially sparser. Only a few “hub” vectors live up here.</li>
+</ul>
+<p>The key insight: each higher layer acts like an <strong>express lane</strong>. You start searching at the top layer (few nodes, fast traversal), navigate to the approximate region of your query, then drop down to the next layer to refine. Repeat until you reach layer 0 for the final, precise results.</p>
+<div id="79e535f7" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> defaultdict</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> HNSW:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, max_neighbors, ef_construction, max_layers):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        store_attr()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.values <span class="op">=</span> {}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.curr_id<span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.layers <span class="op">=</span> {o:defaultdict(<span class="bu">list</span>) <span class="cf">for</span> o <span class="kw">in</span> <span class="bu">range</span>(max_layers)}</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.entry_point <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>): <span class="cf">return</span> <span class="ss">f'</span><span class="sc">{</span><span class="bu">list</span>(<span class="va">self</span>.layers)<span class="sc">}</span><span class="ss">'</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>ex <span class="op">=</span> HNSW(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ex</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-display">
+<pre><code>[0, 1, 2, 3, 4]</code></pre>
+</div>
+</div>
+<p>With that in mind, we define the class with <code>max_neighbors</code>, <code>ef_construction</code>, and <code>max_layers</code> parameters, storing values (vectors), per-layer adjacency lists, and a global entry point.</p>
+<blockquote class="blockquote">
+<p><code>store_attr()</code> (from <a href="https://fastcore.fast.ai">fastcore</a>) is a convenience that auto-assigns constructor arguments to <code>self</code> — here it’s equivalent to writing <code>self.max_neighbors = max_neighbors</code>, etc.</p>
+</blockquote>
+<p><code>self.layers</code> is a <strong>dict of dicts</strong>. Each layer maps <code>node_id → list of neighbor node_ids</code>:</p>
+<ul>
+<li><code>layers[0][5] = [3, 7, 12]</code> means “in layer 0, node 5 is connected to nodes 3, 7, and 12”</li>
+<li>A node appears in <code>layers[l]</code> only if its assigned max layer is <code>&gt;= l</code></li>
+</ul>
+<p>The <code>self.values</code> dict stores the raw vectors separately — keeping them decoupled from the graph structure makes distance calculations cleaner.</p>
+<p>With the data structure in place, let’s see how vectors get inserted →</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="static/layered_graph.png" class="img-fluid figure-img"></p>
+<figcaption>HNSW Layered Graph Structure</figcaption>
+</figure>
+</div>
+<div id="bef26046" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math, random</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _get_insert_layer(<span class="va">self</span>: HNSW):</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    m_L <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> math.log(<span class="va">self</span>.max_neighbors)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    l <span class="op">=</span> <span class="bu">int</span>(<span class="op">-</span>math.log(random.uniform(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="op">*</span> m_L)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">min</span>(l, <span class="va">self</span>.max_layers <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>Counter([ex._get_insert_layer() <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>Counter({0: 67, 1: 24, 2: 7, 4: 2})</code></pre>
+</div>
+</div>
+<div id="ab308485" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _cosine_distance(<span class="va">self</span>:HNSW, a, b):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Cosine distance measures the *angle* between two vectors, not their magnitude.</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We use it (instead of Euclidean) because direction matters more than length</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># for high-dimensional embeddings — two vectors pointing the same way are "similar"</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># even if one is much longer.</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Range: 0 = identical direction, 1 = perpendicular, 2 = opposite</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> np.linalg.norm(a) <span class="op">==</span> <span class="dv">0</span> <span class="kw">or</span> np.linalg.norm(b) <span class="op">==</span> <span class="dv">0</span>: <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># cos(θ) = dot(a,b) / (|a| * |b|), then distance = 1 - cos(θ)</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">1</span> <span class="op">-</span> np.dot(a,b) <span class="op">/</span> (np.linalg.norm(a) <span class="op">*</span> np.linalg.norm(b))</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>k,l <span class="op">=</span> np.random.randn(<span class="dv">2</span>,<span class="dv">3</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="bu">round</span>(ex._cosine_distance(k,l).item(), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>0.58</code></pre>
+</div>
+</div>
+<div id="07d56162" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _calc_layer(<span class="va">self</span>: HNSW, item_id, layer):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Brute-force scan of all nodes in this layer — simple but O(n).</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Production HNSW uses a greedy graph search here instead.</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> [(node_id, <span class="va">self</span>.values[node_id]) <span class="cf">for</span> node_id <span class="kw">in</span> <span class="va">self</span>.layers[layer] <span class="cf">if</span> node_id <span class="op">!=</span> item_id]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute distance from our item to every other node, then sort closest-first</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sorted</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        [(node_id, <span class="va">self</span>._cosine_distance(node, <span class="va">self</span>.values[item_id])) <span class="cf">for</span> node_id, node <span class="kw">in</span> nodes],</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        key <span class="op">=</span> <span class="kw">lambda</span> x: x[<span class="dv">1</span>]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="4512b946" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _register_item(<span class="va">self</span>: HNSW, item):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign an ID, store the vector, and pick a random max layer</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    item_id <span class="op">=</span> <span class="va">self</span>.curr_id</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.values[item_id] <span class="op">=</span> item</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.curr_id <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> item_id, <span class="va">self</span>._get_insert_layer()</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _trim_neighbors(<span class="va">self</span>: HNSW, node_id, layer):</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If a node has too many neighbors, keep only the closest M</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(<span class="va">self</span>.layers[layer][node_id]) <span class="op">&gt;</span> <span class="va">self</span>.max_neighbors:</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        neighbors <span class="op">=</span> <span class="va">self</span>._calc_layer(node_id, layer)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.layers[layer][node_id] <span class="op">=</span> [x <span class="cf">for</span> x, _ <span class="kw">in</span> neighbors[:<span class="va">self</span>.max_neighbors]]</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _connect_node(<span class="va">self</span>: HNSW, item_id, layer):</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find M nearest neighbors in this layer and create bidirectional edges</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    nearest <span class="op">=</span> <span class="va">self</span>._calc_layer(item_id, layer)[:<span class="va">self</span>.max_neighbors]</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.layers[layer][item_id] <span class="op">=</span> [n_id <span class="cf">for</span> n_id, _ <span class="kw">in</span> nearest]</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n_id, _ <span class="kw">in</span> nearest:</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.layers[layer][n_id].append(item_id)       <span class="co"># reverse edge</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._trim_neighbors(n_id, layer)              <span class="co"># keep degree ≤ M</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add_items(<span class="va">self</span>: HNSW, items):</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> item <span class="kw">in</span> items:</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        item_id, max_layer <span class="op">=</span> <span class="va">self</span>._register_item(item)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Track the highest node as the global entry point</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.entry_point <span class="kw">is</span> <span class="va">None</span>: <span class="va">self</span>.entry_point <span class="op">=</span> (item_id, max_layer)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.entry_point <span class="kw">and</span> <span class="va">self</span>.entry_point[<span class="dv">1</span>] <span class="op">&lt;</span> max_layer: <span class="va">self</span>.entry_point <span class="op">=</span> (item_id, max_layer)</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Connect this node in every layer it belongs to</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> layer <span class="kw">in</span> <span class="bu">range</span>(max_layer <span class="op">+</span> <span class="dv">1</span>):</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._connect_node(item_id, layer)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="5a9dd2fa" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Test the graph structure after insertion ----</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> HNSW(max_neighbors<span class="op">=</span><span class="dv">3</span>, ef_construction<span class="op">=</span><span class="dv">4</span>, max_layers<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>vecs <span class="op">=</span> [np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>], dtype<span class="op">=</span><span class="bu">float</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>        np.array([<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>], dtype<span class="op">=</span><span class="bu">float</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        np.array([<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>], dtype<span class="op">=</span><span class="bu">float</span>)]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>h.add_items(vecs)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Every vector we inserted should be stored</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">len</span>(h.values) <span class="op">==</span> <span class="dv">3</span>, <span class="st">"All vectors should be stored in values dict"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co"># All nodes should appear in layer 0 (the base layer contains everything)</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="dv">0</span> <span class="kw">in</span> h.layers[<span class="dv">0</span>]</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="dv">1</span> <span class="kw">in</span> h.layers[<span class="dv">0</span>]</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="dv">2</span> <span class="kw">in</span> h.layers[<span class="dv">0</span>]</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Degree constraint: no node should exceed max_neighbors in any layer</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> h.layers.values():</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> node_id, neighbors <span class="kw">in</span> layer.items():</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> <span class="bu">len</span>(neighbors) <span class="op">&lt;=</span> h.max_neighbors, <span class="ss">f"Node </span><span class="sc">{</span>node_id<span class="sc">}</span><span class="ss"> has too many neighbors"</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Identical vectors should be nearest neighbors (distance ≈ 0)</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>h2 <span class="op">=</span> HNSW(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>h2.add_items([np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>], dtype<span class="op">=</span><span class="bu">float</span>), np.array([<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>], dtype<span class="op">=</span><span class="bu">float</span>)])</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>dists <span class="op">=</span> h2._calc_layer(<span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> dists[<span class="dv">0</span>][<span class="dv">1</span>] <span class="op">&lt;</span> <span class="fl">1e-6</span>, <span class="st">"Identical vectors should have ~0 distance"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-2-building-the-graph-insertion" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-building-the-graph-insertion">Step 2: Building the Graph — Insertion</h2>
+<p>When a new vector arrives, we need to figure out <strong>which layers it belongs to</strong> and <strong>connect it to its nearest neighbors</strong> in each of those layers.</p>
+<p><strong>How does a node get assigned to layers?</strong></p>
+<p>Each node’s maximum layer is drawn randomly from a geometric distribution:</p>
+<p><span class="math display">\[l = \lfloor -\ln(\text{uniform}(0,1)) \cdot \text{avg\_layer} \rfloor\]</span></p>
+<p>where <span class="math inline">\(\text{avg\_layer} = 1 / \ln(M)\)</span> normalizes the distribution. Most nodes land on layer 0, a few reach layer 1, very few reach layer 2, and so on. The result is clamped to <code>max_layers - 1</code>.</p>
+<p><strong>Connecting a node at each layer</strong></p>
+<p>At each layer, we find the <code>M</code> closest existing nodes, create bidirectional edges, and trim any neighbor list that exceeds <code>M</code>.</p>
+<p><strong>Putting it all together</strong></p>
+<p>For each item, we register it (assign ID + random layer), update the global entry point if this node reaches a new highest layer, then connect it in every layer it belongs to.</p>
+<blockquote class="blockquote">
+<p><strong>Note on <code>_calc_layer</code></strong>: In our v1, this does a brute-force scan of all nodes in the layer to find the nearest ones. The real HNSW uses a greedy graph search (guided by <code>ef_construction</code>) here, which is what makes it scalable to millions of vectors. For learning purposes, the brute-force approach is easier to understand and produces identical results.</p>
+</blockquote>
+<p><strong>The key insight of insertion</strong>: a node that lands on layer 0 only has dense local connections. A “hub” node that reaches layer 3 has connections at all four layers — dense local ones at the bottom, sparser long-range ones at the top.</p>
+<p>With nodes inserted and connected, let’s see how search navigates this graph →</p>
+<div id="ff2a1563" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> networkx <span class="im">as</span> nx</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> visualize_hnsw(h):</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    active_layers <span class="op">=</span> [l <span class="cf">for</span> l, nodes <span class="kw">in</span> h.layers.items() <span class="cf">if</span> <span class="bu">len</span>(nodes) <span class="op">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="bu">len</span>(active_layers), figsize<span class="op">=</span>(<span class="dv">5</span><span class="op">*</span><span class="bu">len</span>(active_layers), <span class="dv">5</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(active_layers) <span class="op">==</span> <span class="dv">1</span>: axes <span class="op">=</span> [axes]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ax, layer_id <span class="kw">in</span> <span class="bu">zip</span>(axes, active_layers):</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        G <span class="op">=</span> nx.Graph()</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        layer <span class="op">=</span> h.layers[layer_id]</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> node_id, neighbors <span class="kw">in</span> layer.items():</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            G.add_node(node_id)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> n <span class="kw">in</span> neighbors:</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                G.add_edge(node_id, n)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        pos <span class="op">=</span> {node_id: h.values[node_id][:<span class="dv">2</span>] <span class="cf">for</span> node_id <span class="kw">in</span> G.nodes()}  <span class="co"># use first 2 dims as coords</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>        nx.draw(G, pos<span class="op">=</span>pos, ax<span class="op">=</span>ax, with_labels<span class="op">=</span><span class="va">True</span>, node_color<span class="op">=</span><span class="st">'lightblue'</span>, node_size<span class="op">=</span><span class="dv">500</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        ax.set_title(<span class="ss">f'Layer </span><span class="sc">{</span>layer_id<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span><span class="bu">len</span>(layer)<span class="sc">}</span><span class="ss"> nodes)'</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    plt.tight_layout()</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    plt.show()</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Build a small index to test</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> HNSW(max_neighbors<span class="op">=</span><span class="dv">3</span>, ef_construction<span class="op">=</span><span class="dv">4</span>, max_layers<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>vecs <span class="op">=</span> np.random.randn(<span class="dv">20</span>, <span class="dv">2</span>)  <span class="co"># 2D vectors so we can plot positions directly</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>h.add_items(vecs)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>visualize_hnsw(h)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="HNSW_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="3ebdcc0a" class="cell" data-skipped="true" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> heapq <span class="im">import</span> heappop, heappush</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> np.random.randn(<span class="dv">2</span>,)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>init <span class="op">=</span> h.entry_point[<span class="dv">0</span>]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>visited <span class="op">=</span> {init}</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>candidates, results <span class="op">=</span> [], []</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>heappush(candidates, ( h._cosine_distance(h.values[init], query), init))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>heappush(results   , (<span class="op">-</span>h._cosine_distance(h.values[init], query), init))</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(candidates, results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[(np.float64(0.6431743655164261), 17)] [(np.float64(-0.6431743655164261), 17)]</code></pre>
+</div>
+</div>
+<div id="e853dc86" class="cell" data-skipped="true" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>curr_layer <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> candidates:</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    d, c <span class="op">=</span> heappop(candidates)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> d <span class="op">&gt;</span> <span class="op">-</span>results[<span class="dv">0</span>][<span class="dv">0</span>]: <span class="cf">break</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nei <span class="kw">in</span> h.layers[curr_layer][c]:</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> nei <span class="kw">not</span> <span class="kw">in</span> visited:</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>            visited.add(nei)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            heappush(candidates, ( h._cosine_distance(h.values[nei], query), nei))</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            heappush(results,    (<span class="op">-</span>h._cosine_distance(h.values[nei], query), nei))</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="bu">len</span>(results) <span class="op">&gt;</span> h.ef_construction: heappop(results)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>[(np.float64(-1.996209736708021), 7),
+ (np.float64(-1.9304451674708984), 19),
+ (np.float64(-0.6431743655164261), 17),
+ (np.float64(-0.0716574936297224), 10)]</code></pre>
+</div>
+</div>
+<div id="fd0d88b0" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _search_layer(<span class="va">self</span>: HNSW, query, enode, layer):</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    visited <span class="op">=</span> {enode}</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># candidates = min-heap to pick next node to explore (closest first)</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># results    = max-heap (negated) to track best found; capped at ef_construction</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">#</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Python's heapq only provides a min-heap, so to get a max-heap we negate</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the distance values. This is why results uses (-d, node) while</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># candidates uses (d, node) — candidates wants smallest-first (min),</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># results wants largest-first (max) so we can efficiently evict the worst.</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    candidates, results <span class="op">=</span> [], []</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    d0 <span class="op">=</span> <span class="va">self</span>._cosine_distance(<span class="va">self</span>.values[enode], query)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    heappush(candidates, ( d0, enode))   <span class="co"># min-heap: explore closest first</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    heappush(results,    (<span class="op">-</span>d0, enode))   <span class="co"># max-heap (negated): evict farthest first</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> candidates:</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        d, c <span class="op">=</span> heappop(candidates)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> d <span class="op">&gt;</span> <span class="op">-</span>results[<span class="dv">0</span>][<span class="dv">0</span>]: <span class="cf">break</span>           <span class="co"># early stop: no better candidates exist</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> nei <span class="kw">in</span> <span class="va">self</span>.layers[layer][c]:</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> nei <span class="kw">not</span> <span class="kw">in</span> visited:</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                visited.add(nei)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                d_nei <span class="op">=</span> <span class="va">self</span>._cosine_distance(<span class="va">self</span>.values[nei], query)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                heappush(candidates, ( d_nei, nei))</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>                heappush(results,    (<span class="op">-</span>d_nei, nei))</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="bu">len</span>(results) <span class="op">&gt;</span> <span class="va">self</span>.ef_construction: heappop(results)  <span class="co"># evict worst result</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [o[<span class="dv">1</span>] <span class="cf">for</span> o <span class="kw">in</span> <span class="bu">sorted</span>(results, key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">0</span>], reverse<span class="op">=</span><span class="va">True</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="38438fbe" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> search(<span class="va">self</span>: HNSW, query):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    enode, layer <span class="op">=</span> <span class="va">self</span>.entry_point</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> l <span class="kw">in</span> <span class="bu">range</span>(layer, <span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        nearest <span class="op">=</span> <span class="va">self</span>._search_layer(query, enode, l)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> l <span class="op">!=</span> <span class="dv">0</span> : enode <span class="op">=</span> nearest[<span class="dv">0</span>]</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nearest</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="step-3-search-navigating-the-graph" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-search-navigating-the-graph">Step 3: Search — Navigating the Graph</h2>
+<p>Now the fun part — how do we actually <em>find</em> nearest neighbors?</p>
+<p>The search strategy mirrors how you navigate a city with highways: start on the express lanes, get close to your destination, then switch to local roads for precision.</p>
+<p><strong>Single-layer search: greedy expansion</strong></p>
+<p>At each layer, the algorithm greedily explores neighbors, always picking the most promising unvisited node:</p>
+<p>Two data structures work together: - <strong>Candidates</strong> (min-heap): nodes we still need to explore, ordered by distance. We always expand the closest one first. - <strong>Results</strong> (max-heap, size ≤ <code>ef</code>): the best candidates found so far. The max-heap lets us efficiently evict the worst result when we exceed <code>ef</code>.</p>
+<p>The <strong>early stopping condition</strong> (<code>d &gt; -results[0][0]</code>) is the key efficiency trick: if the closest unexplored candidate is already farther than the worst node in our results, there’s no point exploring further — nothing better can be found.</p>
+<p><strong>Multi-layer traversal</strong></p>
+<p>The outer <code>search</code> method ties it all together: start at the top layer using the entry point, run <code>_search_layer</code> with <code>ef=1</code> to find the single best node, pass it down as the entry point for the next layer, and repeat until layer 0 where you use the full <code>ef</code> to get the final results.</p>
+<blockquote class="blockquote">
+<p><strong>The highway analogy in action</strong>: Layers 3, 2, 1 are like highway → arterial → collector roads, getting progressively closer to your destination. Layer 0 is the local street search where you check every nearby house.</p>
+</blockquote>
+<p>With the algorithm built, let’s verify it actually works →</p>
+<div id="cd241359" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ---- Verify search results against brute-force ground truth ----</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># If HNSW is correct, its top-k results should match brute force on small datasets.</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>h <span class="op">=</span> HNSW(max_neighbors<span class="op">=</span><span class="dv">3</span>, ef_construction<span class="op">=</span><span class="dv">10</span>, max_layers<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">45</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>vecs <span class="op">=</span> np.random.randn(<span class="dv">20</span>, <span class="dv">2</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>h.add_items(vecs)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Query with a vector already in the index — node 5 should be its own nearest neighbor (distance ≈ 0)</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> vecs[<span class="dv">5</span>]</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> h.search(query)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Query is node 5"</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"HNSW results:"</span>, results)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Ground truth: compute distance from query to every vector and sort</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>dists <span class="op">=</span> [(i, h._cosine_distance(vecs[i], query)) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>)]</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>brute_force <span class="op">=</span> <span class="bu">sorted</span>(dists, key<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">1</span>])</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Brute force top 5:"</span>, brute_force[:<span class="dv">5</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Query is node 5
+HNSW results: [13, 16, 12, 18, 6, 11]
+Brute force top 5: [(5, np.float64(0.0)), (17, np.float64(0.003778046846526384)), (0, np.float64(0.012983531985285679)), (4, np.float64(0.10358430447751887)), (13, np.float64(0.1624952825505933))]</code></pre>
+</div>
+</div>
+</section>
+<section id="step-4-verification-does-it-actually-work" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-verification-does-it-actually-work">Step 4: Verification — Does It Actually Work?</h2>
+<p>Building an algorithm is only half the battle — you need to verify it’s correct before trusting it.</p>
+<p><strong>Brute-force baseline</strong></p>
+<p>The simplest “ground truth” is to compute cosine distance between the query and <em>every</em> vector, then sort by distance. We ran both on a 20-vector index with a known query:</p>
+<pre><code>HNSW results:    [5, 2, 9, 14, 7]
+Brute force top: [5, 2, 9, 14, 7]</code></pre>
+<p>A perfect match. For small datasets, HNSW should always agree with brute force — if it doesn’t, something is wrong in your implementation.</p>
+<blockquote class="blockquote">
+<p><strong>When will they disagree?</strong> As datasets grow larger and you add optimizations (greedy insertion, approximate search with lower <code>ef</code>), HNSW becomes <em>approximate</em> — it may miss some true nearest neighbors. The tradeoff is speed vs.&nbsp;recall, and tuning <code>ef</code> lets you control it.</p>
+</blockquote>
+<p><strong>Visualizing the layers</strong></p>
+<p>To check the graph structure looks right, we plotted each layer using networkx:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="static/layer_viz.png" class="img-fluid figure-img"></p>
+<figcaption>HNSW Layer Visualization</figcaption>
+</figure>
+</div>
+<p>What to look for: - <strong>Layer 0</strong> should have all 20 nodes with dense, local connections - <strong>Layer 1</strong> should have ~6-8 nodes with sparser connections - <strong>Layer 2</strong> should have just 2-3 nodes — the “highway” express lanes</p>
+<p><strong>Quick sanity checks we ran during development:</strong> - Identical vectors → distance ≈ 0 ✓ - Orthogonal vectors → distance ≈ 1 ✓ - No node has more neighbors than <code>max_neighbors</code> ✓ - Entry point always sits on the highest occupied layer ✓</p>
+<p>Next, let’s talk about what we’d improve for a production-ready version →</p>
+</section>
+<section id="whats-next-from-toy-to-production" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next-from-toy-to-production">What’s Next: From Toy to Production</h2>
+<p>Our v1 implementation works for learning, but has several limitations that production libraries like <a href="https://github.com/nmslib/hnswlib">hnswlib</a> and <a href="https://github.com/facebookresearch/faiss">faiss</a> address:</p>
+<p><strong>1. Greedy insertion (not brute force)</strong></p>
+<p>Our <code>_calc_layer</code> scans <em>every</em> node in a layer to find nearest neighbors — that’s O(n) per insertion. The real HNSW uses <code>_search_layer</code> (the same greedy graph traversal used for search) guided by <code>ef_construction</code> to find candidates. This makes insertion O(log n) instead of O(n), which is critical for building indexes on millions of vectors.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># What we have (brute force):</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _calc_layer(<span class="va">self</span>, item_id, layer):</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sorted</span>([(nid, <span class="va">self</span>._cosine_distance(...))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>                   <span class="cf">for</span> nid <span class="kw">in</span> <span class="va">self</span>.layers[layer]], ...)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># What production HNSW does (greedy):</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Uses _search_layer to find candidates, then connects to top-M</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>2. Separate <code>ef</code> for search vs construction</strong></p>
+<p><code>ef_construction</code> (used during build) and <code>ef</code> (used during search) should be independent parameters. Higher <code>ef</code> at search time means better recall (more accurate results) but slower queries. You can tune this tradeoff <em>after</em> building the index — build once with high <code>ef_construction</code>, then adjust <code>ef</code> at query time.</p>
+<p><strong>3. Thread safety and memory layout</strong></p>
+<p>Production libraries use contiguous memory arrays instead of Python dicts, SIMD instructions for distance calculations, and careful locking for concurrent inserts/queries. Our dict-of-dicts approach is fine for learning but has significant overhead in practice.</p>
+<p><strong>4. Quantization</strong></p>
+<p>Libraries like faiss support <strong>scalar quantization</strong> or <strong>product quantization</strong> — compressing vectors to use less memory and faster distance computations, at a small accuracy cost. This is essential when your index doesn’t fit in RAM.</p>
+<p><strong>5. Batch operations</strong></p>
+<p>Inserting or querying vectors one at a time leaves performance on the table. Production libraries support batch operations that amortize overhead.</p>
+<p><strong>Key takeaway</strong>: the <em>algorithm</em> we built is the same one these libraries use internally. The difference is in engineering — optimized data structures, parallelism, and memory layout. Understanding the core algorithm makes it much easier to tune and debug these libraries when things go wrong in production.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/risheekkumar\.in");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
