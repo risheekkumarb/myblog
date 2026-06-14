@@ -1,1 +1,10 @@
 /* css styles */
+
+.quarto-post .thumbnail {
+  padding: 8px;
+}
+
+.quarto-post .thumbnail img {
+  object-fit: cover;
+  border-radius: 8px;
+}

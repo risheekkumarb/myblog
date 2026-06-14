@@ -30,6 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-listing/list.min.js"></script>
+<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -67,6 +69,35 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-date','listing-title','listing-author','listing-subtitle','listing-image','listing-description',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EMRH6XWVFQ"></script>
 
 <script type="text/javascript">
@@ -77,6 +108,35 @@ gtag('js', new Date());
 gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
 </script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -140,11 +200,139 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
 <div class="quarto-title-meta">
   </div>
 </header><main class="content" id="quarto-document-content">
-<p>I am Risheekkumar, a Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express.</p>
+<p>I am Risheekkumar, a Senior Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express.</p>
 <p>I write about AI-powered products, engineering, and evaluations. Outside of work, I like playing chess.</p>
 
 
-</main> 
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="Y29kZSUyQ3Jlc2VhcmNoJTIwcGFwZXIlMkNpbXBhY3Q=" data-listing-date-sort="1781375400000" data-listing-file-modified-sort="1781438734776" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2177">
+<div class="thumbnail"><a href="./posts/bitcoin_from_scratch/bitcoin_from_scratch.html" class="no-external">
+<img loading="lazy" src="./posts/bitcoin_from_scratch/bitcoin.webp" class="thumbnail-image" style="height: 200px;">
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/bitcoin_from_scratch/bitcoin_from_scratch.html" class="no-external">Building a Bitcoin Blockchain from Scratch in Python</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/bitcoin_from_scratch/bitcoin_from_scratch.html" class="no-external"></a>
+</div>
+<div class="delink listing-description"><a href="./posts/bitcoin_from_scratch/bitcoin_from_scratch.html" class="no-external">
+<p>This post is a simple code implementation of the research paper ‘Bitcoin: A Peer-to-Peer Electronic Cash System’ by Satoshi Nakamoto.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/bitcoin_from_scratch/bitcoin_from_scratch.html" class="no-external">
+<div class="listing-date">
+Jun 14, 2026
+</div>
+<div class="listing-author">
+Risheek kumar B
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="Y29kZSUyQ3Jlc2VhcmNoJTIwcGFwZXIlMkNhbmFseXNpcyUyQ3JlaW1wbGVtZW50YXRpb24=" data-listing-date-sort="1766255400000" data-listing-file-modified-sort="1767189372295" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="56" data-listing-word-count-sort="11132">
+<div class="thumbnail"><a href="./posts/gepa-deepdive/gepa_final_article.html" class="no-external">
+<img loading="lazy" src="./posts/gepa-deepdive/static/blogpost_image.webp" class="thumbnail-image" style="height: 200px;">
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/gepa-deepdive/gepa_final_article.html" class="no-external">GEPA Deepdive</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/gepa-deepdive/gepa_final_article.html" class="no-external"></a>
+</div>
+<div class="delink listing-description"><a href="./posts/gepa-deepdive/gepa_final_article.html" class="no-external">
+<p>An indepth hands-on explanation with code about GEPA - its core and motivations</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/gepa-deepdive/gepa_final_article.html" class="no-external">
+<div class="listing-date">
+Dec 21, 2025
+</div>
+<div class="listing-author">
+Risheek kumar B
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="Y29kZSUyQ3Jlc2VhcmNoJTIwcGFwZXIlMkNpbXBhY3Q=" data-listing-date-sort="1781375400000" data-listing-file-modified-sort="1781438475433" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1607">
+<div class="thumbnail"><a href="./posts/HNSW/HNSW.html" class="no-external">
+<img loading="lazy" src="./posts/HNSW/static/layer_viz.png" class="thumbnail-image" style="height: 200px;">
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/HNSW/HNSW.html" class="no-external">HNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/HNSW/HNSW.html" class="no-external"></a>
+</div>
+<div class="delink listing-description"><a href="./posts/HNSW/HNSW.html" class="no-external">
+<p>This post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/HNSW/HNSW.html" class="no-external">
+<div class="listing-date">
+Jun 14, 2026
+</div>
+<div class="listing-author">
+Risheek kumar B
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-listing-file-modified-sort="1766406021842" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
+<div class="thumbnail"><a href="./index.html" class="no-external">
+<p class="card-img-top"><img src="posts/bitcoin_from_scratch/bitcoin.webp" style="height: 200px;"  class="thumbnail-image card-img"/></p>
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./index.html" class="no-external">Hi I am Risheekkumar, Data Scientist</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./index.html" class="no-external">I build AI systems and AI-powered experiences that serve customers at scale at American Express. I Write about AI-powered product, engineering and evals.. Outside of work, I like playing chess.</a>
+</div>
+<div class="delink listing-description"><a href="./index.html" class="no-external">
+This post is a simple code implementation of the research paper ‘Bitcoin: A Peer-to-Peer Electronic Cash System’ by Satoshi Nakamoto.
+</a></div>
+</div>
+<div class="metadata">
+<a href="./index.html" class="no-external">
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="4" data-categories="Y29kZSUyQ3Jlc2VhcmNoJTIwcGFwZXIlMkNpbXBhY3Q=" data-listing-date-sort="1767119400000" data-listing-file-modified-sort="1781434972945" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14" data-listing-word-count-sort="2743">
+<div class="thumbnail"><a href="./posts/gepa-impact/gepa_impact_final.html" class="no-external">
+<img loading="lazy" src="./posts/gepa-impact/gepa_impact.webp" class="thumbnail-image" style="height: 200px;">
+</a></div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/gepa-impact/gepa_impact_final.html" class="no-external">Programmatic Prompt Optimization: Replacing Intuition with Algorithms</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/gepa-impact/gepa_impact_final.html" class="no-external"></a>
+</div>
+<div class="delink listing-description"><a href="./posts/gepa-impact/gepa_impact_final.html" class="no-external">
+<p>From manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.</p>
+</a></div>
+</div>
+<div class="metadata">
+<a href="./posts/gepa-impact/gepa_impact_final.html" class="no-external">
+<div class="listing-date">
+Dec 31, 2025
+</div>
+<div class="listing-author">
+Risheek kumar B
+</div>
+</a>
+</div>
+</div>
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div></main> 
   <hr class="about-sep">
    <div class="about-links">
   <a href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/" class="about-link" rel="" target="">

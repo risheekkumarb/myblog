@@ -1,11 +1,37 @@
 [
   {
+    "listing": "/about.html",
+    "items": [
+      "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
+      "/posts/gepa-deepdive/gepa_final_article.html",
+      "/posts/HNSW/HNSW.html",
+      "/index.html",
+      "/posts/gepa-impact/gepa_impact_final.html"
+    ]
+  },
+  {
+    "listing": "/posts/gepa-impact/gepa_impact_final.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/HNSW/HNSW.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/gepa-deepdive/gepa_final_article.html",
+    "items": []
+  },
+  {
     "listing": "/index.html",
     "items": [
-      "/posts/gepa-impact/gepa_impact_final.html",
-      "/posts/gepa-deepdive/gepa_final_article.html",
       "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
-      "/posts/HNSW/HNSW.html"
+      "/posts/HNSW/HNSW.html",
+      "/posts/gepa-impact/gepa_impact_final.html",
+      "/posts/gepa-deepdive/gepa_final_article.html"
     ]
   }
 ]

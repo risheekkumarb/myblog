@@ -21,6 +21,11 @@ website:
         href: https://github.com/risheekkumarb
       - icon: twitter
         href: https://x.com/BRisheek
+
+listing:
+  type: default
+  image-height: "200px"
+
 format:
   html:
     theme:
