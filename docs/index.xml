@@ -10,7 +10,1089 @@
 <atom:link href="https://risheekkumar.in/index.xml" rel="self" type="application/rss+xml"/>
 <description>A blog about tech, programming, and life.</description>
 <generator>quarto-1.8.26</generator>
-<lastBuildDate>Sat, 13 Jun 2026 18:30:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 14 Jun 2026 18:30:00 GMT</lastBuildDate>
+<item>
+  <title>KNN: Understanding the K-Nearest Neighbors Algorithm</title>
+  <dc:creator>Risheek kumar B</dc:creator>
+  <link>https://risheekkumar.in/posts/KNN/KNN.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<section id="the-simplest-idea-in-ml" class="level3">
+<h3 class="anchored" data-anchor-id="the-simplest-idea-in-ml">The Simplest Idea in ML</h3>
+<p>Imagine you just moved to a new city — let’s say Tokyo. You’re hungry, you don’t speak the language, and Google Maps is down. What do you do? You look around. Three ramen shops nearby are packed with locals. One fancy place across town has a 5-star rating online. You go with the ramen — your <em>nearest neighbors</em> already made the decision for you.</p>
+<p><strong>That’s KNN.</strong> To classify a new data point, look at its <em>k</em> nearest neighbors in the training data and take a majority vote.</p>
+<p>No training phase. No model to fit. No assumptions about the data. Just store everything and compute distances when you need a prediction. It’s the algorithm equivalent of “when in Rome, do as the Romans do.”</p>
+</section>
+<section id="the-algorithm-4-steps" class="level3">
+<h3 class="anchored" data-anchor-id="the-algorithm-4-steps">The Algorithm (4 Steps)</h3>
+<ol type="1">
+<li>Pick a value of <em>k</em> (e.g.&nbsp;3, 5, 7)</li>
+<li>Compute the distance from the query point to <strong>every</strong> training point</li>
+<li>Find the <em>k</em> closest ones</li>
+<li>Return the majority class among those <em>k</em> neighbors</li>
+</ol>
+</section>
+<section id="building-knn-from-scratch" class="level3">
+<h3 class="anchored" data-anchor-id="building-knn-from-scratch">Building KNN from Scratch</h3>
+<p>Let’s build it step by step — like assembling IKEA furniture, but with fewer leftover screws. First, we need a way to measure distance between two points — the <strong>Euclidean distance</strong> (straight-line distance from geometry class):</p>
+<div id="cbb2d74f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> dist(x, y, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>):</span>
+<span id="cb1-4">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">not</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">isinstance</span>(x, np.ndarray): x, y <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array(x), np.array(y)</span>
+<span id="cb1-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> np.sqrt(((x <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> y) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>axis, keepdims<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>))</span>
+<span id="cb1-6"></span>
+<span id="cb1-7">dist([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]), dist([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>])</span></code></pre></div></div>
+<div class="cell-output cell-output-display" data-execution_count="101">
+<pre><code>(array([0.]), array([1.]))</code></pre>
+</div>
+</div>
+<p>Now the KNN classifier itself — compute distances, find the <em>k</em> nearest, take a majority vote:</p>
+<div id="a281e4c0" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1">X_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>]])</span>
+<span id="cb3-2">y_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># two clusters: class 0 and class 1</span></span>
+<span id="cb3-3">x_query <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.0</span>])</span>
+<span id="cb3-4">k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb3-5"></span>
+<span id="cb3-6"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> knn_predict(X_train, y_train, x_query, k):</span>
+<span id="cb3-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Classify x_query using k nearest neighbors."""</span></span>
+<span id="cb3-8">    dists <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dist(x_query, X_train, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).squeeze()</span>
+<span id="cb3-9">    top_k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dists.argsort()[:k]</span>
+<span id="cb3-10">    labels <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y_train[top_k]</span>
+<span id="cb3-11">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> np.bincount(labels).argmax()</span>
+<span id="cb3-12"></span>
+<span id="cb3-13">knn_predict(X_train, y_train, x_query, k<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div></div>
+<div class="cell-output cell-output-display" data-execution_count="80">
+<pre><code>np.int64(0)</code></pre>
+</div>
+</div>
+<p><strong>Result:</strong> Class <code>0</code> ✅ — makes sense, since <code>[2.5, 3.0]</code> is geometrically close to the class 0 cluster.</p>
+<p><strong>Caveat:</strong> <code>np.bincount</code> requires non-negative integer labels (0, 1, 2, …). For arbitrary labels, use <code>collections.Counter</code> for the majority vote instead.</p>
+</section>
+<section id="seeing-knn-in-action" class="level3">
+<h3 class="anchored" data-anchor-id="seeing-knn-in-action">Seeing KNN in Action</h3>
+<p>Words are nice, but a picture is worth a thousand distances. Let’s plot the two clusters, a query point sitting between them, and draw lines to its <em>k</em> nearest neighbors:</p>
+<div id="57e7c76f" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> matplotlib.pyplot <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> plt</span>
+<span id="cb5-2"></span>
+<span id="cb5-3">X_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>],[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>]])</span>
+<span id="cb5-4">y_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb5-5">x_query <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.array([<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>])</span>
+<span id="cb5-6">k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb5-7"></span>
+<span id="cb5-8">dists <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.sqrt(((X_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x_query)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">**</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>(axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>))</span>
+<span id="cb5-9">top_k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dists.argsort()[:k]</span>
+<span id="cb5-10"></span>
+<span id="cb5-11">fig, ax <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> plt.subplots(figsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>))</span>
+<span id="cb5-12">colors <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'blue'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">if</span> c <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">else</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'red'</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> y_train]</span>
+<span id="cb5-13">ax.scatter(X_train[:,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], X_train[:,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>], c<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>colors, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, edgecolors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'k'</span>, zorder<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb5-14"></span>
+<span id="cb5-15"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> top_k:</span>
+<span id="cb5-16">    ax.plot([x_query[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>], X_train[i,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]], [x_query[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>], X_train[i,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]], <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'g--'</span>, lw<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>)</span>
+<span id="cb5-17">    ax.annotate(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'd=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>dists[i]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:.1f}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'</span>, xy<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>(X_train[i,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span>, X_train[i,<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span>), fontsize<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>)</span>
+<span id="cb5-18"></span>
+<span id="cb5-19">ax.scatter(<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>x_query, c<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'green'</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>, marker<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'*'</span>, edgecolors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'k'</span>, zorder<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span>
+<span id="cb5-20">ax.scatter([], [], c<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'blue'</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, edgecolors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'k'</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Class 0'</span>)</span>
+<span id="cb5-21">ax.scatter([], [], c<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'red'</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, edgecolors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'k'</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Class 1'</span>)</span>
+<span id="cb5-22">ax.scatter([], [], c<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'green'</span>, s<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, marker<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'*'</span>, edgecolors<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'k'</span>, label<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'k=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>k<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> neighbors'</span>)</span>
+<span id="cb5-23">ax.set_title(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f'KNN Classification (k=</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>k<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">)'</span>)<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> ax.legend()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> ax.grid(<span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">True</span>, alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>)</span>
+<span id="cb5-24">plt.tight_layout()<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">;</span> plt.show()</span></code></pre></div></div>
+</details>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://risheekkumar.in/posts/KNN/KNN_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="choosing-k-the-bias-variance-tradeoff" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-k-the-bias-variance-tradeoff">Choosing k — The Bias-Variance Tradeoff</h3>
+<p>Imagine you’re on a game show. You need to guess the price of a car. You can ask 1, 5, or 50 audience members.</p>
+<ul>
+<li><strong>Ask just 1 person (k=1):</strong> If they’re a car mechanic, great! If they think cars cost $50, you’re toast. Wildly sensitive to who you pick — <strong>high variance, low bias</strong>.</li>
+<li><strong>Ask 50 people (k=50):</strong> The average will be safe but won’t reflect the one expert in the crowd. You’ve smoothed away useful signal — <strong>low variance, high bias</strong>.</li>
+<li><strong>Ask 5 people (k=5):</strong> A sweet spot. Enough voices to cancel out the outlier, few enough to keep the experts’ opinions.</li>
+</ul>
+<p>In general, <em>k</em> controls how smooth or noisy your predictions are:</p>
+<ul>
+<li><strong>Small k</strong> (e.g.&nbsp;k=1): the model memorizes training data — <strong>high variance, low bias</strong> (overfitting)</li>
+<li><strong>Large k</strong> (approaching N): the model ignores local structure — <strong>low variance, high bias</strong> (underfitting)</li>
+<li><strong>Odd k</strong> is preferred for binary classification to avoid ties</li>
+</ul>
+<p>In practice, you don’t guess <em>k</em>. You use <strong>cross-validation</strong>: train KNN with k=1, 3, 5, 7,…, evaluate each on a validation set, and pick the one with the best accuracy.</p>
+</section>
+<section id="knn-for-regression" class="level3">
+<h3 class="anchored" data-anchor-id="knn-for-regression">KNN for Regression</h3>
+<p>KNN isn’t just for classification. For <strong>regression</strong>, instead of taking a majority vote, you take the <strong>mean</strong> of the <em>k</em> neighbors’ target values. Think of it like estimating the temperature: you look at the <em>k</em> closest weather stations and average their readings.</p>
+<div id="d6b85080" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> knn_predict_regression(X_train, y_train, x_query, k):</span>
+<span id="cb6-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Predict continuous value using k nearest neighbors."""</span></span>
+<span id="cb6-3">    dists <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dist(x_query, X_train, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).squeeze()</span>
+<span id="cb6-4">    top_k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dists.argsort()[:k]</span>
+<span id="cb6-5">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> y_train[top_k].mean()</span></code></pre></div></div>
+</details>
+</div>
+</section>
+<section id="weighted-knn" class="level3">
+<h3 class="anchored" data-anchor-id="weighted-knn">Weighted KNN</h3>
+<p>In standard KNN, all <em>k</em> neighbors vote equally — democracy! But sometimes your closest neighbor’s opinion should matter more than one 10 streets away. In <strong>weighted KNN</strong>, closer neighbors get more influence — typically using inverse distance as weight. It’s the difference between asking 5 random coworkers for lunch advice vs.&nbsp;asking the one sitting right next to you <em>plus</em> 4 others.</p>
+<div id="4366c16d" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> knn_predict_weighted(X_train, y_train, x_query, k):</span>
+<span id="cb7-2">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">"""Weighted KNN: closer neighbors get more vote power."""</span></span>
+<span id="cb7-3">    dists <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dist(x_query, X_train, axis<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>).squeeze()</span>
+<span id="cb7-4">    top_k <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> dists.argsort()[:k]</span>
+<span id="cb7-5">    weights <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (dists[top_k] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e-8</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># avoid division by zero</span></span>
+<span id="cb7-6">    labels <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> y_train[top_k]</span>
+<span id="cb7-7">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Weighted vote for each class</span></span>
+<span id="cb7-8">    classes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.unique(y_train)</span>
+<span id="cb7-9">    scores <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {c: weights[labels <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> c].<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">sum</span>() <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> c <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> classes}</span>
+<span id="cb7-10">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">max</span>(scores, key<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span>scores.get)</span></code></pre></div></div>
+</details>
+</div>
+</section>
+<section id="decision-boundaries" class="level3">
+<h3 class="anchored" data-anchor-id="decision-boundaries">Decision Boundaries</h3>
+<p>KNN produces <strong>piecewise linear</strong> decision boundaries — think of them like country borders drawn by neighbors voting on which side of the line they belong to. As <em>k</em> decreases, the borders get jagged and weird (overfitting — like a gerrymandered district). As <em>k</em> increases, borders smooth out into clean curves (underfitting — like someone drew them with a ruler). Sketch this in your mind — remember: small <em>k</em> = squiggly, large <em>k</em> = smooth.</p>
+</section>
+<section id="feature-scaling" class="level3">
+<h3 class="anchored" data-anchor-id="feature-scaling">Feature Scaling</h3>
+<p>You <strong>must</strong> normalize features before using KNN. Here’s a cautionary tale:</p>
+<p>Suppose you’re matching people by similarity for a roommate app.</p>
+<ul>
+<li>Feature 1: <strong>annual income</strong> ($20k–$200k).</li>
+<li>Feature 2: <strong>cleanliness rating</strong> (1–10).</li>
+</ul>
+<p>Without scaling, income differences of $10,000+ completely drown out cleanliness differences of a few points. KNN will pair you with people who earn the same as you — even if they never wash the dishes.</p>
+<p>Standard fix: <strong>standardize</strong> each feature to zero mean and unit variance, or <strong>min-max scale</strong> to [0, 1]. Now both features contribute equally, and you get a roommate who matches you on <em>both</em> axes.</p>
+</section>
+<section id="curse-of-dimensionality" class="level3">
+<h3 class="anchored" data-anchor-id="curse-of-dimensionality">Curse of Dimensionality</h3>
+<p>Picture this: you’re in a dark room looking for your keys. In 1D (a hallway), you just walk forward — easy search. In 2D (a room), it’s harder but manageable. In 3D (a building), tougher. Now imagine a 100D building — every direction you look, the space stretches out forever, and your keys might as well be nowhere. Worse, <em>every pair of keys looks roughly the same distance away</em>.</p>
+<p>That’s the curse of dimensionality. As dimensions increase, the volume of the space explodes exponentially. A unit hypersphere in high dimensions has essentially zero volume relative to the enclosing cube — data points end up near corners/edges, and pairwise distances become nearly equal.</p>
+<p><strong>The result:</strong> “nearest” neighbor becomes nearly meaningless in high dimensions.</p>
+<p><strong>Common misconception:</strong> Changing the distance metric (e.g.&nbsp;to cosine similarity) fixes this. It doesn’t — even angles concentrate around 90° in high dimensions.</p>
+<p><strong>The actual fix:</strong> Reduce dimensionality first (PCA or pretrained embeddings), then apply KNN.</p>
+<ul>
+<li><strong>PCA</strong> — unsupervised, linear, no extra training needed</li>
+<li><strong>Embeddings</strong> (e.g.&nbsp;Word2Vec, neural) — pretrained on large external data, captures non-linear structure</li>
+</ul>
+</section>
+<section id="distance-metrics" class="level3">
+<h3 class="anchored" data-anchor-id="distance-metrics">Distance Metrics</h3>
+<p>Different situations call for different notions of “closeness”:</p>
+<ul>
+<li><strong>Euclidean</strong> — “as the crow flies”; straight-line distance, works well in low dimensions</li>
+<li><strong>Cosine similarity</strong> — “same direction, who cares how far”; measures angle, not magnitude; good for sparse/high-dimensional text data</li>
+<li><strong>Manhattan (L1)</strong> — “as the taxi drives” (block by block); sum of absolute differences; more robust to outliers</li>
+</ul>
+</section>
+<section id="time-space-complexity" class="level3">
+<h3 class="anchored" data-anchor-id="time-space-complexity">Time &amp; Space Complexity</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>KNN</th>
+<th>Most ML algorithms</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Training</strong></td>
+<td>O(1) — just store data</td>
+<td>O(expensive)</td>
+</tr>
+<tr class="even">
+<td><strong>Prediction</strong></td>
+<td>O(Nd) — expensive</td>
+<td>O(1) — just apply model</td>
+</tr>
+</tbody>
+</table>
+<p>This is the <strong>reverse</strong> of most ML algorithms. KNN is “lazy” — it shows up to the exam having done zero prep, then frantically flips through the textbook during the test. This matters when you have large datasets or need real-time predictions — you can’t afford to flip through a million pages every time someone asks a question.</p>
+<p><strong>Scalability fixes:</strong> - <strong>KD-trees / Ball trees</strong> — spatial indexing structures, fast for low dimensions (&lt; ~20) - <strong>Approximate Nearest Neighbor (ANN)</strong> — e.g.&nbsp;FAISS, HNSW; trades exact results for massive speedups</p>
+</section>
+<section id="when-not-to-use-knn" class="level3">
+<h3 class="anchored" data-anchor-id="when-not-to-use-knn">When NOT to Use KNN</h3>
+<p>KNN is a great hammer, but not everything is a nail. Steer clear when:</p>
+<ul>
+<li><strong>High dimensions</strong> without dimensionality reduction — the curse turns “nearest neighbor” into “random neighbor”</li>
+<li><strong>Very large datasets</strong> — asking O(Nd) questions at prediction time gets expensive fast; consider ANN</li>
+<li><strong>When you need interpretability</strong> — “because those 5 points over there said so” isn’t a satisfying answer to a stakeholder</li>
+<li><strong>Imbalanced classes</strong> — if 95% of your data is class A, a majority vote with any reasonable <em>k</em> just predicts A every time</li>
+</ul>
+
+
+
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div> ]]></description>
+  <category>code</category>
+  <category>research paper</category>
+  <category>impact</category>
+  <guid>https://risheekkumar.in/posts/KNN/KNN.html</guid>
+  <pubDate>Sun, 14 Jun 2026 18:30:00 GMT</pubDate>
+  <media:content url="https://risheekkumar.in/posts/KNN/knn.webp" medium="image" type="image/webp"/>
+</item>
+<item>
+  <title>Naive Bayes Classifier: A Simple Implementation</title>
+  <dc:creator>Risheek kumar B</dc:creator>
+  <link>https://risheekkumar.in/posts/naive-bayes/naive bayes.html</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p><em>How a reverend from the 1700s gave us one of the most practical classifiers in machine learning</em></p>
+<p>In 1763, a English Presbyterian minister named Thomas Bayes had his most famous work published — posthumously. He’d been thinking about a simple question: <em>if I see something happen, how should that change what I believe?</em> Nearly 260 years later, his theorem powers spam filters, medical diagnoses, and recommendation engines. Let’s trace the journey from a bag of balls to a working classifier — and build everything by hand along the way.</p>
+<section id="the-bag-of-balls" class="level2">
+<h2 class="anchored" data-anchor-id="the-bag-of-balls">The Bag of Balls</h2>
+<p>Before we get to spam, let’s start somewhere tangible. Imagine you have a bag with 3 red balls and 7 blue balls. You draw one ball, don’t put it back, and draw another.</p>
+<p><strong>Question: what’s the probability both are red?</strong></p>
+<p>Think about it — the first draw has a 3/10 chance. But if you drew red, now there are only 2 red balls left out of 9 total. So:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B3%7D%7B10%7D%20%5Ctimes%20%5Cfrac%7B2%7D%7B9%7D%20=%20%5Cfrac%7B1%7D%7B15%7D"></p>
+<p>This is the <strong>multiplication rule for dependent events</strong> — the second draw <em>depends</em> on what happened in the first. This dependency is exactly where Bayes’ insight begins.</p>
+</section>
+<section id="bayes-theorem" class="level2">
+<h2 class="anchored" data-anchor-id="bayes-theorem">Bayes’ Theorem</h2>
+<p>Let’s build the theorem from scratch. Start with the definition of conditional probability:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(A%7CB)%20=%20%5Cfrac%7BP(A%20%5Ccap%20B)%7D%7BP(B)%7D"></p>
+<p>In plain English: <em>“out of all the times B happens, how often does A also happen?”</em></p>
+<p>Rearranging: <img src="https://latex.codecogs.com/png.latex?P(A%20%5Ccap%20B)%20=%20P(A%7CB)%20%5Ccdot%20P(B)"></p>
+<p>By symmetry, we can also write: <img src="https://latex.codecogs.com/png.latex?P(A%20%5Ccap%20B)%20=%20P(B%7CA)%20%5Ccdot%20P(A)"></p>
+<p>Both expressions equal <img src="https://latex.codecogs.com/png.latex?P(A%20%5Ccap%20B)">, so set them equal and solve:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7BP(A%7CB)%20=%20%5Cfrac%7BP(B%7CA)%20%5Ccdot%20P(A)%7D%7BP(B)%7D%7D"></p>
+<p>This is <strong>Bayes’ theorem</strong> — the equation Bayes never actually wrote in this form (that was Laplace). The terms have names:</p>
+<ul>
+<li><strong>Prior</strong> <img src="https://latex.codecogs.com/png.latex?P(A)"> — what you believed before seeing evidence</li>
+<li><strong>Likelihood</strong> <img src="https://latex.codecogs.com/png.latex?P(B%7CA)"> — how probable the evidence is, given your hypothesis</li>
+<li><strong>Posterior</strong> <img src="https://latex.codecogs.com/png.latex?P(A%7CB)"> — your updated belief after seeing evidence</li>
+</ul>
+<p>The Bayesian mindset in one sentence: <em>start with a prior, update it with evidence.</em></p>
+</section>
+<section id="frequentists-vs-bayesians-a-centuries-old-debate" class="level2">
+<h2 class="anchored" data-anchor-id="frequentists-vs-bayesians-a-centuries-old-debate">Frequentists vs Bayesians: A Centuries-Old Debate</h2>
+<p>Bayes’ theorem isn’t just a formula — it represents a fundamentally different way of thinking about probability. This difference sparked one of the longest-running arguments in statistics.</p>
+<p><strong>The Frequentist view:</strong> Probability is about long-run frequencies. A coin has a 50% chance of heads because if you flipped it infinitely many times, half would be heads. A hypothesis (like “this drug works”) is either true or false — there’s no meaningful way to say “I’m 80% sure it works.”</p>
+<p><strong>The Bayesian view:</strong> Probability is a measure of <em>belief</em>. You <em>can</em> say “I’m 80% sure this drug works” — it reflects your state of knowledge, updated by evidence. Before a trial, you have a prior belief. After seeing data, you have a posterior belief.</p>
+<p>This isn’t just philosophy — it changes how you answer practical questions:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Frequentist</th>
+<th>Bayesian</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“Is this email spam?”</td>
+<td>Either yes or no; I’ll use a test with 95% confidence</td>
+<td>P(spam) = 0.88 given these words</td>
+</tr>
+<tr class="even">
+<td>“Does this drug work?”</td>
+<td>Reject or fail to reject the null hypothesis</td>
+<td>There’s a 93% probability it works</td>
+</tr>
+<tr class="odd">
+<td>“How confident are you?”</td>
+<td>“If I repeated this experiment 100 times…”</td>
+<td>“Given everything I’ve seen…”</td>
+</tr>
+</tbody>
+</table>
+<p>For most of the 20th century, frequentist methods dominated (think p-values, confidence intervals, hypothesis tests). But Bayesian methods have surged in recent decades, powered by faster computers that can handle the harder calculations.</p>
+<p>Naive Bayes sits squarely in the Bayesian camp: it starts with a prior (how common is spam?) and updates it with evidence (which words appear?). The “prior → evidence → posterior” loop is the beating heart of Bayesian thinking.</p>
+</section>
+<section id="applying-bayes-to-classification" class="level2">
+<h2 class="anchored" data-anchor-id="applying-bayes-to-classification">Applying Bayes to Classification</h2>
+<p>Now let’s make this practical. Suppose you’re building a spam filter for email. You want to classify a new email as spam or not spam based on the words it contains.</p>
+<p>Using Bayes’ theorem:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bspam%7D%20%7C%20%5Ctext%7Bwords%7D)%20=%20%5Cfrac%7BP(%5Ctext%7Bwords%7D%20%7C%20%5Ctext%7Bspam%7D)%20%5Ccdot%20P(%5Ctext%7Bspam%7D)%7D%7BP(%5Ctext%7Bwords%7D)%7D"></p>
+<p>The prior <img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bspam%7D)"> is easy — just the fraction of spam emails in your training data. But <img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bwords%7D%20%7C%20%5Ctext%7Bspam%7D)">? That’s the probability of seeing <em>this exact combination</em> of words in a spam email. With a vocabulary of 10,000 words, the number of possible combinations is astronomical. You’d never have enough data to estimate it directly.</p>
+<p>This is the wall that Bayes’ theorem alone can’t climb. We need a simplification.</p>
+</section>
+<section id="the-naive-assumption" class="level2">
+<h2 class="anchored" data-anchor-id="the-naive-assumption">The Naive Assumption</h2>
+<p>Here’s the trick that makes it all work: <strong>assume every word is independent of every other word</strong>.</p>
+<p>Instead of computing <img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7B%22free%22,%20%22money%22%7D%20%7C%20%5Ctext%7Bspam%7D)"> as one monster probability, we break it apart:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7B%22free%22%7D%20%7C%20%5Ctext%7Bspam%7D)%20%5Ctimes%20P(%5Ctext%7B%22money%22%7D%20%7C%20%5Ctext%7Bspam%7D)"></p>
+<p>This is obviously wrong. “Free” and “win” tend to appear together in spam. “Dear” and “friend” travel as a pair. Words aren’t independent.</p>
+<p>But here’s the surprising twist — <strong>it doesn’t matter much for classification</strong>. Even if the individual probabilities are off, the <em>ranking</em> of classes usually stays correct. The spam email still scores higher than the not-spam email. Naive Bayes is a poor probability estimator but a surprisingly good classifier.</p>
+<p>This is why it’s called “naive” — and why it works despite being naive.</p>
+</section>
+<section id="hands-on-naive-bayes-by-hand" class="level2">
+<h2 class="anchored" data-anchor-id="hands-on-naive-bayes-by-hand">Hands-On: Naive Bayes by Hand</h2>
+<p>Let’s walk through a concrete example with three training emails:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Email</th>
+<th>Label</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“free money”</td>
+<td>spam</td>
+</tr>
+<tr class="even">
+<td>“free offer”</td>
+<td>spam</td>
+</tr>
+<tr class="odd">
+<td>“meeting tomorrow”</td>
+<td>not spam</td>
+</tr>
+</tbody>
+</table>
+<p>We want to classify the new email: <strong>“free money”</strong></p>
+<p><strong>Step 1: Compute priors</strong></p>
+<p>Out of 3 emails, 2 are spam:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bspam%7D)%20=%20%5Cfrac%7B2%7D%7B3%7D,%20%5Cquad%20P(%5Ctext%7Bnot%20spam%7D)%20=%20%5Cfrac%7B1%7D%7B3%7D"></p>
+<p><strong>Step 2: Count words per class</strong></p>
+<p>Spam words: free, money, free, offer → 4 total Not spam words: meeting, tomorrow → 2 total Vocabulary: {free, money, offer, meeting, tomorrow} → 5 unique words</p>
+<p><strong>Step 3: Compute likelihoods</strong></p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bfree%7D%20%7C%20%5Ctext%7Bspam%7D)%20=%20%5Cfrac%7B2%7D%7B4%7D%20=%20%5Cfrac%7B1%7D%7B2%7D"> <img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bmoney%7D%20%7C%20%5Ctext%7Bspam%7D)%20=%20%5Cfrac%7B1%7D%7B4%7D"></p>
+<p>But for not spam — “free” and “money” never appeared. Their probability is <strong>zero</strong>. Multiply by zero and the entire score vanishes. This is the <strong>zero probability problem</strong>, and it’s a dealbreaker in real systems.</p>
+</section>
+<section id="laplace-smoothing" class="level2">
+<h2 class="anchored" data-anchor-id="laplace-smoothing">Laplace Smoothing</h2>
+<p>The fix is beautifully simple: add 1 to every word count, so no word ever has zero probability. Add the vocabulary size to the denominator to keep things normalized:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bword%7D%20%7C%20%5Ctext%7Bclass%7D)%20=%20%5Cfrac%7B%5Ctext%7Bcount(word%20in%20class)%7D%20+%201%7D%7B%5Ctext%7Btotal%20words%20in%20class%7D%20+%20%7C%5Ctext%7Bvocab%7D%7C%7D"></p>
+<p>After smoothing:</p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bfree%7D%20%7C%20%5Ctext%7Bspam%7D)%20=%20%5Cfrac%7B2+1%7D%7B4+5%7D%20=%20%5Cfrac%7B3%7D%7B9%7D%20=%20%5Cfrac%7B1%7D%7B3%7D,%20%5Cquad%20P(%5Ctext%7Bmoney%7D%20%7C%20%5Ctext%7Bspam%7D)%20=%20%5Cfrac%7B1+1%7D%7B4+5%7D%20=%20%5Cfrac%7B2%7D%7B9%7D"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bfree%7D%20%7C%20%5Ctext%7Bnot%20spam%7D)%20=%20%5Cfrac%7B0+1%7D%7B2+5%7D%20=%20%5Cfrac%7B1%7D%7B7%7D,%20%5Cquad%20P(%5Ctext%7Bmoney%7D%20%7C%20%5Ctext%7Bnot%20spam%7D)%20=%20%5Cfrac%7B0+1%7D%7B2+5%7D%20=%20%5Cfrac%7B1%7D%7B7%7D"></p>
+<p>No more zeros. Every word has a nonzero chance, no matter how rare.</p>
+<p><strong>Step 4: Classify “free money”</strong></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BScore%7D_%7B%5Ctext%7Bspam%7D%7D%20=%20%5Cfrac%7B2%7D%7B3%7D%20%5Ctimes%20%5Cfrac%7B3%7D%7B9%7D%20%5Ctimes%20%5Cfrac%7B2%7D%7B9%7D%20=%20%5Cfrac%7B12%7D%7B243%7D%20%5Capprox%200.0494"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7BScore%7D_%7B%5Ctext%7Bnot%20spam%7D%7D%20=%20%5Cfrac%7B1%7D%7B3%7D%20%5Ctimes%20%5Cfrac%7B1%7D%7B7%7D%20%5Ctimes%20%5Cfrac%7B1%7D%7B7%7D%20=%20%5Cfrac%7B1%7D%7B147%7D%20%5Capprox%200.0068"></p>
+<p>Spam wins — by a factor of 7! Notice we never divided by <img src="https://latex.codecogs.com/png.latex?P(%5Ctext%7Bwords%7D)">. It’s the same for both classes, so it cancels out when we compare. That’s why Naive Bayes is so fast — we only need the numerators.</p>
+</section>
+<section id="two-flavors-multinomial-vs-gaussian" class="level2">
+<h2 class="anchored" data-anchor-id="two-flavors-multinomial-vs-gaussian">Two Flavors: Multinomial vs Gaussian</h2>
+<p>So far we’ve been counting words — discrete values like 0, 1, 2… This is where <strong>Multinomial Naive Bayes</strong> lives. The name comes from the multinomial distribution, a generalization of the binomial: instead of coin flips (2 outcomes), you have dice rolls (many outcomes). Each word drawn from an email is like rolling a vocabulary-sized die.</p>
+<p>But what if your features are continuous? Blood pressure readings, temperatures, pixel intensities? That’s where <strong>Gaussian Naive Bayes</strong> steps in. It assumes each feature follows a bell curve (normal distribution) within each class. Instead of counting, you compute the mean and variance from training data, then plug a new value into the Gaussian formula.</p>
+<p><strong>Rule of thumb:</strong> Multinomial for counts, Gaussian for measurements. The right choice depends on your data.</p>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<p>Let’s put it all together — first from scratch, then with sklearn.</p>
+<p><strong>From scratch:</strong></p>
+<div id="d1b654f3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1">spam_words <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"money"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"offer"</span>]</span>
+<span id="cb1-2">notspam_words <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"meeting"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"tomorrow"</span>]</span>
+<span id="cb1-3">vocab <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> {<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"money"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"offer"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"meeting"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"tomorrow"</span>}</span>
+<span id="cb1-4">V <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(vocab)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> p_word_given_class(word, class_words):</span>
+<span id="cb1-7">    count <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> class_words.count(word)</span>
+<span id="cb1-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> (count <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(class_words) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> V)</span>
+<span id="cb1-9"></span>
+<span id="cb1-10">p_spam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb1-11">p_notspam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span></span>
+<span id="cb1-12"></span>
+<span id="cb1-13">test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"money"</span>]</span>
+<span id="cb1-14"></span>
+<span id="cb1-15">score_spam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_spam</span>
+<span id="cb1-16"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> w <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> test:</span>
+<span id="cb1-17">    score_spam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*=</span> p_word_given_class(w, spam_words)</span>
+<span id="cb1-18"></span>
+<span id="cb1-19">score_notspam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> p_notspam</span>
+<span id="cb1-20"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> w <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> test:</span>
+<span id="cb1-21">    score_notspam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*=</span> p_word_given_class(w, notspam_words)</span>
+<span id="cb1-22"></span>
+<span id="cb1-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Normalized probability of spam</span></span>
+<span id="cb1-24"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(score_spam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> (score_spam <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> score_notspam))  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 0.879</span></span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.8789237668161435</code></pre>
+</div>
+</div>
+<p><strong>With sklearn:</strong></p>
+<div id="b621040a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sklearn.naive_bayes <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> MultinomialNB</span>
+<span id="cb3-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sklearn.feature_extraction.text <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> CountVectorizer</span>
+<span id="cb3-3"></span>
+<span id="cb3-4">emails <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free money"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free offer"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"meeting tomorrow"</span>]</span>
+<span id="cb3-5">labels <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]</span>
+<span id="cb3-6"></span>
+<span id="cb3-7">vec <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> CountVectorizer()</span>
+<span id="cb3-8">X <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> vec.fit_transform(emails)</span>
+<span id="cb3-9"></span>
+<span id="cb3-10">model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> MultinomialNB(alpha<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># alpha=1 is Laplace smoothing</span></span>
+<span id="cb3-11">model.fit(X, labels)</span>
+<span id="cb3-12"></span>
+<span id="cb3-13">test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> vec.transform([<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"free money"</span>])</span>
+<span id="cb3-14"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(model.predict(test))         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># [1] = spam</span></span>
+<span id="cb3-15"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(model.predict_proba(test))   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># [[0.121, 0.879]]</span></span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]
+[[0.12107623 0.87892377]]</code></pre>
+</div>
+</div>
+<p>Both approaches give the same answer — 87.9% spam probability. The sklearn version scales to millions of emails.</p>
+</section>
+<section id="when-to-use-naive-bayes" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-naive-bayes">When to Use Naive Bayes</h2>
+<p>Naive Bayes isn’t always the best tool, but it’s often the best <em>first</em> tool.</p>
+<p><strong>Reach for it when:</strong> - ✅ You need a fast, interpretable baseline - ✅ Training data is limited (it outperforms logistic regression with scarce data) - ✅ You’re working with high-dimensional sparse data like text - ✅ You need real-time predictions</p>
+<p><strong>Watch out when:</strong> - ⚠️ Features are strongly correlated (it double-counts evidence) - ⚠️ You need well-calibrated probabilities, not just classification</p>
+<p><strong>Interview tip:</strong> If asked “when would you choose Naive Bayes over logistic regression?”, the key answer is <em>small data and text</em>. As data grows, logistic regression catches up and surpasses it because it can learn feature interactions that Naive Bayes ignores.</p>
+<p><em>Thomas Bayes never imagined spam filters. But his simple idea — update your beliefs with evidence — turned out to be one of the most practical tools in machine learning.</em></p>
+
+
+
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div> ]]></description>
+  <category>code</category>
+  <category>research paper</category>
+  <category>impact</category>
+  <guid>https://risheekkumar.in/posts/naive-bayes/naive bayes.html</guid>
+  <pubDate>Sun, 14 Jun 2026 18:30:00 GMT</pubDate>
+  <media:content url="https://risheekkumar.in/posts/naive-bayes/naive bayes.webp" medium="image" type="image/webp"/>
+</item>
 <item>
   <title>Building a Bitcoin Blockchain from Scratch in Python</title>
   <dc:creator>Risheek kumar B</dc:creator>

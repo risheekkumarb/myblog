@@ -6,6 +6,8 @@
       "/posts/gepa-deepdive/gepa_final_article.html",
       "/posts/HNSW/HNSW.html",
       "/index.html",
+      "/posts/KNN/KNN.html",
+      "/posts/naive-bayes/naive bayes.html",
       "/posts/gepa-impact/gepa_impact_final.html"
     ]
   },
@@ -14,11 +16,19 @@
     "items": []
   },
   {
-    "listing": "/posts/HNSW/HNSW.html",
+    "listing": "/posts/naive-bayes/naive bayes.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/KNN/KNN.html",
     "items": []
   },
   {
     "listing": "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/HNSW/HNSW.html",
     "items": []
   },
   {
@@ -28,6 +38,8 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/KNN/KNN.html",
+      "/posts/naive-bayes/naive bayes.html",
       "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
       "/posts/HNSW/HNSW.html",
       "/posts/gepa-impact/gepa_impact_final.html",
