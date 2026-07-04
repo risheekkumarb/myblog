@@ -4,7 +4,7 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "I am Risheekkumar, a Senior Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express.\nI write about AI-powered products, engineering, and evaluations. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\nBuilding a Bitcoin Blockchain from Scratch in Python\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Bitcoin: A Peer-to-Peer Electronic Cash System’ by Satoshi Nakamoto.\n\n\n\n\n\nSep 28, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nGEPA Deepdive\n\n\n\n\n\nAn indepth hands-on explanation with code about GEPA - its core and motivations\n\n\n\n\n\nDec 21, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.\n\n\n\n\n\nAug 14, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHi I am Risheekkumar, Data Scientist\n\n\nI build AI systems and AI-powered experiences that serve customers at scale at American Express. I Write about AI-powered product, engineering and evals.. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nKNN: Understanding the K-Nearest Neighbors Algorithm\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘K-Nearest Neighbors for Efficient Similarity Search’ by Cover and Hart.\n\n\n\n\n\nMar 15, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nLearning from Karpathy’s Micrograd\n\n\n\n\n\nThis post is a simple code implementation of Andrej Karpathy’s Micrograd.\n\n\n\n\n\nJun 23, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nNaive Bayes Classifier: A Simple Implementation\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Naive Bayes Classifier for Efficient Text Classification’ by Peter Norvig.\n\n\n\n\n\nNov 5, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nProgrammatic Prompt Optimization: Replacing Intuition with Algorithms\n\n\n\n\n\nFrom manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.\n\n\n\n\n\nDec 31, 2025\n\n\nRisheek kumar B\n\n\n\n\n\nNo matching items"
+    "text": "I am Risheekkumar, a Senior Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express.\nI write about AI-powered products, engineering, and evaluations. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\nBuilding a Bitcoin Blockchain from Scratch in Python\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Bitcoin: A Peer-to-Peer Electronic Cash System’ by Satoshi Nakamoto.\n\n\n\n\n\nSep 28, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nGEPA Deepdive\n\n\n\n\n\nAn indepth hands-on explanation with code about GEPA - its core and motivations\n\n\n\n\n\nDec 21, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.\n\n\n\n\n\nAug 14, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHi I am Risheekkumar, Senior Data Scientist @ Amex\n\n\nI work on recommender systems and NLP — sequence modeling and LLMs — building AI-powered experiences at scale at American Express. I write about AI-powered product, engineering, and evals. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nKNN: Understanding the K-Nearest Neighbors Algorithm\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘K-Nearest Neighbors for Efficient Similarity Search’ by Cover and Hart.\n\n\n\n\n\nMar 15, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nLearning from Karpathy’s Micrograd\n\n\n\n\n\nThis post is a simple code implementation of Andrej Karpathy’s Micrograd.\n\n\n\n\n\nJun 23, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nNaive Bayes Classifier: A Simple Implementation\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Naive Bayes Classifier for Efficient Text Classification’ by Peter Norvig.\n\n\n\n\n\nNov 5, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nProgrammatic Prompt Optimization: Replacing Intuition with Algorithms\n\n\n\n\n\nFrom manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.\n\n\n\n\n\nDec 31, 2025\n\n\nRisheek kumar B\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/gepa-impact/gepa_impact_final.html",
@@ -376,5 +376,26 @@
     "title": "Learning from Karpathy’s Micrograd",
     "section": "Why Tanh Works Better Here (And Why Deep Networks Moved On)",
     "text": "Why Tanh Works Better Here (And Why Deep Networks Moved On)\nDuring our experiments, we noticed that tanh trained our XOR network much more smoothly than ReLU. This led us down an interesting rabbit hole.\n\nWhy tanh is great for small networks\nTanh outputs are centered around zero (range [-1, 1]), which means: - Gradients are well-behaved and don’t blow up - The smooth curve means no “dead spots” like ReLU’s flat region for negative inputs - For shallow networks, the vanishing gradient problem isn’t really an issue\n\n\nWhy ReLU took over for deep networks\nThe vanishing gradient problem is the key. Tanh’s gradient is at most 1.0 (at the origin) and drops off fast as you move away. In a deep network with many layers, you multiply many small gradients together during backprop — they shrink exponentially and effectively vanish before reaching the early layers. Those early layers stop learning.\nReLU doesn’t have this issue: its gradient is exactly 1 for any positive input, no matter how large. That lets gradients flow freely through deep networks, which is why ReLU (and its variants like Leaky ReLU, GELU, SwiLU) dominates in modern architectures.\n\n\nThe takeaway\nThere’s no universally “best” activation function — it depends on your network depth, your task, and your training dynamics.\n\nIt was fun building this from scratch and i learnt a lot. especially how topological sort is used in real life."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Hi I am Risheekkumar, Senior Data Scientist @ Amex",
+    "section": "",
+    "text": "llm-rsa — Recursive Self-Aggregation: iteratively sample and synthesize multiple LLM candidate answers into a stronger final response."
+  },
+  {
+    "objectID": "index.html#open-source",
+    "href": "index.html#open-source",
+    "title": "Hi I am Risheekkumar, Senior Data Scientist @ Amex",
+    "section": "",
+    "text": "llm-rsa — Recursive Self-Aggregation: iteratively sample and synthesize multiple LLM candidate answers into a stronger final response."
+  },
+  {
+    "objectID": "index.html#blog",
+    "href": "index.html#blog",
+    "title": "Hi I am Risheekkumar, Senior Data Scientist @ Amex",
+    "section": "Blog",
+    "text": "Blog"
   }
 ]

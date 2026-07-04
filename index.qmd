@@ -1,6 +1,6 @@
 ---
-title: "Hi I am Risheekkumar, Data Scientist"
-subtitle: "I build AI systems and AI-powered experiences that serve customers at scale at American Express. I Write about AI-powered product, engineering and evals.. Outside of work, I like playing chess."
+title: "Hi I am Risheekkumar, Senior Data Scientist @ Amex"
+subtitle: "I work on recommender systems and NLP — sequence modeling and LLMs — building AI-powered experiences at scale at American Express. I write about AI-powered product, engineering, and evals. Outside of work, I like playing chess."
 listing:
   contents: posts
   feed: true
@@ -13,5 +13,8 @@ page-layout: full
 title-block-banner: true
 ---
 
-## Blog
+## Open Source
 
+- **[llm-rsa](https://pypi.org/project/llm-rsa/0.0.4/)** — Recursive Self-Aggregation: iteratively sample and synthesize multiple LLM candidate answers into a stronger final response.
+
+## Blog
