@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.26">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Risheek kumar B">
+<meta name="dcterms.date" content="2025-06-23">
+<meta name="description" content="This post is a simple code implementation of Andrej Karpathy’s Micrograd.">
+
+<title>Learning from Karpathy’s Micrograd – Risheekkumar Baskaran</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-5b4ad623e5705c0698d39aec6f10cf02.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: [{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: [],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EMRH6XWVFQ"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Risheekkumar Baskaran</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/risheekkumarb"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://x.com/BRisheek"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Learning from Karpathy’s Micrograd</h1>
+                  <div>
+        <div class="description">
+          This post is a simple code implementation of Andrej Karpathy’s Micrograd.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">code</div>
+                <div class="quarto-category">research paper</div>
+                <div class="quarto-category">impact</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Risheek kumar B </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">June 23, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#building-micrograd-from-scratch-a-learning-journey" id="toc-building-micrograd-from-scratch-a-learning-journey" class="nav-link active" data-scroll-target="#building-micrograd-from-scratch-a-learning-journey">Building Micrograd from Scratch: A Learning Journey</a>
+  <ul class="collapse">
+  <li><a href="#the-heart-of-it-all-the-value-class" id="toc-the-heart-of-it-all-the-value-class" class="nav-link" data-scroll-target="#the-heart-of-it-all-the-value-class">The Heart of It All: The <code>Value</code> Class</a></li>
+  <li><a href="#addition-and-the-chain-rule" id="toc-addition-and-the-chain-rule" class="nav-link" data-scroll-target="#addition-and-the-chain-rule">Addition and the Chain Rule</a></li>
+  <li><a href="#multiplication" id="toc-multiplication" class="nav-link" data-scroll-target="#multiplication">Multiplication</a></li>
+  <li><a href="#power" id="toc-power" class="nav-link" data-scroll-target="#power">Power</a></li>
+  <li><a href="#activation-functions" id="toc-activation-functions" class="nav-link" data-scroll-target="#activation-functions">Activation Functions</a></li>
+  <li><a href="#derived-operators-free-backward" id="toc-derived-operators-free-backward" class="nav-link" data-scroll-target="#derived-operators-free-backward">Derived Operators (Free Backward!)</a></li>
+  <li><a href="#the-backward-pass-topological-sort" id="toc-the-backward-pass-topological-sort" class="nav-link" data-scroll-target="#the-backward-pass-topological-sort">The Backward Pass: Topological Sort</a></li>
+  <li><a href="#does-it-work-a-simple-sanity-check" id="toc-does-it-work-a-simple-sanity-check" class="nav-link" data-scroll-target="#does-it-work-a-simple-sanity-check">Does It Work? A Simple Sanity Check</a></li>
+  <li><a href="#pushing-further-division-and-activation" id="toc-pushing-further-division-and-activation" class="nav-link" data-scroll-target="#pushing-further-division-and-activation">Pushing Further: Division and Activation</a></li>
+  <li><a href="#are-our-gradients-actually-correct" id="toc-are-our-gradients-actually-correct" class="nav-link" data-scroll-target="#are-our-gradients-actually-correct">Are Our Gradients Actually Correct?</a></li>
+  <li><a href="#seeing-the-computation-graph" id="toc-seeing-the-computation-graph" class="nav-link" data-scroll-target="#seeing-the-computation-graph">Seeing the Computation Graph</a></li>
+  <li><a href="#from-autograd-to-neurons-building-a-network" id="toc-from-autograd-to-neurons-building-a-network" class="nav-link" data-scroll-target="#from-autograd-to-neurons-building-a-network">From Autograd to Neurons: Building a Network</a></li>
+  <li><a href="#teaching-it-xor" id="toc-teaching-it-xor" class="nav-link" data-scroll-target="#teaching-it-xor">Teaching It XOR</a></li>
+  <li><a href="#why-tanh-works-better-here-and-why-deep-networks-moved-on" id="toc-why-tanh-works-better-here-and-why-deep-networks-moved-on" class="nav-link" data-scroll-target="#why-tanh-works-better-here-and-why-deep-networks-moved-on">Why Tanh Works Better Here (And Why Deep Networks Moved On)</a>
+  <ul class="collapse">
+  <li><a href="#why-tanh-is-great-for-small-networks" id="toc-why-tanh-is-great-for-small-networks" class="nav-link" data-scroll-target="#why-tanh-is-great-for-small-networks">Why tanh is great for small networks</a></li>
+  <li><a href="#why-relu-took-over-for-deep-networks" id="toc-why-relu-took-over-for-deep-networks" class="nav-link" data-scroll-target="#why-relu-took-over-for-deep-networks">Why ReLU took over for deep networks</a></li>
+  <li><a href="#the-takeaway" id="toc-the-takeaway" class="nav-link" data-scroll-target="#the-takeaway">The takeaway</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<blockquote class="blockquote">
+<p><strong>Note</strong>: This article was written as part of a knowledge-sharing effort. We learned by building, testing, and asking questions — and we want to pass that on.</p>
+</blockquote>
+<section id="building-micrograd-from-scratch-a-learning-journey" class="level1">
+<h1>Building Micrograd from Scratch: A Learning Journey</h1>
+<p>When we first heard about <a href="https://github.com/karpathy/micrograd">Andrej Karpathy’s micrograd</a> — a tiny autograd engine in ~100 lines of Python — we thought: <em>can we build this ourselves?</em></p>
+<p>This is the story of that journey. We started with just algebra and basic Python, and step by step built a working autograd engine, verified our gradients numerically, visualized the computation graph, and even trained a neural network to solve XOR.</p>
+<p>Along the way we hit some interesting questions — like why <code>tanh</code> worked better than <code>ReLU</code> for our small network, and what that tells us about modern deep learning.</p>
+<p>Let’s walk through it piece by piece.</p>
+<section id="the-heart-of-it-all-the-value-class" class="level2">
+<h2 class="anchored" data-anchor-id="the-heart-of-it-all-the-value-class">The Heart of It All: The <code>Value</code> Class</h2>
+<p>The core idea is simple: wrap every number in a <code>Value</code> object that tracks: - Its <strong>value</strong> (the actual number) - Its <strong>gradient</strong> (how much it affects the final output — computed later during backprop) - Its <strong>children</strong> (which <code>Value</code>s produced it, so we can trace the computation graph) - A <strong><code>_backward</code> function</strong> (how to compute gradients for its inputs)</p>
+<p>We’ll build this up one method at a time using <code>fastcore</code>’s <code>@patch</code> decorator, so each piece can be understood in isolation.</p>
+<div id="160be3b2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastcore.<span class="bu">all</span> <span class="im">import</span> patch</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Value:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Stores a single scalar value and its gradient"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, val, _op<span class="op">=</span><span class="st">''</span>, _children<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.val  <span class="op">=</span> val          <span class="co"># the actual number</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad <span class="op">=</span> <span class="dv">0</span>            <span class="co"># gradient (filled in during backprop)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._op  <span class="op">=</span> _op          <span class="co"># the operation that created this node (e.g. '+', '*')</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._children <span class="op">=</span> <span class="bu">set</span>(_children) <span class="cf">if</span> _children <span class="cf">else</span> <span class="bu">set</span>()  <span class="co"># inputs to this node</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._backward <span class="op">=</span> <span class="kw">lambda</span>: <span class="va">None</span>  <span class="co"># will be replaced by each op</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>): </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f'Value(val=</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>val<span class="sc">}</span><span class="ss">, grad=</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>grad<span class="sc">}</span><span class="ss">)'</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _v(<span class="va">self</span>, x): </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">"Wrap a plain number in a Value if needed"</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x <span class="cf">if</span> <span class="bu">isinstance</span>(x, Value) <span class="cf">else</span> Value(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="addition-and-the-chain-rule" class="level2">
+<h2 class="anchored" data-anchor-id="addition-and-the-chain-rule">Addition and the Chain Rule</h2>
+<p>When we add two <code>Value</code>s, the result is a new <code>Value</code> that remembers its parents. The key insight is the <strong>chain rule</strong>: if <code>out = a + b</code>, then:</p>
+<p><span class="math display">\[\frac{\partial \text{out}}{\partial a} = 1, \quad \frac{\partial \text{out}}{\partial b} = 1\]</span></p>
+<p>So during backprop, the gradient of <code>out</code> flows directly to both <code>a</code> and <code>b</code> unchanged. We use <code>+=</code> because a variable might be used in multiple operations, and gradients accumulate.</p>
+<div id="4a1d08e9" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__add__</span>(<span class="va">self</span>:Value, other):</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> <span class="va">self</span>._v(other)  <span class="co"># wrap plain numbers</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Value(<span class="va">self</span>.val <span class="op">+</span> other.val, <span class="st">'+'</span>, (<span class="va">self</span>, other))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _backward():</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad  <span class="op">+=</span> out.grad   <span class="co"># d(out)/d(self) = 1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        other.grad <span class="op">+=</span> out.grad   <span class="co"># d(out)/d(other) = 1</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    out._backward <span class="op">=</span> _backward</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="multiplication" class="level2">
+<h2 class="anchored" data-anchor-id="multiplication">Multiplication</h2>
+<p>For <code>out = a * b</code>, the derivatives are:</p>
+<p><span class="math display">\[\frac{\partial \text{out}}{\partial a} = b, \quad \frac{\partial \text{out}}{\partial b} = a\]</span></p>
+<p>So each input’s gradient is the <em>other</em> input’s value, scaled by the output’s gradient. This is where the chain rule really kicks in — we multiply the local derivative by the upstream gradient.</p>
+<div id="8f51d465" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__mul__</span>(<span class="va">self</span>:Value, other):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> <span class="va">self</span>._v(other)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Value(<span class="va">self</span>.val <span class="op">*</span> other.val, <span class="st">'*'</span>, (<span class="va">self</span>, other))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _backward():</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad  <span class="op">+=</span> out.grad <span class="op">*</span> other.val  <span class="co"># d(out)/d(self) = other</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        other.grad <span class="op">+=</span> out.grad <span class="op">*</span> <span class="va">self</span>.val   <span class="co"># d(out)/d(other) = self</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    out._backward <span class="op">=</span> _backward</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="power" class="level2">
+<h2 class="anchored" data-anchor-id="power">Power</h2>
+<p>For <code>out = a^b</code>, we need the power rule:</p>
+<p><span class="math display">\[\frac{\partial \text{out}}{\partial a} = b \cdot a^{b-1}\]</span></p>
+<p>Our implementation goes a bit further than Karpathy’s — he restricts the exponent to plain numbers (<code>int</code>/<code>float</code>). We allow <code>Value</code> exponents too, which is more general. We only compute the gradient for the base here since that’s what we need for division and negation.</p>
+<div id="97eabf0f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__pow__</span>(<span class="va">self</span>:Value, other):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    other <span class="op">=</span> <span class="va">self</span>._v(other)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Value(<span class="va">self</span>.val <span class="op">**</span> other.val, <span class="st">'pow'</span>, (<span class="va">self</span>, other))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _backward():</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad <span class="op">+=</span> out.grad <span class="op">*</span> other.val <span class="op">*</span> <span class="va">self</span>.val<span class="op">**</span>(other.val <span class="op">-</span> <span class="dv">1</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    out._backward <span class="op">=</span> _backward</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="activation-functions" class="level2">
+<h2 class="anchored" data-anchor-id="activation-functions">Activation Functions</h2>
+<p>Neural networks need non-linearities. We implement two:</p>
+<ul>
+<li><strong>ReLU</strong>: <code>max(0, x)</code> — gradient is 1 if the input was positive, 0 otherwise. Simple and efficient, which is why it powers most modern deep networks.</li>
+<li><strong>Tanh</strong>: squashes values into [-1, 1] — gradient is <code>1 - tanh²(x)</code>. Smoother than ReLU, which we’ll see helps with small networks.</li>
+</ul>
+<p>We’ll come back to the tanh vs ReLU debate later — it turned out to be one of the most interesting things we learned!</p>
+<div id="6b1029c7" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> relu(<span class="va">self</span>:Value):</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Value(<span class="bu">max</span>(<span class="dv">0</span>, <span class="va">self</span>.val), <span class="st">'relu'</span>, (<span class="va">self</span>,))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _backward():</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad <span class="op">+=</span> out.grad <span class="op">*</span> (out.val <span class="op">&gt;</span> <span class="dv">0</span>)  <span class="co"># gradient is 1 if positive, 0 otherwise</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    out._backward <span class="op">=</span> _backward</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tanh(<span class="va">self</span>:Value):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> Value(math.tanh(<span class="va">self</span>.val), <span class="st">'tanh'</span>, (<span class="va">self</span>,))</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _backward():</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.grad <span class="op">+=</span> out.grad <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> out.val<span class="op">**</span><span class="dv">2</span>)  <span class="co"># derivative of tanh is 1 - tanh²(x)</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    out._backward <span class="op">=</span> _backward</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="derived-operators-free-backward" class="level2">
+<h2 class="anchored" data-anchor-id="derived-operators-free-backward">Derived Operators (Free Backward!)</h2>
+<p>Here’s a beautiful trick: subtraction, division, and negation don’t need their own backward functions. We define them in terms of <code>__add__</code>, <code>__mul__</code>, and <code>__pow__</code>:</p>
+<ul>
+<li><code>a - b = a + (-b)</code></li>
+<li><code>a / b = a * b⁻¹</code></li>
+<li><code>-a = a * -1</code></li>
+</ul>
+<p>The <code>__radd__</code>, <code>__rmul__</code>, etc. methods handle cases where a plain number appears on the left (e.g.&nbsp;<code>2 * Value(3)</code>). Python calls these “reflected” operators.</p>
+<p>Since each of these just composes existing operators, the backward logic is already handled — the chain rule takes care of everything automatically.</p>
+<div id="19d17f0d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__radd__</span>(<span class="va">self</span>:Value, other): <span class="cf">return</span> <span class="va">self</span> <span class="op">+</span> other       <span class="co"># other + self</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__rmul__</span>(<span class="va">self</span>:Value, other): <span class="cf">return</span> <span class="va">self</span> <span class="op">*</span> other       <span class="co"># other * self</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__sub__</span>(<span class="va">self</span>:Value, other): <span class="cf">return</span> <span class="va">self</span> <span class="op">+</span> (<span class="op">-</span>other)     <span class="co"># self - other</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__rsub__</span>(<span class="va">self</span>:Value, other): <span class="cf">return</span> (<span class="op">-</span><span class="va">self</span>) <span class="op">+</span> other    <span class="co"># other - self</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__truediv__</span>(<span class="va">self</span>:Value, other): <span class="cf">return</span> <span class="va">self</span> <span class="op">*</span> other<span class="op">**-</span><span class="dv">1</span>  <span class="co"># self / other</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__rtruediv__</span>(<span class="va">self</span>:Value, other): <span class="cf">return</span> <span class="va">self</span><span class="op">**-</span><span class="dv">1</span> <span class="op">*</span> other <span class="co"># other / self</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__neg__</span>(<span class="va">self</span>:Value): <span class="cf">return</span> <span class="va">self</span> <span class="op">*</span> <span class="op">-</span><span class="dv">1</span>                  <span class="co"># -self</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="the-backward-pass-topological-sort" class="level2">
+<h2 class="anchored" data-anchor-id="the-backward-pass-topological-sort">The Backward Pass: Topological Sort</h2>
+<p>To compute gradients, we need to process nodes in the right order — from outputs back to inputs. This is called a <strong>topological sort</strong>: arrange the computation graph so that every node appears after all its children.</p>
+<p>Then we:<br>
+1. Set the output’s gradient to 1 (seed)<br>
+2. Walk the sorted list in reverse, calling each node’s <code>_backward()</code></p>
+<p>Each <code>_backward</code> uses the chain rule to push gradients to its inputs. Because we go in reverse topological order, every node’s gradient is fully computed before we process it.</p>
+<div id="ac08018d" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="at">@patch</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> backward(<span class="va">self</span>:Value):</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Build topological order: children before parents</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    topo <span class="op">=</span> []</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    seen <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> build(v):</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> c <span class="kw">in</span> v._children:</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> c <span class="kw">not</span> <span class="kw">in</span> seen:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>                seen.add(c)<span class="op">;</span> build(c)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        topo.append(v)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    build(<span class="va">self</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Seed the output gradient, then propagate backwards</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.grad <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> topo[::<span class="op">-</span><span class="dv">1</span>]:  <span class="co"># reverse topo = parents before children</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        n._backward()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="does-it-work-a-simple-sanity-check" class="level2">
+<h2 class="anchored" data-anchor-id="does-it-work-a-simple-sanity-check">Does It Work? A Simple Sanity Check</h2>
+<p>Before doing anything fancy, let’s test the basics. We’ll create two <code>Value</code>s, do some arithmetic, and call <code>backward()</code> to see if the gradients make sense.</p>
+<p>For <code>d = a*b + c</code> where <code>c = a + b</code>, with <code>a=1, b=2</code>: - <code>d = 1*2 + 3 = 5</code> - <code>∂d/∂a = b + 1 = 3</code> (from both the <code>a*b</code> and <code>a+b</code> paths) - <code>∂d/∂b = a + 1 = 2</code> (same reasoning)</p>
+<p>Let’s see if our engine gets this right:</p>
+<div id="67eecd8e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> Value(<span class="fl">1.0</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> Value(<span class="fl">2.0</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> a <span class="op">+</span> b</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> a <span class="op">*</span> b <span class="op">+</span> c</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>d.grad <span class="op">=</span> <span class="fl">1.0</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>d.backward()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>a,b,c,d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="162">
+<pre><code>((val=1.0, op=, grad=3.0, child=[]) ,
+ (val=2.0, op=, grad=2.0, child=[]) ,
+ (val=3.0, op=+, grad=1.0, child=[2.0, 1.0])    ,
+ (val=5.0, op=+, grad=1.0, child=[2.0, 3.0])    )</code></pre>
+</div>
+</div>
+</section>
+<section id="pushing-further-division-and-activation" class="level2">
+<h2 class="anchored" data-anchor-id="pushing-further-division-and-activation">Pushing Further: Division and Activation</h2>
+<p>Let’s try a more complex expression that uses division and ReLU: <code>f = relu((a*b + c) / c)</code>.</p>
+<p>This exercises the <code>__truediv__</code> (which decomposes into <code>__mul__</code> and <code>__pow__</code>), the <code>relu</code> activation, and the accumulation of gradients through multiple paths. If our engine handles this, we can be fairly confident it’s correct.</p>
+<div id="5ac59258" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> Value(<span class="op">-</span><span class="fl">1.5</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> Value(<span class="fl">2.0</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> a <span class="op">+</span> b</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> a <span class="op">*</span> b <span class="op">+</span> c</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> d <span class="op">/</span> c</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>f.relu()</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>f.backward()</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>a,b,c,d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="163">
+<pre><code>((val=-1.5, op=, grad=16.0, child=[])   ,
+ (val=2.0, op=, grad=9.0, child=[]) ,
+ (val=0.5, op=+, grad=12.0, child=[-1.5, 2.0])  ,
+ (val=-2.5, op=+, grad=2.0, child=[0.5, -3.0])  )</code></pre>
+</div>
+</div>
+</section>
+<section id="are-our-gradients-actually-correct" class="level2">
+<h2 class="anchored" data-anchor-id="are-our-gradients-actually-correct">Are Our Gradients Actually Correct?</h2>
+<p>There’s a simple, beautiful way to verify analytical gradients: <strong>numerical gradient checking</strong>.</p>
+<p>Instead of using our backprop engine, we compute the function twice — once normally, once with a tiny perturbation <code>h</code> to one input — and approximate the gradient as:</p>
+<p><span class="math display">\[\frac{f(x + h) - f(x)}{h}\]</span></p>
+<p>If our autograd is correct, the analytical and numerical gradients should match. it matches! 🎉</p>
+<div id="82797461" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> act_grad(h):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> Value(<span class="op">-</span><span class="fl">1.5</span>)<span class="op">;</span> b <span class="op">=</span> Value(<span class="fl">2.0</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> a <span class="op">+</span> b</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> a <span class="op">*</span> b <span class="op">+</span> c</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    f0 <span class="op">=</span> d <span class="op">/</span> c</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    f0.relu()</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> Value(<span class="op">-</span><span class="fl">1.5</span>)<span class="op">;</span> b <span class="op">=</span> Value(<span class="fl">2.0</span>) <span class="op">+</span> h</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    c <span class="op">=</span> a <span class="op">+</span> b</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    d <span class="op">=</span> a <span class="op">*</span> b <span class="op">+</span> c</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    f1 <span class="op">=</span> d <span class="op">/</span> c</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    f1.relu()</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> (f1 <span class="op">-</span> f0) <span class="op">/</span> h</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>act_grad(<span class="fl">0.0001</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="164">
+<pre><code>(val=8.998200359942032, op=*, grad=0, child=[10000.0, 0.0008998200359942032])   </code></pre>
+</div>
+</div>
+</section>
+<section id="seeing-the-computation-graph" class="level2">
+<h2 class="anchored" data-anchor-id="seeing-the-computation-graph">Seeing the Computation Graph</h2>
+<p>One of the nicest things about building autograd from scratch is that we can <em>see</em> the computation graph. Each <code>Value</code> knows its children and its operation, so we can walk the graph and draw it with Graphviz.</p>
+<p>This makes it much easier to understand what’s happening — you can literally see how <code>a * b + c</code> decomposes into individual operations, and how gradients flow back through the same graph.</p>
+<div id="12620471" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> graphviz <span class="im">import</span> Digraph</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> trace(root):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    nodes, edges <span class="op">=</span> <span class="bu">set</span>(), <span class="bu">set</span>()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> build(v):</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> v <span class="kw">not</span> <span class="kw">in</span> nodes:</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>            nodes.add(v)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> c <span class="kw">in</span> v._children:</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>                edges.add((c, v))</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                build(c)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    build(root)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nodes, edges</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> draw(root):</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    dot <span class="op">=</span> Digraph(<span class="bu">format</span><span class="op">=</span><span class="st">'svg'</span>, graph_attr<span class="op">=</span>{<span class="st">'rankdir'</span>: <span class="st">'LR'</span>})</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    nodes, edges <span class="op">=</span> trace(root)</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n <span class="kw">in</span> nodes:</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>        dot.node(<span class="bu">str</span>(<span class="bu">id</span>(n)), <span class="ss">f"val=</span><span class="sc">{</span>n<span class="sc">.</span>val<span class="sc">}</span><span class="ss"> grad=</span><span class="sc">{</span>n<span class="sc">.</span>grad<span class="sc">}</span><span class="ss">"</span>, shape<span class="op">=</span><span class="st">'record'</span>)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> c, p <span class="kw">in</span> edges:</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>        dot.edge(<span class="bu">str</span>(<span class="bu">id</span>(c)), <span class="bu">str</span>(<span class="bu">id</span>(p)), label<span class="op">=</span>c._op)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="8280e44e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rebuild the computation graph from our relu test and draw it</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> Value(<span class="op">-</span><span class="fl">1.5</span>)<span class="op">;</span> b <span class="op">=</span> Value(<span class="fl">2.0</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> a <span class="op">+</span> b</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> a <span class="op">*</span> b <span class="op">+</span> c</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> d <span class="op">/</span> c</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>f.relu()</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>f.backward()</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>draw(f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="166">
+<div>
+<figure class="figure">
+<p><img src="micrograd_files/figure-html/cell-13-output-1.svg" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="from-autograd-to-neurons-building-a-network" class="level2">
+<h2 class="anchored" data-anchor-id="from-autograd-to-neurons-building-a-network">From Autograd to Neurons: Building a Network</h2>
+<p>Now for the fun part — we have a working autograd engine, so let’s build a neural network on top of it!</p>
+<p>The architecture mirrors a real framework: - <strong><code>Neuron</code></strong>: holds weights and a bias, computes <code>w·x + b</code> - <strong><code>Layer</code></strong>: a collection of neurons, outputs a list - <strong><code>MLP</code></strong>: stacks layers, applies <code>tanh</code> activation between layers (but not on the output)</p>
+<p>We use <code>tanh</code> as our activation — we’ll explain why that matters in the next section. The <code>parameters()</code> methods collect all the learnable weights so we can update them during training.</p>
+<div id="aa230f8e" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Neuron:</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, nin):</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.w <span class="op">=</span> [Value(random.uniform(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(nin)]</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.b <span class="op">=</span> Value(<span class="fl">0.0</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        act <span class="op">=</span> <span class="bu">sum</span>((wi<span class="op">*</span>xi <span class="cf">for</span> wi,xi <span class="kw">in</span> <span class="bu">zip</span>(<span class="va">self</span>.w, x)), Value(<span class="fl">0.0</span>))</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> act <span class="op">+</span> <span class="va">self</span>.b</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.w <span class="op">+</span> [<span class="va">self</span>.b]</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Layer:</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, nin, nout):</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.neurons <span class="op">=</span> [Neuron(nin) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(nout)]</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [n(x) <span class="cf">for</span> n <span class="kw">in</span> <span class="va">self</span>.neurons]</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [p <span class="cf">for</span> n <span class="kw">in</span> <span class="va">self</span>.neurons <span class="cf">for</span> p <span class="kw">in</span> n.parameters()]</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MLP:</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, nin, nouts):</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        sz <span class="op">=</span> [nin] <span class="op">+</span> nouts</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.layers <span class="op">=</span> [Layer(sz[i], sz[i<span class="op">+</span><span class="dv">1</span>]) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(nouts))]</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> layer <span class="kw">in</span> <span class="va">self</span>.layers:</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> [n.tanh() <span class="cf">for</span> n <span class="kw">in</span> layer(x)] <span class="cf">if</span> layer <span class="kw">is</span> <span class="kw">not</span> <span class="va">self</span>.layers[<span class="op">-</span><span class="dv">1</span>] <span class="cf">else</span> layer(x)</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x[<span class="dv">0</span>] <span class="cf">if</span> <span class="bu">len</span>(x)<span class="op">==</span><span class="dv">1</span> <span class="cf">else</span> x</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [p <span class="cf">for</span> l <span class="kw">in</span> <span class="va">self</span>.layers <span class="cf">for</span> p <span class="kw">in</span> l.parameters()]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="teaching-it-xor" class="level2">
+<h2 class="anchored" data-anchor-id="teaching-it-xor">Teaching It XOR</h2>
+<p>XOR is the classic “not linearly separable” problem — a single perceptron can’t solve it, but a small MLP can. It’s the perfect test for our engine.</p>
+<p>We use mean squared error as the loss, plain SGD with a learning rate of 0.1, and train for 100 epochs. Each epoch:</p>
+<ol type="1">
+<li><strong>Forward pass</strong>: run all 4 examples through the network</li>
+<li><strong>Compute loss</strong>: <code>sum((pred - target)²)</code></li>
+<li><strong>Zero gradients</strong> (critical — otherwise they accumulate!)</li>
+<li><strong>Backward pass</strong>: <code>loss.backward()</code></li>
+<li><strong>Update weights</strong>: <code>w -= lr * w.grad</code></li>
+</ol>
+<p>Let’s see if our little network can learn it:</p>
+<div id="4cdb92a2" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tiny dataset: binary classification</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> [[<span class="fl">0.0</span>, <span class="fl">0.0</span>], [<span class="fl">0.0</span>, <span class="fl">1.0</span>], [<span class="fl">1.0</span>, <span class="fl">0.0</span>], [<span class="fl">1.0</span>, <span class="fl">1.0</span>]]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ys <span class="op">=</span> [<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">1.0</span>, <span class="fl">0.0</span>]  <span class="co"># XOR</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>net <span class="op">=</span> MLP(<span class="dv">2</span>, [<span class="dv">4</span>, <span class="dv">1</span>])</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> epoch <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># forward</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    pred <span class="op">=</span> [net(x) <span class="cf">for</span> x <span class="kw">in</span> xs]</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> <span class="bu">sum</span>(((p <span class="op">-</span> y)<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> p, y <span class="kw">in</span> <span class="bu">zip</span>(pred, ys)), Value(<span class="fl">0.0</span>))</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># zero grads</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> net.parameters():</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>        p.grad <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># backward</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># update (SGD)</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> p <span class="kw">in</span> net.parameters():</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>        p.val <span class="op">-=</span> <span class="fl">0.1</span> <span class="op">*</span> p.grad</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> epoch <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"epoch </span><span class="sc">{</span>epoch<span class="sc">}</span><span class="ss">: loss=</span><span class="sc">{</span>loss<span class="sc">.</span>val<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>epoch 0: loss=1.8480
+epoch 10: loss=0.8182
+epoch 20: loss=0.6427
+epoch 30: loss=0.4399
+epoch 40: loss=2.2708
+epoch 50: loss=0.3058
+epoch 60: loss=0.1274
+epoch 70: loss=0.1937
+epoch 80: loss=0.9536
+epoch 90: loss=0.0420</code></pre>
+</div>
+</div>
+</section>
+<section id="why-tanh-works-better-here-and-why-deep-networks-moved-on" class="level2">
+<h2 class="anchored" data-anchor-id="why-tanh-works-better-here-and-why-deep-networks-moved-on">Why Tanh Works Better Here (And Why Deep Networks Moved On)</h2>
+<p>During our experiments, we noticed that <code>tanh</code> trained our XOR network much more smoothly than <code>ReLU</code>. This led us down an interesting rabbit hole.</p>
+<section id="why-tanh-is-great-for-small-networks" class="level3">
+<h3 class="anchored" data-anchor-id="why-tanh-is-great-for-small-networks">Why tanh is great for small networks</h3>
+<p>Tanh outputs are centered around zero (range [-1, 1]), which means: - Gradients are well-behaved and don’t blow up - The smooth curve means no “dead spots” like ReLU’s flat region for negative inputs - For shallow networks, the vanishing gradient problem isn’t really an issue</p>
+</section>
+<section id="why-relu-took-over-for-deep-networks" class="level3">
+<h3 class="anchored" data-anchor-id="why-relu-took-over-for-deep-networks">Why ReLU took over for deep networks</h3>
+<p>The <strong>vanishing gradient problem</strong> is the key. Tanh’s gradient is at most 1.0 (at the origin) and drops off <em>fast</em> as you move away. In a deep network with many layers, you multiply many small gradients together during backprop — they shrink exponentially and effectively <em>vanish</em> before reaching the early layers. Those early layers stop learning.</p>
+<p>ReLU doesn’t have this issue: its gradient is exactly <strong>1</strong> for any positive input, no matter how large. That lets gradients flow freely through deep networks, which is why ReLU (and its variants like Leaky ReLU, GELU, SwiLU) dominates in modern architectures.</p>
+</section>
+<section id="the-takeaway" class="level3">
+<h3 class="anchored" data-anchor-id="the-takeaway">The takeaway</h3>
+<p>There’s no universally “best” activation function — it depends on your network depth, your task, and your training dynamics.</p>
+<blockquote class="blockquote">
+<p>It was fun building this from scratch and i learnt a lot. especially how topological sort is used in real life.</p>
+</blockquote>
+
+
+
+</section>
+</section>
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">No matching items</div>
+</div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/risheekkumar\.in");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
