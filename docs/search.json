@@ -4,7 +4,7 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "I am Risheekkumar, a Senior Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express.\nI write about AI-powered products, engineering, and evaluations. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\nBuilding a Bitcoin Blockchain from Scratch in Python\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Bitcoin: A Peer-to-Peer Electronic Cash System’ by Satoshi Nakamoto.\n\n\n\n\n\nSep 28, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nGEPA Deepdive\n\n\n\n\n\nAn indepth hands-on explanation with code about GEPA - its core and motivations\n\n\n\n\n\nDec 21, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.\n\n\n\n\n\nAug 14, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHi I am Risheekkumar, Senior Data Scientist @ Amex\n\n\nI work on recommender systems and NLP — sequence modeling and LLMs — building AI-powered experiences at scale at American Express. I write about AI-powered product, engineering, and evals. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nKNN: Understanding the K-Nearest Neighbors Algorithm\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘K-Nearest Neighbors for Efficient Similarity Search’ by Cover and Hart.\n\n\n\n\n\nMar 15, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nLearning from Karpathy’s Micrograd\n\n\n\n\n\nThis post is a simple code implementation of Andrej Karpathy’s Micrograd.\n\n\n\n\n\nJun 23, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nNaive Bayes Classifier: A Simple Implementation\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Naive Bayes Classifier for Efficient Text Classification’ by Peter Norvig.\n\n\n\n\n\nNov 5, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nProgrammatic Prompt Optimization: Replacing Intuition with Algorithms\n\n\n\n\n\nFrom manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.\n\n\n\n\n\nDec 31, 2025\n\n\nRisheek kumar B\n\n\n\n\n\nNo matching items"
+    "text": "I am Risheekkumar, a Senior Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express.\nI write about AI-powered products, engineering, and evaluations. Outside of work, I like playing chess.\n\n\n\n\n\n\n\n\n\n\nBuilding a Bitcoin Blockchain from Scratch in Python\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Bitcoin: A Peer-to-Peer Electronic Cash System’ by Satoshi Nakamoto.\n\n\n\n\n\nSep 28, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nGEPA Deepdive\n\n\n\n\n\nAn indepth hands-on explanation with code about GEPA - its core and motivations\n\n\n\n\n\nDec 21, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Hierarchical Navigable Small World Graphs for Efficient Similarity Search’ by Yury Malkov and D. A. Yashunin.\n\n\n\n\n\nAug 14, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nHey, I am Risheekkumar\n\n\nrecommender systems, sequence modeling, and applied AI. always learning, building, and writing.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nKNN: Understanding the K-Nearest Neighbors Algorithm\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘K-Nearest Neighbors for Efficient Similarity Search’ by Cover and Hart.\n\n\n\n\n\nMar 15, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nLearning from Karpathy’s Micrograd\n\n\n\n\n\nThis post is a simple code implementation of Andrej Karpathy’s Micrograd.\n\n\n\n\n\nJun 23, 2025\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nNaive Bayes Classifier: A Simple Implementation\n\n\n\n\n\nThis post is a simple code implementation of the research paper ‘Naive Bayes Classifier for Efficient Text Classification’ by Peter Norvig.\n\n\n\n\n\nNov 5, 2024\n\n\nRisheek kumar B\n\n\n\n\n\n\n\n\n\n\nProgrammatic Prompt Optimization: Replacing Intuition with Algorithms\n\n\n\n\n\nFrom manual trial-and-error to a systematic framework for scaling reliable Enterprise AI.\n\n\n\n\n\nDec 31, 2025\n\n\nRisheek kumar B\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/gepa-impact/gepa_impact_final.html",
@@ -380,16 +380,16 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Hi I am Risheekkumar, Senior Data Scientist @ Amex",
+    "title": "Hey, I am Risheekkumar",
     "section": "",
-    "text": "llm-rsa — Recursive Self-Aggregation: iteratively sample and synthesize multiple LLM candidate answers into a stronger final response."
+    "text": "I am a Senior Data Scientist at American Express, where I build recommender systems and sequence models that power personalized experiences at scale.\nI am interested in foundation models, LLM systems, and reliable AI evaluation. This is where I share what I learn from building them. Outside of work, you will usually find me playing chess."
   },
   {
     "objectID": "index.html#open-source",
     "href": "index.html#open-source",
-    "title": "Hi I am Risheekkumar, Senior Data Scientist @ Amex",
-    "section": "",
-    "text": "llm-rsa — Recursive Self-Aggregation: iteratively sample and synthesize multiple LLM candidate answers into a stronger final response."
+    "title": "Hey, I am Risheekkumar",
+    "section": "Open Source",
+    "text": "Open Source\n\nfastpragma - An easy-to-use Python API for building PRAGMA-style foundation models from profile and event data, from tokenization and pretraining to embeddings and fine-tuning. PyPI · GitHub\nllm-rsa - Recursive Self-Aggregation for LLMs: sample and synthesize multiple candidate answers into a stronger final response. GitHub"
   },
   {
     "objectID": "index.html#blog",
@@ -397,5 +397,12 @@
     "title": "Hi I am Risheekkumar, Senior Data Scientist @ Amex",
     "section": "Blog",
     "text": "Blog"
+  },
+  {
+    "objectID": "index.html#recent-writing",
+    "href": "index.html#recent-writing",
+    "title": "Hey, I am Risheekkumar",
+    "section": "Recent Writing",
+    "text": "Recent Writing"
   }
 ]
