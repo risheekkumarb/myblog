@@ -19,8 +19,6 @@ toc: false
 
 ::: {.profile-heading}
 # Risheekkumar Baskaran
-
-<p class="profile-subtitle">Senior Data Scientist at American Express</p>
 :::
 
 ::: {.profile-links}
@@ -34,7 +32,7 @@ toc: false
 ## About
 
 ::: {.section-content}
-<p class="eyebrow">Chennai, India</p>
+<p class="eyebrow">Senior Data Scientist at American Express</p>
 
 I build foundation models, recommendation systems, and GenAI applications on large-scale transactional data, with work spanning fraud, risk, and marketing.
 
