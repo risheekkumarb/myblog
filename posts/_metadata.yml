@@ -4,5 +4,13 @@
 # (see https://quarto.org/docs/projects/code-execution.html#freeze)
 freeze: true
 
-# Enable banner style title blocks
-title-block-banner: true
+# Keep post titles on the same background as the article body.
+title-block-banner: false
+
+# Match the compact article entrance used throughout The Data Quarry.
+date-format: "MMM D, YYYY"
+toc-title: "TABLE OF CONTENTS"
+format:
+  html:
+    template-partials:
+      - ../../partials/title-block.html

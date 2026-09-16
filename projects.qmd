@@ -1,0 +1,20 @@
+---
+title: "GitHub activity"
+page-layout: article
+toc: true
+toc-title: "TABLE OF CONTENTS"
+format:
+  html:
+    template-partials:
+      - partials/projects/title-block.html
+---
+
+::: {.projects-page}
+<img class="github-activity-chart" src="https://ghchart.rshah.org/risheekkumarb" alt="Risheekkumar's GitHub contribution activity" loading="lazy">
+
+## Projects
+
+::: {.project-list .projects-page-grid}
+{{< include _includes/project-cards.qmd >}}
+:::
+:::

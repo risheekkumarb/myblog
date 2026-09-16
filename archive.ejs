@@ -1,0 +1,45 @@
+<%
+const archiveGroups = new Map();
+
+for (const item of items) {
+  const itemDate = item.date instanceof Date ? item.date : new Date(String(item.date));
+  const hasValidDate = !Number.isNaN(itemDate.getTime());
+  const year = hasValidDate ? itemDate.getFullYear() : "Undated";
+  const displayDate = hasValidDate
+    ? itemDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      })
+    : "";
+
+  if (!archiveGroups.has(year)) {
+    archiveGroups.set(year, []);
+  }
+
+  archiveGroups.get(year).push({ ...item, displayDate });
+}
+%>
+
+```{=html}
+<div class="archive-years">
+<% for (const [year, yearItems] of archiveGroups) { %>
+  <section class="archive-year-block" aria-labelledby="archive-year-<%= year %>">
+    <div class="archive-year-heading">
+      <h2 id="archive-year-<%= year %>" class="archive-year"><%= year %></h2>
+      <p class="archive-count"><%= yearItems.length %> <%= yearItems.length === 1 ? "post" : "posts" %></p>
+    </div>
+
+    <div class="archive-post-list">
+<% for (const item of yearItems) { %>
+      <a class="archive-post-row" href="<%- item.path %>">
+        <time class="archive-post-date"><%= item.displayDate %></time>
+        <span class="archive-post-title"><%- item.title %></span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+<% } %>
+    </div>
+  </section>
+<% } %>
+</div>
+```

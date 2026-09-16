@@ -1,0 +1,54 @@
+<header id="title-block-header" class="quarto-title-block about-title-block"></header>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const marginSidebar = document.querySelector("#quarto-margin-sidebar");
+  const sections = [
+    {
+      id: "about-me",
+      label: "About me"
+    },
+    {
+      id: "experience",
+      label: "Experience",
+      children: [
+        ["senior-data-scientist", "Senior Data Scientist"],
+        ["data-scientist", "Data Scientist"],
+        ["management-trainee-data-science", "Management Trainee"],
+        ["ulip-intern", "ULIP Intern"]
+      ]
+    },
+    {
+      id: "education",
+      label: "Education",
+      children: [
+        ["indian-institute-of-management-indore", "IIM Indore"],
+        ["madras-institute-of-technology-campus", "MIT Campus"]
+      ]
+    },
+    {
+      id: "about-this-blog",
+      label: "About this blog"
+    }
+  ];
+
+  if (!marginSidebar || marginSidebar.querySelector("#TOC")) return;
+
+  const makeLink = (id, label) => '<a href="#' + id + '" class="nav-link" data-scroll-target="#' + id + '">' + label + '</a>';
+  const items = sections
+    .map((section) => {
+      const children = section.children
+        ? '<ul>' + section.children.map(([id, label]) => '<li>' + makeLink(id, label) + '</li>').join("") + '</ul>'
+        : '';
+
+      return '<li>' + makeLink(section.id, section.label) + children + '</li>';
+    })
+    .join("");
+
+  marginSidebar.innerHTML = '<nav id="TOC" role="doc-toc" class="toc-active">' +
+    '<h2 id="toc-title">TABLE OF CONTENTS</h2>' +
+    '<ul>' + items + '</ul>' +
+    '</nav>';
+
+});
+</script>

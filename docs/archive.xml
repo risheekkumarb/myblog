@@ -6,8 +6,8 @@
       version="2.0">
 <channel>
 <title>Risheekkumar Baskaran</title>
-<link>https://risheekkumar.in/</link>
-<atom:link href="https://risheekkumar.in/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://risheekkumar.in/archive.html</link>
+<atom:link href="https://risheekkumar.in/archive.xml" rel="self" type="application/rss+xml"/>
 <description>Notes on machine learning, foundation models, recommender systems, and production AI.</description>
 <generator>quarto-1.10.18</generator>
 <lastBuildDate>Tue, 30 Dec 2025 18:30:00 GMT</lastBuildDate>

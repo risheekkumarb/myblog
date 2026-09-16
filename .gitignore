@@ -1,2 +1,3 @@
 /.quarto/
+/docs/.venv/
 **/*.quarto_ipynb

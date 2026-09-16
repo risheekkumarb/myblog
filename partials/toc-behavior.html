@@ -1,0 +1,85 @@
+<script>
+const initializeToc = () => {
+  const originalToc = document.querySelector("#TOC");
+
+  if (!originalToc) return;
+
+  // Quarto captures the original links during startup. Replacing the TOC after
+  // that step prevents its scroll tracker from competing with this one.
+  const toc = originalToc.cloneNode(true);
+  toc.classList.remove("toc-active");
+  originalToc.replaceWith(toc);
+
+  const links = [...toc.querySelectorAll("a.nav-link")].filter((link) => link.hash);
+  links.forEach((link) => link.removeAttribute("data-scroll-target"));
+
+  const entries = links
+    .map((link) => {
+      const id = decodeURIComponent(link.hash.slice(1));
+      return { link, target: document.getElementById(id) };
+    })
+    .filter((entry) => entry.target);
+
+  if (!entries.length) return;
+
+  const headerOffset = 92;
+  let scrolling = false;
+
+  const setActive = (activeLink) => {
+    links.forEach((link) => {
+      const isActive = link === activeLink;
+      link.classList.toggle("active", isActive);
+
+      if (isActive) {
+        link.setAttribute("aria-current", "location");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  };
+
+  const updateActiveLink = () => {
+    if (scrolling) return;
+
+    const marker = headerOffset + 24;
+    const activeEntry = entries.reduce((current, entry) => {
+      return entry.target.getBoundingClientRect().top <= marker ? entry : current;
+    }, entries[0]);
+
+    setActive(activeEntry.link);
+  };
+
+  toc.addEventListener("click", (event) => {
+    const link = event.target.closest("a.nav-link");
+
+    if (!link || !link.hash) return;
+
+    const id = decodeURIComponent(link.hash.slice(1));
+    const target = document.getElementById(id);
+
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const top = window.scrollY + target.getBoundingClientRect().top - headerOffset;
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+
+    scrolling = true;
+    setActive(link);
+    window.history.pushState(null, "", link.hash);
+    window.scrollTo({ top, behavior });
+
+    window.setTimeout(() => {
+      scrolling = false;
+    }, behavior === "smooth" ? 1200 : 0);
+  }, true);
+
+  updateActiveLink();
+  document.addEventListener("scroll", updateActiveLink, { passive: true });
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  window.setTimeout(initializeToc, 100);
+});
+</script>

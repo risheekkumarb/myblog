@@ -1,44 +1,15 @@
 [
   {
-    "listing": "/about.html",
+    "listing": "/archive.html",
     "items": [
-      "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
+      "/posts/gepa-impact/gepa_impact_final.html",
       "/posts/gepa-deepdive/gepa_final_article.html",
+      "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
       "/posts/HNSW/HNSW.html",
-      "/index.html",
-      "/posts/KNN/KNN.html",
       "/posts/micrograd-karpathy/micrograd.html",
       "/posts/naive-bayes/naive bayes.html",
-      "/posts/gepa-impact/gepa_impact_final.html"
+      "/posts/KNN/KNN.html"
     ]
-  },
-  {
-    "listing": "/posts/gepa-impact/gepa_impact_final.html",
-    "items": []
-  },
-  {
-    "listing": "/posts/gepa-deepdive/gepa_final_article.html",
-    "items": []
-  },
-  {
-    "listing": "/posts/HNSW/HNSW.html",
-    "items": []
-  },
-  {
-    "listing": "/posts/bitcoin_from_scratch/bitcoin_from_scratch.html",
-    "items": []
-  },
-  {
-    "listing": "/posts/KNN/KNN.html",
-    "items": []
-  },
-  {
-    "listing": "/posts/naive-bayes/naive bayes.html",
-    "items": []
-  },
-  {
-    "listing": "/posts/micrograd-karpathy/micrograd.html",
-    "items": []
   },
   {
     "listing": "/index.html",

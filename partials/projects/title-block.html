@@ -1,0 +1,27 @@
+<header id="title-block-header" class="quarto-title-block projects-title-block">
+  <a class="interior-back-link" href="index.html">
+    <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    <span>Back</span>
+  </a>
+
+$if(title)$
+  <h1 class="title">$title$</h1>
+$endif$
+</header>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const marginSidebar = document.querySelector("#quarto-margin-sidebar");
+
+  if (!marginSidebar || marginSidebar.querySelector("#TOC")) return;
+
+  marginSidebar.innerHTML = `
+    <nav id="TOC" role="doc-toc" class="toc-active">
+      <h2 id="toc-title">TABLE OF CONTENTS</h2>
+      <ul>
+        <li><a href="#projects" class="nav-link active" data-scroll-target="#projects">Projects</a></li>
+      </ul>
+    </nav>
+  `;
+});
+</script>

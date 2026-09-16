@@ -1,0 +1,22 @@
+---
+pagetitle: "Archive"
+listing:
+  contents: posts
+  feed: true
+  sort: "date desc"
+  template: archive.ejs
+  fields: [date, title]
+  sort-ui: false
+  filter-ui: false
+page-layout: full
+toc: false
+---
+
+::: {.interior-shell .archive-page}
+[<i class="bi bi-chevron-left" aria-hidden="true"></i> Back](index.qmd){.interior-back-link}
+
+# Archive
+
+::: {#listing}
+:::
+:::

@@ -4,37 +4,48 @@ project:
   resources: 
     - CNAME
     - .nojekyll
-    - "!posts/gepa-deepdive/.git"
-    - "!posts/gepa-deepdive/.gitignore"
+    - fonts
+    - posts/KNN/knn.webp
+    - posts/bitcoin_from_scratch/Bitcoin.webp
+    - posts/gepa-deepdive/blogpost_image.webp
+    - posts/gepa-impact/gepa_impact.webp
+    - posts/micrograd-karpathy/micrograd.webp
+    - posts/naive-bayes/naive bayes.webp
+    - "!.venv"
 
 website:
   google-analytics: "G-EMRH6XWVFQ"
-  description: "A blog about tech, programming, and life."
-  site-url: https://risheekkumar.in # you must change this appropriately for RSS feeds to work properly
+  description: "Notes on machine learning, foundation models, recommender systems, and production AI."
+  site-url: https://risheekkumar.in
   title: "Risheekkumar Baskaran"
+  favicon: profile.jpg
   navbar:
+    title: "Risheekkumar"
     right:
+      - text: Archive
+        href: archive.qmd
+      - text: Projects
+        href: projects.qmd
       - about.qmd
-      - icon: linkedin
-        href: https://www.linkedin.com/in/risheekkumar-baskaran-748115120/
-      - icon: github
-        href: https://github.com/risheekkumarb
-      - icon: twitter
-        href: https://x.com/BRisheek
-
-listing:
-  type: default
-  image-height: "200px"
+    search: true
+  page-footer:
+    center: "© 2026 Risheekkumar Baskaran · Built with Quarto"
+    border: true
 
 format:
   html:
     theme:
-      - cosmo
-      - brand
+      light:
+        - cosmo
+        - brand
+      dark:
+        - darkly
+        - brand
     css: styles.css
+    smooth-scroll: true
+    include-after-body:
+      - partials/navbar-icons.html
+      - partials/toc-behavior.html
 
 execute:
   freeze: auto
-  
-
-

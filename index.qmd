@@ -1,26 +1,110 @@
 ---
-title: "Hey, I am Risheekkumar"
-subtitle: "Recommender systems, sequence modeling, and applied AI. always learning, building, and writing."
 listing:
   contents: posts
   feed: true
   sort: "date desc"
   type: default
-  categories: true
+  fields: [date, title]
+  max-items: 7
+  categories: false
   sort-ui: false
   filter-ui: false
 page-layout: full
-title-block-banner: true
+toc: false
 ---
 
-I am a Senior Data Scientist at American Express, where I build recommender systems and sequence models that power personalized experiences at scale.
+::: {.home-shell}
+::: {.profile-hero}
+![](profile.jpg){.profile-avatar alt="Portrait of Risheekkumar Baskaran"}
 
-I am interested in foundation models, LLM systems, and reliable AI evaluation. This is where I share what I learn from building them. Outside of work, you will usually find me playing chess.
+::: {.profile-heading}
+# Risheekkumar Baskaran
 
-## Open Source
+<p class="profile-subtitle">Senior Data Scientist at American Express</p>
+:::
 
-- **[fastpragma](https://risheekkumarb.github.io/fastpragma/)** - An easy-to-use Python API for building PRAGMA-style foundation models from profile and event data, from tokenization and pretraining to embeddings and fine-tuning. [PyPI](https://pypi.org/project/fastpragma/) · [GitHub](https://github.com/risheekkumarb/fastpragma)
+::: {.profile-links}
+<a href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/" target="_blank" rel="noopener"><i class="bi bi-linkedin" aria-hidden="true"></i><span>LinkedIn</span></a>
+<a href="https://github.com/risheekkumarb" target="_blank" rel="noopener"><i class="bi bi-github" aria-hidden="true"></i><span>GitHub</span></a>
+:::
+:::
 
-- **[llm-rsa](https://pypi.org/project/llm-rsa/0.0.4/)** - Recursive Self-Aggregation for LLMs: sample and synthesize multiple candidate answers into a stronger final response. [GitHub](https://github.com/risheekkumarb/llm-rsa)
+::: {.home-content}
+::: {.home-section #about}
+## About
 
-## Recent Writing
+::: {.section-content}
+<p class="eyebrow">Chennai, India</p>
+
+I build foundation models, recommendation systems, and GenAI applications on large-scale transactional data, with work spanning fraud, risk, and marketing.
+
+I write to turn papers and implementations into practical explanations, from vector search and cryptography to prompt optimization and production machine learning. Outside work, you will usually find me playing chess.
+
+[More about me <span aria-hidden="true">→</span>](about.qmd){.quiet-button}
+:::
+:::
+
+::: {.home-section #posts}
+## Posts
+
+::: {.section-content .posts-content}
+::: {#listing}
+:::
+
+[More posts <span aria-hidden="true">→</span>](archive.qmd){.quiet-button}
+:::
+:::
+
+::: {.home-section #education}
+## Education
+
+::: {.section-content .education-list}
+::: {.education-item}
+### Indian Institute of Management, Indore
+
+Master of Business Administration
+
+`2019 - 2021`
+:::
+
+::: {.education-item}
+### Madras Institute of Technology Campus
+
+Bachelor of Engineering in Aeronautical and Aerospace Engineering
+
+`2015 - 2019`
+:::
+:::
+:::
+
+::: {.home-section #skills}
+## Skills
+
+::: {.section-content .skill-groups}
+::: {.skill-row}
+### Languages and data
+
+::: {.skill-tags}
+`Python` `SQL`
+:::
+:::
+
+::: {.skill-row}
+### Machine learning
+
+::: {.skill-tags}
+`Machine Learning` `Sequence Modeling` `Recommender Systems` `XGBoost`
+:::
+:::
+
+::: {.skill-row}
+### AI systems
+
+::: {.skill-tags}
+`Large Language Models` `Foundation Models` `PyTorch` `DSPy` `GEPA`
+:::
+:::
+:::
+:::
+:::
+:::

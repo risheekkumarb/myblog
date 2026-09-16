@@ -1,0 +1,55 @@
+<header id="title-block-header" class="quarto-title-block post-title-block">
+  <a class="post-back-link" href="../../archive.html">
+    <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    <span>Back</span>
+  </a>
+
+  <div class="post-meta-row">
+$if(date)$
+    <span class="post-meta-item">
+      <i class="bi bi-calendar3" aria-hidden="true"></i>
+      <span>$date$</span>
+    </span>
+$endif$
+
+    <span class="post-meta-item post-reading-time" aria-live="polite">
+      <i class="bi bi-clock" aria-hidden="true"></i>
+      <span class="post-reading-time-value">1 min read</span>
+    </span>
+
+$if(categories)$
+    <span class="post-meta-item post-category-list">
+      <i class="bi bi-hash" aria-hidden="true"></i>
+      <span class="post-category-values">
+        $for(categories)$<span class="post-category">$categories$</span>$endfor$
+      </span>
+    </span>
+$endif$
+  </div>
+
+$if(title)$
+  <h1 class="title">$title$</h1>
+$endif$
+
+$if(hide-description)$
+$elseif(description)$
+  <div class="description post-description">$description$</div>
+$endif$
+</header>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const article = document.querySelector("#quarto-document-content");
+  const output = document.querySelector(".post-reading-time-value");
+
+  if (!article || !output) return;
+
+  const copy = article.cloneNode(true);
+  copy.querySelector("#title-block-header")?.remove();
+  copy.querySelectorAll("pre, code, script, style").forEach((element) => element.remove());
+
+  const words = copy.textContent.trim().match(/\S+/g)?.length ?? 0;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  output.textContent = minutes + " min read";
+});
+</script>

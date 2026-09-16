@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>About – Risheekkumar Baskaran</title>
+<title>Archive – Risheekkumar Baskaran</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -37,6 +37,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./profile.jpg" rel="icon" type="image/jpeg">
+<script src="site_libs/quarto-listing/list.min.js"></script>
+<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -78,6 +80,35 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-date','listing-title',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-date-modified-sort'] },{ data: ['listing-file-modified-sort'] },{ data: ['listing-reading-time-sort'] },{ data: ['listing-word-count-sort'] }],
+      
+      searchColumns: ["listing-project","listing-website","listing-format","listing-execute","listing-engines","listing-language","listing-freeze","listing-title-block-banner","listing-date-format","listing-toc-title","listing-title","listing-author","listing-date","listing-categories","listing-description","listing-image","listing-toc","listing-path","listing-outputHref","listing-date-modified","listing-filename","listing-file-modified","listing-reading-time","listing-word-count"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-EMRH6XWVFQ"></script>
 
 <script type="text/javascript">
@@ -89,9 +120,38 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
 </script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
-</head>
+<link rel="alternate" type="application/rss+xml" title="Risheekkumar Baskaran" href="archive.xml" data-external="1"></head>
 
 <body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
     const toggleBodyColorMode = (bsSheetEl) => {
@@ -273,7 +333,7 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./archive.html"> 
+    <a class="nav-link active" href="./archive.html" aria-current="page"> 
 <span class="menu-text">Archive</span></a>
   </li>  
   <li class="nav-item">
@@ -281,7 +341,7 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
 <span class="menu-text">Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./about.html" aria-current="page"> 
+    <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -293,164 +353,94 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
-    </div>
+    
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
-<header id="title-block-header" class="quarto-title-block about-title-block"></header>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const marginSidebar = document.querySelector("#quarto-margin-sidebar");
-  const sections = [
-    {
-      id: "about-me",
-      label: "About me"
-    },
-    {
-      id: "experience",
-      label: "Experience",
-      children: [
-        ["senior-data-scientist", "Senior Data Scientist"],
-        ["data-scientist", "Data Scientist"],
-        ["management-trainee-data-science", "Management Trainee"],
-        ["ulip-intern", "ULIP Intern"]
-      ]
-    },
-    {
-      id: "education",
-      label: "Education",
-      children: [
-        ["indian-institute-of-management-indore", "IIM Indore"],
-        ["madras-institute-of-technology-campus", "MIT Campus"]
-      ]
-    },
-    {
-      id: "about-this-blog",
-      label: "About this blog"
-    }
-  ];
-
-  if (!marginSidebar || marginSidebar.querySelector("#TOC")) return;
-
-  const makeLink = (id, label) => '<a href="#' + id + '" class="nav-link" data-scroll-target="#' + id + '">' + label + '</a>';
-  const items = sections
-    .map((section) => {
-      const children = section.children
-        ? '<ul>' + section.children.map(([id, label]) => '<li>' + makeLink(id, label) + '</li>').join("") + '</ul>'
-        : '';
-
-      return '<li>' + makeLink(section.id, section.label) + children + '</li>';
-    })
-    .join("");
-
-  marginSidebar.innerHTML = '<nav id="TOC" role="doc-toc" class="toc-active">' +
-    '<h2 id="toc-title">TABLE OF CONTENTS</h2>' +
-    '<ul>' + items + '</ul>' +
-    '</nav>';
-
-});
-</script>
 
 
-<div class="about-page">
-<p><a href="./index.html" class="interior-back-link"><i class="bi bi-arrow-left"></i> Back</a></p>
-<section id="about-me" class="level2">
-<h2 class="anchored" data-anchor-id="about-me">About me</h2>
-<p><img src="profile.jpg" class="about-avatar img-fluid" alt="Risheekkumar Baskaran"></p>
-<p>I’m Risheekkumar Baskaran, a Senior Data Scientist at American Express, based in Chennai, India. My background spans data analytics and machine learning, with a focus on finding useful, actionable signals in complex data.</p>
-<p>I build production machine learning systems across fraud, risk, marketing, and recommendations. My recent work includes pre-training a foundation transformer on 60 billion transactions, large-scale retrieval and ranking systems, and GenAI applications built with DSPy and GEPA. I care about models that work beyond a notebook: sound evaluation, efficient training, reliable inference, and measurable outcomes.</p>
-<p>I also build open-source tools. <a href="https://github.com/risheekkumarb/fastpragma">fastpragma</a> turns the PRAGMA architecture into a practical workflow for tokenizing event data, packing variable-length sequences, pre-training, and fine-tuning. Outside work, I enjoy playing chess and writing about systems I want to understand from first principles.</p>
-<div class="about-links">
-<p><a href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/" class="quiet-button"><i class="bi bi-linkedin"></i> LinkedIn</a> <a href="https://github.com/risheekkumarb" class="quiet-button"><i class="bi bi-github"></i> GitHub</a></p>
+
+<div class="interior-shell archive-page">
+<p><a href="./index.html" class="interior-back-link"><i class="bi bi-chevron-left" aria-hidden="true"></i> Back</a></p>
+<section id="archive" class="level1">
+<h1>Archive</h1>
+<div id="listing-listing" class="quarto-listing quarto-listing-container-custom">
+<div class="archive-years">
+
+  <section class="archive-year-block" aria-labelledby="archive-year-2025">
+    <div class="archive-year-heading">
+      <h2 id="archive-year-2025" class="archive-year anchored" data-anchor-id="archive">2025</h2>
+      <p class="archive-count">5 posts</p>
+    </div>
+
+    <div class="archive-post-list">
+
+      <a class="archive-post-row" href="./posts/gepa-impact/gepa_impact_final.html">
+        <time class="archive-post-date">Dec 31, 2025</time>
+        <span class="archive-post-title">Programmatic Prompt Optimization: Replacing Intuition with Algorithms</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+      <a class="archive-post-row" href="./posts/gepa-deepdive/gepa_final_article.html">
+        <time class="archive-post-date">Dec 21, 2025</time>
+        <span class="archive-post-title">GEPA Deepdive</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+      <a class="archive-post-row" href="./posts/bitcoin_from_scratch/bitcoin_from_scratch.html">
+        <time class="archive-post-date">Sep 28, 2025</time>
+        <span class="archive-post-title">Building a Bitcoin Blockchain from Scratch in Python</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+      <a class="archive-post-row" href="./posts/HNSW/HNSW.html">
+        <time class="archive-post-date">Aug 14, 2025</time>
+        <span class="archive-post-title">HNSW: Hierarchical Navigable Small World Graphs for Efficient Similarity Search</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+      <a class="archive-post-row" href="./posts/micrograd-karpathy/micrograd.html">
+        <time class="archive-post-date">Jun 23, 2025</time>
+        <span class="archive-post-title">Learning from Karpathy's Micrograd</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="archive-year-block" aria-labelledby="archive-year-2024">
+    <div class="archive-year-heading">
+      <h2 id="archive-year-2024" class="archive-year anchored">2024</h2>
+      <p class="archive-count">2 posts</p>
+    </div>
+
+    <div class="archive-post-list">
+
+      <a class="archive-post-row" href="./posts/naive-bayes/naive bayes.html">
+        <time class="archive-post-date">Nov 5, 2024</time>
+        <span class="archive-post-title">Naive Bayes Classifier: A Simple Implementation</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+      <a class="archive-post-row" href="./posts/KNN/KNN.html">
+        <time class="archive-post-date">Mar 15, 2024</time>
+        <span class="archive-post-title">KNN: Understanding the K-Nearest Neighbors Algorithm</span>
+        <i class="bi bi-chevron-right archive-post-arrow" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </section>
+
 </div>
-</section>
-<section id="experience" class="level2">
-<h2 class="anchored" data-anchor-id="experience">Experience</h2>
-<div class="career-timeline">
-<section id="senior-data-scientist" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="senior-data-scientist">Senior Data Scientist</h3>
-<p class="career-company">
-American Express
-</p>
-<p class="career-meta">
-<span>Nov 2023 - Present</span><span>Bengaluru, India - Hybrid</span>
-</p>
-<ul>
-<li>Pre-trained and deployed a custom foundation transformer on 60 billion transactions, powering production use cases across fraud, risk, and marketing with $10M in projected uplift.</li>
-<li>Published fastpragma, a Python package for PRAGMA data processing and pre-training that reduced ablation cycles from one week to one day using Polars-based tokenization, sequence packing, and variable-length attention.</li>
-<li>Built GenAI and recommendation systems using DSPy, GEPA, two-tower retrieval, and XGBoost reranking. Models trained on 2 billion transactions across 8 H100 GPUs achieved 95% F1, 3x Recall@K, and 30% higher merchant adoption.</li>
-<li>Received the Amex Most Innovative Project award in 2024 and 2025.</li>
-</ul>
-</section>
-<section id="data-scientist" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="data-scientist">Data Scientist</h3>
-<p class="career-company">
-American Express
-</p>
-<p class="career-meta">
-<span>Sep 2022 - Nov 2023</span><span>Gurugram, India - Remote</span>
-</p>
-<ul>
-<li>Built sequence and NLP models for customer behavior, including Transformer4Rec for next-action prediction, driving a 2% CTR uplift.</li>
-<li>Derived behavioral features from petabyte-scale clickstreams and validated them across more than 4 million users, contributing $3M in incremental revenue.</li>
-<li>Deployed a 64-class multi-label intent classifier with asymmetric loss and BERT-family encoders. ONNX quantization reduced inference cost by 75% while keeping p99 latency below 30 ms.</li>
-</ul>
-</section>
-<section id="management-trainee-data-science" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="management-trainee-data-science">Management Trainee, Data Science</h3>
-<p class="career-company">
-IDFC FIRST Bank
-</p>
-<p class="career-meta">
-<span>Jun 2021 - Aug 2022</span><span>Bengaluru, India - On-site</span>
-</p>
-<ul>
-<li>Reframed website cursor movement as spatial heatmaps for ResNet-based fraud detection, improving AUPRC by 20% over existing baselines.</li>
-<li>Designed an NLP entity-extraction and OCR-verification pipeline for B2B onboarding, reducing document turnaround time from 14 days to 3 days.</li>
-</ul>
-</section>
-<section id="ulip-intern" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="ulip-intern">ULIP Intern</h3>
-<p class="career-company">
-Unilever
-</p>
-<p class="career-meta">
-<span>Apr 2020 - Jun 2020</span><span>Mumbai, India - Remote</span>
-</p>
-<p>Selected for Hindustan Unilever’s flagship internship program.</p>
-</section>
-</div>
-</section>
-<section id="education" class="level2">
-<h2 class="anchored" data-anchor-id="education">Education</h2>
-<div class="about-education-list">
-<section id="indian-institute-of-management-indore" class="level3 about-education-item">
-<h3 class="anchored" data-anchor-id="indian-institute-of-management-indore">Indian Institute of Management, Indore</h3>
-<p>Master of Business Administration, 2019 - 2021</p>
-</section>
-<section id="madras-institute-of-technology-campus" class="level3 about-education-item">
-<h3 class="anchored" data-anchor-id="madras-institute-of-technology-campus">Madras Institute of Technology Campus</h3>
-<p>Bachelor of Engineering in Aeronautical and Aerospace Engineering, 2015 - 2019</p>
-<p>Led innovation for Flight, a national-level technical festival, and coordinated theatrical performances and industrial visits for the Department of Aerospace.</p>
-</section>
-</div>
-</section>
-<section id="about-this-blog" class="level2">
-<h2 class="anchored" data-anchor-id="about-this-blog">About this blog</h2>
-<p>This blog is my working notebook for machine learning systems that I want to understand deeply. I write implementation-driven guides on foundation models, vector search, prompt optimization, recommender systems, cryptography, and the engineering choices that turn an idea into a working system.</p>
-<p>The goal is simple: explain what I learned clearly enough that someone else can build on it. The <a href="./archive.html">Archive</a> contains all long-form articles, while <a href="./projects.html">Projects</a> collects the open-source work behind them.</p>
-<div class="about-actions">
-<p><a href="./archive.html" class="quiet-button">Explore the archive <i class="bi bi-arrow-right"></i></a> <a href="./projects.html" class="quiet-button">View projects <i class="bi bi-arrow-right"></i></a></p>
+<div class="listing-no-matching d-none">No matching items</div>
 </div>
 </section>
 </div>
+
 
 
 

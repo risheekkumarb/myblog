@@ -1,21 +1,110 @@
 ---
 title: "About"
-image: profile.jpg
-about:
-  template: jolla
-  links:
-    - icon: linkedin
-      text: LinkedIn
-      href: https://www.linkedin.com/in/risheekkumar-baskaran-748115120/
-    - icon: github
-      text: Github
-      href: https://github.com/risheekkumarb
-    - icon: twitter
-      text: Twitter
-      href: https://x.com/BRisheek
-
+page-layout: article
+toc: true
+toc-title: "TABLE OF CONTENTS"
+format:
+  html:
+    template-partials:
+      - partials/about/title-block.html
 ---
 
-I am Risheekkumar, a Senior Data Scientist. I build AI systems and AI-powered experiences that serve customers at scale at American Express. 
+::: {.about-page}
 
-I write about AI-powered products, engineering, and evaluations. Outside of work, I like playing chess.
+[<i class="bi bi-arrow-left"></i> Back](index.qmd){.interior-back-link}
+
+## About me
+
+![](profile.jpg){.about-avatar fig-alt="Risheekkumar Baskaran"}
+
+I'm Risheekkumar Baskaran, a Senior Data Scientist at American Express, based in Chennai, India. My background spans data analytics and machine learning, with a focus on finding useful, actionable signals in complex data.
+
+I build production machine learning systems across fraud, risk, marketing, and recommendations. My recent work includes pre-training a foundation transformer on 60 billion transactions, large-scale retrieval and ranking systems, and GenAI applications built with DSPy and GEPA. I care about models that work beyond a notebook: sound evaluation, efficient training, reliable inference, and measurable outcomes.
+
+I also build open-source tools. [fastpragma](https://github.com/risheekkumarb/fastpragma) turns the PRAGMA architecture into a practical workflow for tokenizing event data, packing variable-length sequences, pre-training, and fine-tuning. Outside work, I enjoy playing chess and writing about systems I want to understand from first principles.
+
+::: {.about-links}
+[<i class="bi bi-linkedin"></i> LinkedIn](https://www.linkedin.com/in/risheekkumar-baskaran-748115120/){.quiet-button}
+[<i class="bi bi-github"></i> GitHub](https://github.com/risheekkumarb){.quiet-button}
+:::
+
+## Experience
+
+::: {.career-timeline}
+
+::: {.career-entry}
+### Senior Data Scientist
+
+<p class="career-company">American Express</p>
+<p class="career-meta"><span>Nov 2023 - Present</span><span>Bengaluru, India - Hybrid</span></p>
+
+- Pre-trained and deployed a custom foundation transformer on 60 billion transactions, powering production use cases across fraud, risk, and marketing with $10M in projected uplift.
+- Published fastpragma, a Python package for PRAGMA data processing and pre-training that reduced ablation cycles from one week to one day using Polars-based tokenization, sequence packing, and variable-length attention.
+- Built GenAI and recommendation systems using DSPy, GEPA, two-tower retrieval, and XGBoost reranking. Models trained on 2 billion transactions across 8 H100 GPUs achieved 95% F1, 3x Recall@K, and 30% higher merchant adoption.
+- Received the Amex Most Innovative Project award in 2024 and 2025.
+:::
+
+::: {.career-entry}
+### Data Scientist
+
+<p class="career-company">American Express</p>
+<p class="career-meta"><span>Sep 2022 - Nov 2023</span><span>Gurugram, India - Remote</span></p>
+
+- Built sequence and NLP models for customer behavior, including Transformer4Rec for next-action prediction, driving a 2% CTR uplift.
+- Derived behavioral features from petabyte-scale clickstreams and validated them across more than 4 million users, contributing $3M in incremental revenue.
+- Deployed a 64-class multi-label intent classifier with asymmetric loss and BERT-family encoders. ONNX quantization reduced inference cost by 75% while keeping p99 latency below 30 ms.
+:::
+
+::: {.career-entry}
+### Management Trainee, Data Science
+
+<p class="career-company">IDFC FIRST Bank</p>
+<p class="career-meta"><span>Jun 2021 - Aug 2022</span><span>Bengaluru, India - On-site</span></p>
+
+- Reframed website cursor movement as spatial heatmaps for ResNet-based fraud detection, improving AUPRC by 20% over existing baselines.
+- Designed an NLP entity-extraction and OCR-verification pipeline for B2B onboarding, reducing document turnaround time from 14 days to 3 days.
+:::
+
+::: {.career-entry}
+### ULIP Intern
+
+<p class="career-company">Unilever</p>
+<p class="career-meta"><span>Apr 2020 - Jun 2020</span><span>Mumbai, India - Remote</span></p>
+
+Selected for Hindustan Unilever's flagship internship program.
+:::
+
+:::
+
+## Education
+
+::: {.about-education-list}
+
+::: {.about-education-item}
+### Indian Institute of Management, Indore
+
+Master of Business Administration, 2019 - 2021
+:::
+
+::: {.about-education-item}
+### Madras Institute of Technology Campus
+
+Bachelor of Engineering in Aeronautical and Aerospace Engineering, 2015 - 2019
+
+Led innovation for Flight, a national-level technical festival, and coordinated theatrical performances and industrial visits for the Department of Aerospace.
+:::
+
+:::
+
+## About this blog
+
+This blog is my working notebook for machine learning systems that I want to understand deeply. I write implementation-driven guides on foundation models, vector search, prompt optimization, recommender systems, cryptography, and the engineering choices that turn an idea into a working system.
+
+The goal is simple: explain what I learned clearly enough that someone else can build on it. The [Archive](archive.qmd) contains all long-form articles, while [Projects](projects.qmd) collects the open-source work behind them.
+
+::: {.about-actions}
+[Explore the archive <i class="bi bi-arrow-right"></i>](archive.qmd){.quiet-button}
+[View projects <i class="bi bi-arrow-right"></i>](projects.qmd){.quiet-button}
+:::
+
+:::

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>About – Risheekkumar Baskaran</title>
+<title>GitHub activity – Risheekkumar Baskaran</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -277,11 +277,11 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
 <span class="menu-text">Archive</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./projects.html"> 
+    <a class="nav-link active" href="./projects.html" aria-current="page"> 
 <span class="menu-text">Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./about.html" aria-current="page"> 
+    <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
 </ul>
@@ -303,151 +303,52 @@ gtag('config', 'G-EMRH6XWVFQ', { 'anonymize_ip': true});
 <main class="content" id="quarto-document-content">
 
 
-<header id="title-block-header" class="quarto-title-block about-title-block"></header>
+<header id="title-block-header" class="quarto-title-block projects-title-block">
+  <a class="interior-back-link" href="index.html">
+    <i class="bi bi-chevron-left" aria-hidden="true"></i>
+    <span>Back</span>
+  </a>
+
+  <h1 class="title display-7">GitHub activity</h1>
+</header>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const marginSidebar = document.querySelector("#quarto-margin-sidebar");
-  const sections = [
-    {
-      id: "about-me",
-      label: "About me"
-    },
-    {
-      id: "experience",
-      label: "Experience",
-      children: [
-        ["senior-data-scientist", "Senior Data Scientist"],
-        ["data-scientist", "Data Scientist"],
-        ["management-trainee-data-science", "Management Trainee"],
-        ["ulip-intern", "ULIP Intern"]
-      ]
-    },
-    {
-      id: "education",
-      label: "Education",
-      children: [
-        ["indian-institute-of-management-indore", "IIM Indore"],
-        ["madras-institute-of-technology-campus", "MIT Campus"]
-      ]
-    },
-    {
-      id: "about-this-blog",
-      label: "About this blog"
-    }
-  ];
 
   if (!marginSidebar || marginSidebar.querySelector("#TOC")) return;
 
-  const makeLink = (id, label) => '<a href="#' + id + '" class="nav-link" data-scroll-target="#' + id + '">' + label + '</a>';
-  const items = sections
-    .map((section) => {
-      const children = section.children
-        ? '<ul>' + section.children.map(([id, label]) => '<li>' + makeLink(id, label) + '</li>').join("") + '</ul>'
-        : '';
-
-      return '<li>' + makeLink(section.id, section.label) + children + '</li>';
-    })
-    .join("");
-
-  marginSidebar.innerHTML = '<nav id="TOC" role="doc-toc" class="toc-active">' +
-    '<h2 id="toc-title">TABLE OF CONTENTS</h2>' +
-    '<ul>' + items + '</ul>' +
-    '</nav>';
-
+  marginSidebar.innerHTML = `
+    <nav id="TOC" role="doc-toc" class="toc-active">
+      <h2 id="toc-title">TABLE OF CONTENTS</h2>
+      <ul>
+        <li><a href="#projects" class="nav-link active" data-scroll-target="#projects">Projects</a></li>
+      </ul>
+    </nav>
+  `;
 });
 </script>
 
 
-<div class="about-page">
-<p><a href="./index.html" class="interior-back-link"><i class="bi bi-arrow-left"></i> Back</a></p>
-<section id="about-me" class="level2">
-<h2 class="anchored" data-anchor-id="about-me">About me</h2>
-<p><img src="profile.jpg" class="about-avatar img-fluid" alt="Risheekkumar Baskaran"></p>
-<p>I’m Risheekkumar Baskaran, a Senior Data Scientist at American Express, based in Chennai, India. My background spans data analytics and machine learning, with a focus on finding useful, actionable signals in complex data.</p>
-<p>I build production machine learning systems across fraud, risk, marketing, and recommendations. My recent work includes pre-training a foundation transformer on 60 billion transactions, large-scale retrieval and ranking systems, and GenAI applications built with DSPy and GEPA. I care about models that work beyond a notebook: sound evaluation, efficient training, reliable inference, and measurable outcomes.</p>
-<p>I also build open-source tools. <a href="https://github.com/risheekkumarb/fastpragma">fastpragma</a> turns the PRAGMA architecture into a practical workflow for tokenizing event data, packing variable-length sequences, pre-training, and fine-tuning. Outside work, I enjoy playing chess and writing about systems I want to understand from first principles.</p>
-<div class="about-links">
-<p><a href="https://www.linkedin.com/in/risheekkumar-baskaran-748115120/" class="quiet-button"><i class="bi bi-linkedin"></i> LinkedIn</a> <a href="https://github.com/risheekkumarb" class="quiet-button"><i class="bi bi-github"></i> GitHub</a></p>
+<div class="projects-page">
+<p><img class="github-activity-chart" src="https://ghchart.rshah.org/risheekkumarb" alt="Risheekkumar's GitHub contribution activity" loading="lazy"></p>
+<section id="projects" class="level2">
+<h2 class="anchored" data-anchor-id="projects">Projects</h2>
+<div class="project-list projects-page-grid">
+<section id="fastpragma" class="level3 project-card">
+<h3 class="anchored" data-anchor-id="fastpragma"><a href="https://risheekkumarb.github.io/fastpragma/">fastpragma</a></h3>
+<p>A Python package for PRAGMA data processing and pre-training, with Polars-based tokenization, token-budgeted batching, packed variable-length events, masked pre-training, and classification fine-tuning.</p>
+<div class="project-card-actions">
+<p><a href="https://github.com/risheekkumarb/fastpragma" target="_blank" rel="noopener" aria-label="fastpragma on GitHub" title="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a> <a href="https://pypi.org/project/fastpragma/" target="_blank" rel="noopener" aria-label="fastpragma on PyPI" title="PyPI"><i class="bi bi-box-seam" aria-hidden="true"></i></a></p>
 </div>
 </section>
-<section id="experience" class="level2">
-<h2 class="anchored" data-anchor-id="experience">Experience</h2>
-<div class="career-timeline">
-<section id="senior-data-scientist" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="senior-data-scientist">Senior Data Scientist</h3>
-<p class="career-company">
-American Express
-</p>
-<p class="career-meta">
-<span>Nov 2023 - Present</span><span>Bengaluru, India - Hybrid</span>
-</p>
-<ul>
-<li>Pre-trained and deployed a custom foundation transformer on 60 billion transactions, powering production use cases across fraud, risk, and marketing with $10M in projected uplift.</li>
-<li>Published fastpragma, a Python package for PRAGMA data processing and pre-training that reduced ablation cycles from one week to one day using Polars-based tokenization, sequence packing, and variable-length attention.</li>
-<li>Built GenAI and recommendation systems using DSPy, GEPA, two-tower retrieval, and XGBoost reranking. Models trained on 2 billion transactions across 8 H100 GPUs achieved 95% F1, 3x Recall@K, and 30% higher merchant adoption.</li>
-<li>Received the Amex Most Innovative Project award in 2024 and 2025.</li>
-</ul>
-</section>
-<section id="data-scientist" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="data-scientist">Data Scientist</h3>
-<p class="career-company">
-American Express
-</p>
-<p class="career-meta">
-<span>Sep 2022 - Nov 2023</span><span>Gurugram, India - Remote</span>
-</p>
-<ul>
-<li>Built sequence and NLP models for customer behavior, including Transformer4Rec for next-action prediction, driving a 2% CTR uplift.</li>
-<li>Derived behavioral features from petabyte-scale clickstreams and validated them across more than 4 million users, contributing $3M in incremental revenue.</li>
-<li>Deployed a 64-class multi-label intent classifier with asymmetric loss and BERT-family encoders. ONNX quantization reduced inference cost by 75% while keeping p99 latency below 30 ms.</li>
-</ul>
-</section>
-<section id="management-trainee-data-science" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="management-trainee-data-science">Management Trainee, Data Science</h3>
-<p class="career-company">
-IDFC FIRST Bank
-</p>
-<p class="career-meta">
-<span>Jun 2021 - Aug 2022</span><span>Bengaluru, India - On-site</span>
-</p>
-<ul>
-<li>Reframed website cursor movement as spatial heatmaps for ResNet-based fraud detection, improving AUPRC by 20% over existing baselines.</li>
-<li>Designed an NLP entity-extraction and OCR-verification pipeline for B2B onboarding, reducing document turnaround time from 14 days to 3 days.</li>
-</ul>
-</section>
-<section id="ulip-intern" class="level3 career-entry">
-<h3 class="anchored" data-anchor-id="ulip-intern">ULIP Intern</h3>
-<p class="career-company">
-Unilever
-</p>
-<p class="career-meta">
-<span>Apr 2020 - Jun 2020</span><span>Mumbai, India - Remote</span>
-</p>
-<p>Selected for Hindustan Unilever’s flagship internship program.</p>
-</section>
+<section id="llm-rsa" class="level3 project-card">
+<h3 class="anchored" data-anchor-id="llm-rsa"><a href="https://pypi.org/project/llm-rsa/0.0.4/">llm-rsa</a></h3>
+<p>Recursive Self-Aggregation for LLMs: sample and synthesize multiple candidate answers into a stronger final response.</p>
+<div class="project-card-actions">
+<p><a href="https://github.com/risheekkumarb/llm-rsa" target="_blank" rel="noopener" aria-label="llm-rsa on GitHub" title="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a> <a href="https://pypi.org/project/llm-rsa/0.0.4/" target="_blank" rel="noopener" aria-label="llm-rsa on PyPI" title="PyPI"><i class="bi bi-box-seam" aria-hidden="true"></i></a></p>
 </div>
 </section>
-<section id="education" class="level2">
-<h2 class="anchored" data-anchor-id="education">Education</h2>
-<div class="about-education-list">
-<section id="indian-institute-of-management-indore" class="level3 about-education-item">
-<h3 class="anchored" data-anchor-id="indian-institute-of-management-indore">Indian Institute of Management, Indore</h3>
-<p>Master of Business Administration, 2019 - 2021</p>
-</section>
-<section id="madras-institute-of-technology-campus" class="level3 about-education-item">
-<h3 class="anchored" data-anchor-id="madras-institute-of-technology-campus">Madras Institute of Technology Campus</h3>
-<p>Bachelor of Engineering in Aeronautical and Aerospace Engineering, 2015 - 2019</p>
-<p>Led innovation for Flight, a national-level technical festival, and coordinated theatrical performances and industrial visits for the Department of Aerospace.</p>
-</section>
-</div>
-</section>
-<section id="about-this-blog" class="level2">
-<h2 class="anchored" data-anchor-id="about-this-blog">About this blog</h2>
-<p>This blog is my working notebook for machine learning systems that I want to understand deeply. I write implementation-driven guides on foundation models, vector search, prompt optimization, recommender systems, cryptography, and the engineering choices that turn an idea into a working system.</p>
-<p>The goal is simple: explain what I learned clearly enough that someone else can build on it. The <a href="./archive.html">Archive</a> contains all long-form articles, while <a href="./projects.html">Projects</a> collects the open-source work behind them.</p>
-<div class="about-actions">
-<p><a href="./archive.html" class="quiet-button">Explore the archive <i class="bi bi-arrow-right"></i></a> <a href="./projects.html" class="quiet-button">View projects <i class="bi bi-arrow-right"></i></a></p>
 </div>
 </section>
 </div>

@@ -2,38 +2,46 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://risheekkumar.in/about.html</loc>
-    <lastmod>2026-08-13T07:14:39.678Z</lastmod>
+    <lastmod>2026-09-16T08:46:26.095Z</lastmod>
+  </url>
+  <url>
+    <loc>https://risheekkumar.in/archive.html</loc>
+    <lastmod>2026-09-16T08:04:35.998Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/gepa-impact/gepa_impact_final.html</loc>
-    <lastmod>2026-08-13T07:14:39.705Z</lastmod>
+    <lastmod>2026-09-16T06:59:27.479Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/gepa-deepdive/gepa_final_article.html</loc>
-    <lastmod>2026-08-13T07:14:39.702Z</lastmod>
+    <lastmod>2026-09-16T08:56:26.869Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/HNSW/HNSW.html</loc>
-    <lastmod>2026-08-13T07:14:39.699Z</lastmod>
+    <lastmod>2026-09-16T06:59:27.462Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/bitcoin_from_scratch/bitcoin_from_scratch.html</loc>
-    <lastmod>2026-08-13T07:14:39.702Z</lastmod>
+    <lastmod>2026-09-16T09:00:14.359Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/KNN/KNN.html</loc>
-    <lastmod>2026-08-13T07:14:39.701Z</lastmod>
+    <lastmod>2026-09-16T06:59:27.459Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/naive-bayes/naive bayes.html</loc>
-    <lastmod>2026-08-13T07:14:39.705Z</lastmod>
+    <lastmod>2026-09-16T06:59:27.465Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/posts/micrograd-karpathy/micrograd.html</loc>
-    <lastmod>2026-08-13T07:14:39.705Z</lastmod>
+    <lastmod>2026-09-16T06:59:27.476Z</lastmod>
+  </url>
+  <url>
+    <loc>https://risheekkumar.in/projects.html</loc>
+    <lastmod>2026-09-16T08:12:44.141Z</lastmod>
   </url>
   <url>
     <loc>https://risheekkumar.in/index.html</loc>
-    <lastmod>2026-08-13T07:58:39.847Z</lastmod>
+    <lastmod>2026-09-16T08:48:35.402Z</lastmod>
   </url>
 </urlset>

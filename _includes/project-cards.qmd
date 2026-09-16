@@ -1,0 +1,21 @@
+::: {.project-card}
+### [fastpragma](https://risheekkumarb.github.io/fastpragma/)
+
+A Python package for PRAGMA data processing and pre-training, with Polars-based tokenization, token-budgeted batching, packed variable-length events, masked pre-training, and classification fine-tuning.
+
+::: {.project-card-actions}
+<a href="https://github.com/risheekkumarb/fastpragma" target="_blank" rel="noopener" aria-label="fastpragma on GitHub" title="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+<a href="https://pypi.org/project/fastpragma/" target="_blank" rel="noopener" aria-label="fastpragma on PyPI" title="PyPI"><i class="bi bi-box-seam" aria-hidden="true"></i></a>
+:::
+:::
+
+::: {.project-card}
+### [llm-rsa](https://pypi.org/project/llm-rsa/0.0.4/)
+
+Recursive Self-Aggregation for LLMs: sample and synthesize multiple candidate answers into a stronger final response.
+
+::: {.project-card-actions}
+<a href="https://github.com/risheekkumarb/llm-rsa" target="_blank" rel="noopener" aria-label="llm-rsa on GitHub" title="GitHub"><i class="bi bi-github" aria-hidden="true"></i></a>
+<a href="https://pypi.org/project/llm-rsa/0.0.4/" target="_blank" rel="noopener" aria-label="llm-rsa on PyPI" title="PyPI"><i class="bi bi-box-seam" aria-hidden="true"></i></a>
+:::
+:::
