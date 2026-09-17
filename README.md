@@ -1,25 +1,25 @@
-risheekkumar.in
+# risheekkumar.in
 
-Source code for my personal technical blog: risheekkumar.in.
+Source code for my personal technical blog: **[risheekkumar.in](https://risheekkumar.in)**.
 
-The site is built with Quarto and is used for writing about machine learning, LLMs, recommender systems, foundation models, and ML systems.
+The site is built with [Quarto](https://quarto.org/) and is used for writing about machine learning, LLMs, recommender systems, foundation models, and ML systems.
 
-Design
+## Design
 
-The visual design is inspired by Astro Theme Pure.
+The visual design is inspired by [Astro Theme Pure](https://astro-pure.js.org/).
 
-I recreated and adapted the theme in Quarto using custom CSS, HTML partials, and templates while keeping Quarto’s notebook-first writing workflow.
+I recreated and adapted the theme in Quarto using custom CSS, HTML partials, and templates while keeping Quarto's notebook-first writing workflow.
 
-Stack
+## Stack
 
-• Quarto
-• Python
-• Jupyter notebooks
-• Custom CSS and HTML partials
-• GitHub Pages
-• uv for Python dependency management
+- [Quarto](https://quarto.org/)
+- Python
+- Jupyter notebooks
+- Custom CSS and HTML partials
+- GitHub Pages
+- `uv` for Python dependency management
 
-Repository structure
+## Repository structure
 
 ```text
 .
@@ -44,9 +44,9 @@ Repository structure
 └── docs/
 ```
 
-posts/ contains the source for individual articles, while docs/ contains the rendered website served through GitHub Pages.
+`posts/` contains the source for individual articles, while `docs/` contains the rendered website served through GitHub Pages.
 
-Local development
+## Local development
 
 Clone the repository:
 
@@ -67,9 +67,7 @@ Start the Quarto development server:
 quarto preview
 ```
 
-Then open the local URL shown by Quarto.
-
-Build
+## Build
 
 Render the full site with:
 
@@ -83,11 +81,9 @@ The generated site is written to:
 docs/
 ```
 
-Writing workflow
+## Writing workflow
 
 Most posts begin as notebooks or small experiments.
-
-The general workflow is:
 
 ```text
 idea / question
@@ -105,16 +101,16 @@ publish with Quarto
 
 Quarto lets me keep code, outputs, equations, figures, and long-form explanations together instead of maintaining a separate blogging workflow.
 
-Acknowledgements
+## Acknowledgements
 
-The design of this site is inspired by Astro Theme Pure.
+The design of this site is inspired by [Astro Theme Pure](https://astro-pure.js.org/).
 
 The implementation in this repository is a Quarto adaptation with custom styling and components for notebook-based technical writing.
 
-Author
+## Author
 
-Risheekkumar Baskaran
+**Risheekkumar Baskaran**
 
-• Website: risheekkumar.in
-• GitHub: @risheekkumarb
-• LinkedIn: Risheekkumar Baskaran
+- Website: [risheekkumar.in](https://risheekkumar.in)
+- GitHub: [@risheekkumarb](https://github.com/risheekkumarb)
+- LinkedIn: [Risheekkumar Baskaran](https://www.linkedin.com/in/risheekkumar-baskaran-748115120/)
