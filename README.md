@@ -1,54 +1,36 @@
-Risheekkumar’s Blog
+risheekkumar.in
 
 Source code for my personal technical blog: risheekkumar.in.
 
-I write about machine learning, foundation models, recommender systems, LLMs, and the software systems behind them. The blog is primarily a place for me to learn things deeply by implementing, experimenting, and then explaining what I understood.
+The site is built with Quarto and is used for writing about machine learning, LLMs, recommender systems, foundation models, and ML systems.
 
 Design
 
-The site is built with Quarto.
+The visual design is inspired by Astro Theme Pure.
 
-Its visual design is heavily inspired by Astro Theme Pure. I liked Pure’s minimal typography, navigation, article layout, dark mode, and overall focus on long-form writing, and recreated that style within Quarto while adapting it for notebook-driven technical posts.
+I recreated and adapted the theme in Quarto using custom CSS, HTML partials, and templates while keeping Quarto’s notebook-first writing workflow.
 
-So the stack is roughly:
+Stack
 
-Pure-inspired design → Quarto implementation → notebooks/code as articles → GitHub Pages
-
-What I write about
-
-Most posts sit somewhere around the intersection of machine learning and software:
-
-* Machine learning from first principles
-* Foundation models and sequence modeling
-* Recommender and retrieval systems
-* LLM optimization and evaluation
-* ML systems, performance, and memory
-* Implementations of papers and algorithms
-* Experiments that help me understand how things actually work
-
-Some posts are conventional technical deep dives. Others use code, diagrams, analogies, or stories to build intuition before getting into the implementation.
-
-Philosophy
-
-I don’t want this to become a collection of summaries of things I already know.
-
-The idea is closer to:
-
-Learn something deeply enough that I can rebuild it, experiment with it, and explain why it works.
-
-A post might therefore begin as a notebook, an implementation, a paper I’m trying to understand, or a problem I run into while building something.
-
-Writing the article is part of the learning process.
+• Quarto
+• Python
+• Jupyter notebooks
+• Custom CSS and HTML partials
+• GitHub Pages
+• uv for Python dependency management
 
 Repository structure
 
+```text
 .
-├── index.qmd          # Homepage
-├── about.qmd          # About
-├── archive.qmd        # Posts archive
-├── projects.qmd       # Projects
+├── index.qmd
+├── about.qmd
+├── archive.qmd
+├── projects.qmd
+├── _quarto.yml
+├── styles.css
 │
-├── posts/             # Articles and notebooks
+├── posts/
 │   ├── HNSW/
 │   ├── KNN/
 │   ├── bitcoin_from_scratch/
@@ -57,63 +39,82 @@ Repository structure
 │   ├── micrograd-karpathy/
 │   └── naive-bayes/
 │
-├── partials/          # Custom Quarto/HTML components
+├── partials/
 ├── fonts/
-├── styles.css         # Site styling
-├── _quarto.yml        # Quarto configuration
-└── docs/              # Rendered site
+└── docs/
+```
 
-Running locally
+posts/ contains the source for individual articles, while docs/ contains the rendered website served through GitHub Pages.
 
-Install Quarto and clone the repository:
+Local development
 
+Clone the repository:
+
+```bash
 git clone https://github.com/risheekkumarb/myblog.git
 cd myblog
+```
 
-The Python environment is managed with uv:
+Install Python dependencies:
 
+```bash
 uv sync
+```
 
-Then start Quarto:
+Start the Quarto development server:
 
+```bash
 quarto preview
+```
 
-To render the complete website:
+Then open the local URL shown by Quarto.
 
+Build
+
+Render the full site with:
+
+```bash
 quarto render
+```
 
-The generated site is written to docs/ and served using GitHub Pages.
+The generated site is written to:
+
+```text
+docs/
+```
 
 Writing workflow
 
-Most technical posts start as notebooks or code-heavy experiments.
+Most posts begin as notebooks or small experiments.
 
-I prefer keeping the implementation and the explanation close together:
+The general workflow is:
 
-question
-   ↓
-experiment / notebook
-   ↓
-understand the implementation
-   ↓
-write the explanation
-   ↓
-Quarto article
+```text
+idea / question
+      ↓
+experiment
+      ↓
+notebook / implementation
+      ↓
+understand the concept
+      ↓
+write the article
+      ↓
+publish with Quarto
+```
 
-Quarto works particularly well for this because executable notebooks, Markdown, equations, code, figures, and long-form writing can all live in the same project.
+Quarto lets me keep code, outputs, equations, figures, and long-form explanations together instead of maintaining a separate blogging workflow.
 
 Acknowledgements
 
-The site’s design is inspired by Astro Theme Pure.
+The design of this site is inspired by Astro Theme Pure.
 
-The website itself is implemented in Quarto, with custom CSS, templates, and components to reproduce and adapt that design for my technical-writing workflow.
+The implementation in this repository is a Quarto adaptation with custom styling and components for notebook-based technical writing.
 
-About
+Author
 
-I’m Risheekkumar Baskaran, a data scientist interested in machine learning models and the systems used to train and deploy them.
+Risheekkumar Baskaran
 
-I write here mostly to learn.
-
-* Website
-* GitHub
-* LinkedIn
+• Website: risheekkumar.in
+• GitHub: @risheekkumarb
+• LinkedIn: Risheekkumar Baskaran
