@@ -1297,7 +1297,19 @@ body:has(.post-title-block) #quarto-margin-sidebar {
   }
 
   .home-shell {
+    padding-inline: 0;
     padding-top: 0.8rem;
+  }
+
+  body:has(.home-shell) #quarto-content {
+    display: block;
+    margin-inline: auto;
+    padding: 0;
+    width: calc(100% - 2rem);
+  }
+
+  body:has(.home-shell) #quarto-content > main.content {
+    padding: 0;
   }
 
   .profile-hero {
@@ -1521,10 +1533,6 @@ body:has(.post-title-block) #quarto-margin-sidebar {
 @media (max-width: 575px) {
   .navbar .quarto-navbar-tools {
     margin-left: auto;
-  }
-
-  .home-shell {
-    padding-inline: 0.85rem;
   }
 
   .project-card {
